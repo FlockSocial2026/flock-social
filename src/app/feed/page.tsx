@@ -51,6 +51,9 @@ export default function FeedPage() {
   const [content, setContent] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [lastPostAt, setLastPostAt] = useState<number>(0);
+  const [lastCommentAt, setLastCommentAt] = useState<number>(0);
 
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [msg, setMsg] = useState("");
@@ -236,6 +239,10 @@ export default function FeedPage() {
         return;
       }
       await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
     };
     boot();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -265,6 +272,12 @@ export default function FeedPage() {
   };
 
   const createPost = async () => {
+    const now = Date.now();
+    if (now - lastPostAt < 2000) {
+      setMsg("Slow down a sec — you can post again in a moment.");
+      return;
+    }
+    if (actionBusy || uploading) return;
     const text = content.trim();
     if (!text) return setMsg("Post cannot be empty.");
     if (text.length > 280) return setMsg("Post must be 280 chars or less.");
@@ -276,6 +289,7 @@ export default function FeedPage() {
       return;
     }
 
+    setActionBusy(true);
     setMsg("Posting...");
     const imageUrl = await uploadPostImage(user.id);
 
@@ -287,6 +301,7 @@ export default function FeedPage() {
 
     if (error) {
       setMsg(`Create error: ${error.message}`);
+      setActionBusy(false);
       return;
     }
 
@@ -294,6 +309,10 @@ export default function FeedPage() {
     setSelectedImage(null);
     setMsg("Posted.");
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const toggleFollow = async (targetUserId: string, isFollowing: boolean) => {
@@ -322,6 +341,10 @@ export default function FeedPage() {
     }
 
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const toggleLike = async (postId: string, liked: boolean) => {
@@ -354,9 +377,20 @@ export default function FeedPage() {
     }
 
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const addComment = async (postId: string) => {
+    const now = Date.now();
+    if (now - lastCommentAt < 1500) {
+      setMsg("Hold up — comment cooldown is 1.5s.");
+      return;
+    }
+    if (actionBusy) return;
+    setActionBusy(true);
     if (!me) return;
 
     const raw = commentDrafts[postId] ?? "";
@@ -368,7 +402,11 @@ export default function FeedPage() {
       .from("comments")
       .insert({ post_id: postId, user_id: me, content: text });
 
-    if (error) return setMsg(`Comment error: ${error.message}`);
+    if (error) {
+      setMsg(`Comment error: ${error.message}`);
+      setActionBusy(false);
+      return;
+    }
 
     const postOwner = posts.find((p) => p.id === postId)?.user_id;
     if (postOwner && postOwner !== me) {
@@ -382,6 +420,10 @@ export default function FeedPage() {
 
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const startEditPost = (postId: string, current: string) => {
@@ -408,6 +450,10 @@ export default function FeedPage() {
     setEditingPostContent("");
     setMsg("Post updated.");
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const deletePost = async (postId: string) => {
@@ -424,6 +470,10 @@ export default function FeedPage() {
 
     setMsg("Post deleted.");
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const startEditComment = (commentId: string, current: string) => {
@@ -450,6 +500,10 @@ export default function FeedPage() {
     setEditingCommentContent("");
     setMsg("Comment updated.");
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   const deleteComment = async (commentId: string) => {
@@ -466,6 +520,10 @@ export default function FeedPage() {
 
     setMsg("Comment deleted.");
     await loadPosts();
+    setLastCommentAt(Date.now());
+    setActionBusy(false);
+    setLastPostAt(Date.now());
+    setActionBusy(false);
   };
 
   return (
@@ -520,7 +578,9 @@ export default function FeedPage() {
           {selectedImage ? ` • ${selectedImage.name}` : ""}
           {uploading ? " • Uploading..." : ""}
         </small>
-        <button onClick={createPost}>Post</button>
+        <button onClick={createPost} disabled={actionBusy || uploading}>
+          {actionBusy ? "Working..." : "Post"}
+        </button>
       </div>
 
       {msg ? <p style={{ marginBottom: 16 }}>{msg}</p> : null}
@@ -655,7 +715,9 @@ export default function FeedPage() {
                   style={{ flex: 1, padding: 8 }}
                   maxLength={280}
                 />
-                <button onClick={() => addComment(p.id)}>Comment</button>
+                <button onClick={() => addComment(p.id)} disabled={actionBusy}>
+                {actionBusy ? "..." : "Comment"}
+              </button>
               </div>
             </div>
           );
