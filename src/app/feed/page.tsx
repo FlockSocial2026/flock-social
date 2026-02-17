@@ -363,24 +363,31 @@ export default function FeedPage() {
               </div>
 
               {editingPostId === p.id ? (
-                <div style={{ marginBottom: 10 }}>
-                  <textarea value={editingPostContent} onChange={(e) => setEditingPostContent(e.target.value)} maxLength={280} rows={3}
-                    style={{ width: "100%", padding: 8, marginBottom: 8 }} />
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={saveEditPost}>Save</button>
-                    <button onClick={() => setEditingPostId(null)}>Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ marginBottom: 10 }}>{p.content}</div>
-              {p.image_url ? (
-                <img
-                  src={p.image_url}
-                  alt="post image"
-                  style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 10 }}
-                />
-              ) : null}
-              )}
+  <div style={{ marginBottom: 10 }}>
+    <textarea
+      value={editingPostContent}
+      onChange={(e) => setEditingPostContent(e.target.value)}
+      maxLength={280}
+      rows={3}
+      style={{ width: "100%", padding: 8, marginBottom: 8 }}
+    />
+    <div style={{ display: "flex", gap: 8 }}>
+      <button onClick={saveEditPost}>Save</button>
+      <button onClick={() => setEditingPostId(null)}>Cancel</button>
+    </div>
+  </div>
+) : (
+  <>
+    <div style={{ marginBottom: 10 }}>{p.content}</div>
+    {p.image_url ? (
+      <img
+        src={p.image_url}
+        alt="post image"
+        style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 10 }}
+      />
+    ) : null}
+  </>
+)}
 
               <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
                 <button onClick={() => toggleLike(p.id, p.likedByMe)}>
