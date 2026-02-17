@@ -265,10 +265,13 @@ export default function FeedPage() {
   const formatAuthor = (profile: Profile | null, fallbackUserId: string) => {
     const username = profile?.username?.trim();
     const fullName = profile?.full_name?.trim();
-    if (username && fullName) return `${fullName} (@${username})`;
-    if (username) return `@${username}`;
-    if (fullName) return fullName;
-    return `user:${fallbackUserId.slice(0, 8)}...`;
+    const label =
+      username && fullName ? `${fullName} (@${username})` :
+      username ? `@${username}` :
+      fullName ? fullName :
+      `user:${fallbackUserId.slice(0, 8)}...`;
+
+    return { label, username: username ?? null };
   };
 
   const formatTime = (iso: string) =>
@@ -310,7 +313,16 @@ export default function FeedPage() {
             <div key={p.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, color: "#666" }}>
-                  {formatAuthor(p.profile, p.user_id)} • {formatTime(p.created_at)}
+                  {(() => {
+                    const a = formatAuthor(p.profile, p.user_id);
+                    return (
+                      <>
+                        {a.username ? <Link href={`/u/${encodeURIComponent(a.username)}`}>{a.label}</Link> : a.label}
+                        {" • "}
+                        {formatTime(p.created_at)}
+                      </>
+                    );
+                  })()}
                 </div>
                 {!isMine && (
                   <button onClick={() => toggleFollow(p.user_id, isFollowing)}>
@@ -351,7 +363,16 @@ export default function FeedPage() {
                   return (
                     <div key={c.id} style={{ border: "1px solid #333", borderRadius: 6, padding: 8 }}>
                       <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>
-                        {formatAuthor(c.profile, c.user_id)} • {formatTime(c.created_at)}
+                        {(() => {
+                          const a = formatAuthor(c.profile, c.user_id);
+                          return (
+                            <>
+                              {a.username ? <Link href={`/u/${encodeURIComponent(a.username)}`}>{a.label}</Link> : a.label}
+                              {" • "}
+                              {formatTime(c.created_at)}
+                            </>
+                          );
+                        })()}
                       </div>
 
                       {editingCommentId === c.id ? (
@@ -395,4 +416,5 @@ export default function FeedPage() {
     </main>
   );
 }
+
 

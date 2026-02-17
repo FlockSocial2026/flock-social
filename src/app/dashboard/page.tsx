@@ -64,6 +64,10 @@ export default function DashboardPage() {
           Notifications {unread > 0 ? `(${unread})` : ""}
         </Link>
 
+        <Link href="/settings/profile" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Profile Settings
+        </Link>
+
         <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
           Log Out
         </button>
@@ -71,3 +75,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+
