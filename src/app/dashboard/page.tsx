@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -57,9 +58,15 @@ export default function DashboardPage() {
       <p style={{ color: "#666" }}>You are logged in as: {email}</p>
       <p style={{ color: "#666" }}>Status: {status}</p>
 
-      <button onClick={handleLogout} style={{ marginTop: 16, padding: "10px 14px" }}>
-        Log Out
-      </button>
+      <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+        <Link href="/feed" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Open Feed
+        </Link>
+
+        <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
+          Log Out
+        </button>
+      </div>
     </main>
   );
 }
