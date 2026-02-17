@@ -166,6 +166,13 @@ export default function FeedPage() {
       if (error) return setMsg(`Unfollow error: ${error.message}`);
     } else {
       const { error } = await supabase.from("follows").insert({ follower_id: me, following_id: targetUserId });
+      if (!error) {
+        await supabase.from("notifications").insert({
+          user_id: targetUserId,
+          actor_id: me,
+          type: "follow",
+        });
+      }
       if (error) return setMsg(`Follow error: ${error.message}`);
     }
     await loadPosts();
@@ -178,6 +185,17 @@ export default function FeedPage() {
       if (error) return setMsg(`Unlike error: ${error.message}`);
     } else {
       const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: me });
+      if (!error) {
+        const postOwner = posts.find((p) => p.id === postId)?.user_id;
+        if (postOwner && postOwner !== me) {
+          await supabase.from("notifications").insert({
+            user_id: postOwner,
+            actor_id: me,
+            type: "like",
+            post_id: postId,
+          });
+        }
+      }
       if (error) return setMsg(`Like error: ${error.message}`);
     }
     await loadPosts();
@@ -191,6 +209,17 @@ export default function FeedPage() {
     if (text.length > 280) return setMsg("Comment must be 280 chars or less.");
 
     const { error } = await supabase.from("comments").insert({ post_id: postId, user_id: me, content: text });
+    if (!error) {
+      const postOwner = posts.find((p) => p.id === postId)?.user_id;
+      if (postOwner && postOwner !== me) {
+        await supabase.from("notifications").insert({
+          user_id: postOwner,
+          actor_id: me,
+          type: "comment",
+          post_id: postId,
+        });
+      }
+    }
     if (error) return setMsg(`Comment error: ${error.message}`);
 
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
@@ -366,3 +395,4 @@ export default function FeedPage() {
     </main>
   );
 }
+
