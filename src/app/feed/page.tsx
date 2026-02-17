@@ -47,6 +47,12 @@ export default function FeedPage() {
   const [me, setMe] = useState<string | null>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
 
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editingPostContent, setEditingPostContent] = useState("");
+
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentContent, setEditingCommentContent] = useState("");
+
   const loadPosts = async () => {
     const { data: userData } = await supabase.auth.getUser();
     const user = userData.user;
@@ -71,7 +77,6 @@ export default function FeedPage() {
     const userIds = Array.from(new Set(basePosts.map((p) => p.user_id)));
     const postIds = basePosts.map((p) => p.id);
 
-    // Profiles for post authors
     let profileMap = new Map<string, Profile>();
     if (userIds.length > 0) {
       const { data: profileData, error: profileError } = await supabase
@@ -87,7 +92,6 @@ export default function FeedPage() {
       profileMap = new Map((profileData as Profile[]).map((p) => [p.id, p]));
     }
 
-    // Likes
     let likeRows: LikeRow[] = [];
     if (postIds.length > 0) {
       const { data: likesData, error: likesError } = await supabase
@@ -111,7 +115,6 @@ export default function FeedPage() {
       if (l.user_id === user.id) likedByMeSet.add(l.post_id);
     }
 
-    // Comments (latest 3 per post)
     let commentRows: CommentRow[] = [];
     if (postIds.length > 0) {
       const { data: commentsData, error: commentsError } = await supabase
@@ -128,7 +131,6 @@ export default function FeedPage() {
       commentRows = (commentsData ?? []) as CommentRow[];
     }
 
-    // Pull profiles for comment authors too
     const commentAuthorIds = Array.from(new Set(commentRows.map((c) => c.user_id)));
     const allProfileIds = Array.from(new Set([...userIds, ...commentAuthorIds]));
 
@@ -203,13 +205,54 @@ export default function FeedPage() {
       content: text,
     });
 
-    if (error) {
-      setMsg(`Create error: ${error.message}`);
-      return;
-    }
+    if (error) return setMsg(`Create error: ${error.message}`);
 
     setContent("");
     setMsg("Posted.");
+    await loadPosts();
+  };
+
+  const startEditPost = (postId: string, current: string) => {
+    setEditingPostId(postId);
+    setEditingPostContent(current);
+  };
+
+  const saveEditPost = async () => {
+    if (!editingPostId || !me) return;
+
+    const text = editingPostContent.trim();
+    if (!text) return setMsg("Post cannot be empty.");
+    if (text.length > 280) return setMsg("Post must be 280 chars or less.");
+
+    const { error } = await supabase
+      .from("posts")
+      .update({ content: text })
+      .eq("id", editingPostId)
+      .eq("user_id", me);
+
+    if (error) return setMsg(`Edit post error: ${error.message}`);
+
+    setEditingPostId(null);
+    setEditingPostContent("");
+    setMsg("Post updated.");
+    await loadPosts();
+  };
+
+  const deletePost = async (postId: string) => {
+    if (!me) return;
+
+    const ok = window.confirm("Delete this post?");
+    if (!ok) return;
+
+    const { error } = await supabase
+      .from("posts")
+      .delete()
+      .eq("id", postId)
+      .eq("user_id", me);
+
+    if (error) return setMsg(`Delete post error: ${error.message}`);
+
+    setMsg("Post deleted.");
     await loadPosts();
   };
 
@@ -222,14 +265,12 @@ export default function FeedPage() {
         .delete()
         .eq("post_id", postId)
         .eq("user_id", me);
-
       if (error) return setMsg(`Unlike error: ${error.message}`);
     } else {
       const { error } = await supabase.from("post_likes").insert({
         post_id: postId,
         user_id: me,
       });
-
       if (error) return setMsg(`Like error: ${error.message}`);
     }
 
@@ -253,6 +294,50 @@ export default function FeedPage() {
     if (error) return setMsg(`Comment error: ${error.message}`);
 
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
+    await loadPosts();
+  };
+
+  const startEditComment = (commentId: string, current: string) => {
+    setEditingCommentId(commentId);
+    setEditingCommentContent(current);
+  };
+
+  const saveEditComment = async () => {
+    if (!editingCommentId || !me) return;
+
+    const text = editingCommentContent.trim();
+    if (!text) return setMsg("Comment cannot be empty.");
+    if (text.length > 280) return setMsg("Comment must be 280 chars or less.");
+
+    const { error } = await supabase
+      .from("comments")
+      .update({ content: text })
+      .eq("id", editingCommentId)
+      .eq("user_id", me);
+
+    if (error) return setMsg(`Edit comment error: ${error.message}`);
+
+    setEditingCommentId(null);
+    setEditingCommentContent("");
+    setMsg("Comment updated.");
+    await loadPosts();
+  };
+
+  const deleteComment = async (commentId: string) => {
+    if (!me) return;
+
+    const ok = window.confirm("Delete this comment?");
+    if (!ok) return;
+
+    const { error } = await supabase
+      .from("comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", me);
+
+    if (error) return setMsg(`Delete comment error: ${error.message}`);
+
+    setMsg("Comment deleted.");
     await loadPosts();
   };
 
@@ -304,15 +389,39 @@ export default function FeedPage() {
               {formatAuthor(p.profile, p.user_id)} • {formatTime(p.created_at)}
             </div>
 
-            <div style={{ marginBottom: 10 }}>{p.content}</div>
+            {editingPostId === p.id ? (
+              <div style={{ marginBottom: 10 }}>
+                <textarea
+                  value={editingPostContent}
+                  onChange={(e) => setEditingPostContent(e.target.value)}
+                  maxLength={280}
+                  rows={3}
+                  style={{ width: "100%", padding: 8, marginBottom: 8 }}
+                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={saveEditPost}>Save</button>
+                  <button onClick={() => setEditingPostId(null)}>Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginBottom: 10 }}>{p.content}</div>
+            )}
 
-            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+            <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
               <button onClick={() => toggleLike(p.id, p.likedByMe)}>
                 {p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})
               </button>
+
               <span style={{ fontSize: 13, color: "#666", alignSelf: "center" }}>
                 Comments ({p.commentCount})
               </span>
+
+              {me === p.user_id && editingPostId !== p.id && (
+                <>
+                  <button onClick={() => startEditPost(p.id, p.content)}>Edit Post</button>
+                  <button onClick={() => deletePost(p.id)}>Delete Post</button>
+                </>
+              )}
             </div>
 
             <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
@@ -321,7 +430,30 @@ export default function FeedPage() {
                   <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>
                     {formatAuthor(c.profile, c.user_id)} • {formatTime(c.created_at)}
                   </div>
-                  <div>{c.content}</div>
+
+                  {editingCommentId === c.id ? (
+                    <div>
+                      <input
+                        value={editingCommentContent}
+                        onChange={(e) => setEditingCommentContent(e.target.value)}
+                        maxLength={280}
+                        style={{ width: "100%", padding: 8, marginBottom: 8 }}
+                      />
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={saveEditComment}>Save</button>
+                        <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>{c.content}</div>
+                  )}
+
+                  {me === c.user_id && editingCommentId !== c.id && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <button onClick={() => startEditComment(c.id, c.content)}>Edit</button>
+                      <button onClick={() => deleteComment(c.id)}>Delete</button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
