@@ -60,6 +60,10 @@ export default function DashboardPage() {
           Open Feed
         </Link>
 
+        <Link href="/discover" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Discover
+        </Link>
+
         <Link href="/notifications" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
           Notifications {unread > 0 ? `(${unread})` : ""}
         </Link>
@@ -75,4 +79,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
 
