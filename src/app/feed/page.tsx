@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import ReportButton from "@/components/ReportButton";
 
 type Post = {
   id: string;
@@ -659,6 +660,7 @@ export default function FeedPage() {
                     <button onClick={() => deletePost(p.id)}>Delete Post</button>
                   </>
                 )}
+                {!isMine && <ReportButton targetType="post" postId={p.id} userId={p.user_id} />}
               </div>
 
               <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
@@ -700,6 +702,11 @@ export default function FeedPage() {
                           <button onClick={() => deleteComment(c.id)}>Delete</button>
                         </div>
                       )}
+                      {!myComment && (
+                        <div style={{ marginTop: 8 }}>
+                          <ReportButton targetType="comment" commentId={c.id} postId={p.id} userId={c.user_id} />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -726,3 +733,4 @@ export default function FeedPage() {
     </main>
   );
 }
+

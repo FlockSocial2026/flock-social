@@ -72,6 +72,10 @@ export default function DashboardPage() {
           Profile Settings
         </Link>
 
+        <Link href="/reports" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          My Reports
+        </Link>
+
         <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
           Log Out
         </button>
@@ -79,5 +83,6 @@ export default function DashboardPage() {
     </main>
   );
 }
+
 
 
