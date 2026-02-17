@@ -5,23 +5,36 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Post = {
+type FeedPost = {
   id: string;
   user_id: string;
   content: string;
   created_at: string;
+  profiles: {
+    username: string | null;
+    full_name: string | null;
+  } | null;
 };
 
 export default function FeedPage() {
   const router = useRouter();
   const [content, setContent] = useState("");
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [msg, setMsg] = useState("");
 
   const loadPosts = async () => {
     const { data, error } = await supabase
       .from("posts")
-      .select("id,user_id,content,created_at")
+      .select(`
+        id,
+        user_id,
+        content,
+        created_at,
+        profiles:profiles!posts_user_id_fkey (
+          username,
+          full_name
+        )
+      `)
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -30,7 +43,7 @@ export default function FeedPage() {
       return;
     }
 
-    setPosts(data ?? []);
+    setPosts((data as FeedPost[]) ?? []);
   };
 
   useEffect(() => {
@@ -73,6 +86,25 @@ export default function FeedPage() {
     await loadPosts();
   };
 
+  const formatAuthor = (p: FeedPost) => {
+    const username = p.profiles?.username?.trim();
+    const fullName = p.profiles?.full_name?.trim();
+
+    if (username && fullName) return `${fullName} (@${username})`;
+    if (username) return `@${username}`;
+    if (fullName) return fullName;
+    return `user:${p.user_id.slice(0, 8)}...`;
+  };
+
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleString([], {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
   return (
     <main style={{ maxWidth: 700, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -99,7 +131,7 @@ export default function FeedPage() {
         {posts.map((p) => (
           <div key={p.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
             <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>
-              user: {p.user_id.slice(0, 8)}... • {new Date(p.created_at).toLocaleString()}
+              {formatAuthor(p)} • {formatTime(p.created_at)}
             </div>
             <div>{p.content}</div>
           </div>
