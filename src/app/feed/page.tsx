@@ -18,15 +18,25 @@ type Profile = {
   full_name: string | null;
 };
 
+type LikeRow = {
+  post_id: string;
+  user_id: string;
+};
+
+type CommentRow = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+};
+
 type FeedItem = Post & {
   profile: Profile | null;
   likeCount: number;
   likedByMe: boolean;
-};
-
-type LikeRow = {
-  post_id: string;
-  user_id: string;
+  commentCount: number;
+  comments: Array<CommentRow & { profile: Profile | null }>;
 };
 
 export default function FeedPage() {
@@ -35,6 +45,7 @@ export default function FeedPage() {
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [msg, setMsg] = useState("");
   const [me, setMe] = useState<string | null>(null);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
 
   const loadPosts = async () => {
     const { data: userData } = await supabase.auth.getUser();
@@ -60,6 +71,7 @@ export default function FeedPage() {
     const userIds = Array.from(new Set(basePosts.map((p) => p.user_id)));
     const postIds = basePosts.map((p) => p.id);
 
+    // Profiles for post authors
     let profileMap = new Map<string, Profile>();
     if (userIds.length > 0) {
       const { data: profileData, error: profileError } = await supabase
@@ -75,6 +87,7 @@ export default function FeedPage() {
       profileMap = new Map((profileData as Profile[]).map((p) => [p.id, p]));
     }
 
+    // Likes
     let likeRows: LikeRow[] = [];
     if (postIds.length > 0) {
       const { data: likesData, error: likesError } = await supabase
@@ -98,12 +111,64 @@ export default function FeedPage() {
       if (l.user_id === user.id) likedByMeSet.add(l.post_id);
     }
 
-    const merged: FeedItem[] = basePosts.map((p) => ({
-      ...p,
-      profile: profileMap.get(p.user_id) ?? null,
-      likeCount: likeCountByPost.get(p.id) ?? 0,
-      likedByMe: likedByMeSet.has(p.id),
-    }));
+    // Comments (latest 3 per post)
+    let commentRows: CommentRow[] = [];
+    if (postIds.length > 0) {
+      const { data: commentsData, error: commentsError } = await supabase
+        .from("comments")
+        .select("id,post_id,user_id,content,created_at")
+        .in("post_id", postIds)
+        .order("created_at", { ascending: false });
+
+      if (commentsError) {
+        setMsg(`Comments load error: ${commentsError.message}`);
+        return;
+      }
+
+      commentRows = (commentsData ?? []) as CommentRow[];
+    }
+
+    // Pull profiles for comment authors too
+    const commentAuthorIds = Array.from(new Set(commentRows.map((c) => c.user_id)));
+    const allProfileIds = Array.from(new Set([...userIds, ...commentAuthorIds]));
+
+    if (allProfileIds.length > 0) {
+      const { data: allProfiles, error: allProfilesError } = await supabase
+        .from("profiles")
+        .select("id,username,full_name")
+        .in("id", allProfileIds);
+
+      if (allProfilesError) {
+        setMsg(`Comment profile load error: ${allProfilesError.message}`);
+        return;
+      }
+
+      profileMap = new Map((allProfiles as Profile[]).map((p) => [p.id, p]));
+    }
+
+    const commentsByPost = new Map<string, CommentRow[]>();
+    for (const c of commentRows) {
+      const arr = commentsByPost.get(c.post_id) ?? [];
+      arr.push(c);
+      commentsByPost.set(c.post_id, arr);
+    }
+
+    const merged: FeedItem[] = basePosts.map((p) => {
+      const fullComments = commentsByPost.get(p.id) ?? [];
+      const latest3 = fullComments.slice(0, 3).map((c) => ({
+        ...c,
+        profile: profileMap.get(c.user_id) ?? null,
+      }));
+
+      return {
+        ...p,
+        profile: profileMap.get(p.user_id) ?? null,
+        likeCount: likeCountByPost.get(p.id) ?? 0,
+        likedByMe: likedByMeSet.has(p.id),
+        commentCount: fullComments.length,
+        comments: latest3,
+      };
+    });
 
     setPosts(merged);
   };
@@ -171,14 +236,34 @@ export default function FeedPage() {
     await loadPosts();
   };
 
-  const formatAuthor = (p: FeedItem) => {
-    const username = p.profile?.username?.trim();
-    const fullName = p.profile?.full_name?.trim();
+  const addComment = async (postId: string) => {
+    if (!me) return;
+
+    const raw = commentDrafts[postId] ?? "";
+    const text = raw.trim();
+    if (!text) return setMsg("Comment cannot be empty.");
+    if (text.length > 280) return setMsg("Comment must be 280 chars or less.");
+
+    const { error } = await supabase.from("comments").insert({
+      post_id: postId,
+      user_id: me,
+      content: text,
+    });
+
+    if (error) return setMsg(`Comment error: ${error.message}`);
+
+    setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
+    await loadPosts();
+  };
+
+  const formatAuthor = (profile: Profile | null, fallbackUserId: string) => {
+    const username = profile?.username?.trim();
+    const fullName = profile?.full_name?.trim();
 
     if (username && fullName) return `${fullName} (@${username})`;
     if (username) return `@${username}`;
     if (fullName) return fullName;
-    return `user:${p.user_id.slice(0, 8)}...`;
+    return `user:${fallbackUserId.slice(0, 8)}...`;
   };
 
   const formatTime = (iso: string) =>
@@ -191,7 +276,7 @@ export default function FeedPage() {
     });
 
   return (
-    <main style={{ maxWidth: 700, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
+    <main style={{ maxWidth: 760, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h1>Feed</h1>
         <Link href="/dashboard">Back to Dashboard</Link>
@@ -212,16 +297,47 @@ export default function FeedPage() {
 
       {msg ? <p style={{ marginBottom: 16 }}>{msg}</p> : null}
 
-      <div style={{ display: "grid", gap: 10 }}>
+      <div style={{ display: "grid", gap: 12 }}>
         {posts.map((p) => (
           <div key={p.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
             <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>
-              {formatAuthor(p)} • {formatTime(p.created_at)}
+              {formatAuthor(p.profile, p.user_id)} • {formatTime(p.created_at)}
             </div>
+
             <div style={{ marginBottom: 10 }}>{p.content}</div>
-            <button onClick={() => toggleLike(p.id, p.likedByMe)}>
-              {p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})
-            </button>
+
+            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+              <button onClick={() => toggleLike(p.id, p.likedByMe)}>
+                {p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})
+              </button>
+              <span style={{ fontSize: 13, color: "#666", alignSelf: "center" }}>
+                Comments ({p.commentCount})
+              </span>
+            </div>
+
+            <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
+              {p.comments.map((c) => (
+                <div key={c.id} style={{ border: "1px solid #333", borderRadius: 6, padding: 8 }}>
+                  <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>
+                    {formatAuthor(c.profile, c.user_id)} • {formatTime(c.created_at)}
+                  </div>
+                  <div>{c.content}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                placeholder="Write a comment..."
+                value={commentDrafts[p.id] ?? ""}
+                onChange={(e) =>
+                  setCommentDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                }
+                style={{ flex: 1, padding: 8 }}
+                maxLength={280}
+              />
+              <button onClick={() => addComment(p.id)}>Comment</button>
+            </div>
           </div>
         ))}
       </div>
