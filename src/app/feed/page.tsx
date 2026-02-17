@@ -5,45 +5,65 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type FeedPost = {
+type Post = {
   id: string;
   user_id: string;
   content: string;
   created_at: string;
-  profiles: {
-    username: string | null;
-    full_name: string | null;
-  } | null;
+};
+
+type Profile = {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+};
+
+type FeedItem = Post & {
+  profile: Profile | null;
 };
 
 export default function FeedPage() {
   const router = useRouter();
   const [content, setContent] = useState("");
-  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [posts, setPosts] = useState<FeedItem[]>([]);
   const [msg, setMsg] = useState("");
 
   const loadPosts = async () => {
-    const { data, error } = await supabase
+    const { data: postData, error: postError } = await supabase
       .from("posts")
-      .select(`
-        id,
-        user_id,
-        content,
-        created_at,
-        profiles:profiles!posts_user_id_fkey (
-          username,
-          full_name
-        )
-      `)
+      .select("id,user_id,content,created_at")
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (error) {
-      setMsg(`Load error: ${error.message}`);
+    if (postError) {
+      setMsg(`Load error: ${postError.message}`);
       return;
     }
 
-    setPosts((data as FeedPost[]) ?? []);
+    const basePosts = (postData ?? []) as Post[];
+    const userIds = Array.from(new Set(basePosts.map((p) => p.user_id)));
+
+    let profileMap = new Map<string, Profile>();
+    if (userIds.length > 0) {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id,username,full_name")
+        .in("id", userIds);
+
+      if (profileError) {
+        setMsg(`Profile load error: ${profileError.message}`);
+        return;
+      }
+
+      profileMap = new Map((profileData as Profile[]).map((p) => [p.id, p]));
+    }
+
+    const merged: FeedItem[] = basePosts.map((p) => ({
+      ...p,
+      profile: profileMap.get(p.user_id) ?? null,
+    }));
+
+    setPosts(merged);
   };
 
   useEffect(() => {
@@ -86,9 +106,9 @@ export default function FeedPage() {
     await loadPosts();
   };
 
-  const formatAuthor = (p: FeedPost) => {
-    const username = p.profiles?.username?.trim();
-    const fullName = p.profiles?.full_name?.trim();
+  const formatAuthor = (p: FeedItem) => {
+    const username = p.profile?.username?.trim();
+    const fullName = p.profile?.full_name?.trim();
 
     if (username && fullName) return `${fullName} (@${username})`;
     if (username) return `@${username}`;
