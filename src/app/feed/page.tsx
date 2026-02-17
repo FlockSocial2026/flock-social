@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Post = { id: string; user_id: string; content: string; created_at: string; };
+type Post = { id: string; user_id: string; content: string; image_url: string | null; created_at: string; };
 type Profile = { id: string; username: string | null; full_name: string | null; };
 type LikeRow = { post_id: string; user_id: string; };
 type CommentRow = { id: string; post_id: string; user_id: string; content: string; created_at: string; };
@@ -26,6 +26,8 @@ export default function FeedPage() {
   const [msg, setMsg] = useState("");
   const [me, setMe] = useState<string | null>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set());
   const [feedMode, setFeedMode] = useState<"for_you" | "following">("for_you");
 
@@ -53,7 +55,7 @@ export default function FeedPage() {
 
     const { data: postData, error: postError } = await supabase
       .from("posts")
-      .select("id,user_id,content,created_at")
+      .select("id,user_id,content,image_url,created_at")
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -143,6 +145,28 @@ export default function FeedPage() {
     boot();
   }, [router, feedMode]);
 
+  const uploadPostImage = async (userId: string): Promise<string | null> => {
+    if (!selectedImage) return null;
+
+    const ext = selectedImage.name.split(".").pop() ?? "jpg";
+    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    setUploading(true);
+    const { error: upErr } = await supabase.storage
+      .from("post-images")
+      .upload(path, selectedImage, { upsert: false });
+
+    setUploading(false);
+
+    if (upErr) {
+      setMsg(`Image upload error: ${upErr.message}`);
+      return null;
+    }
+
+    const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
   const createPost = async () => {
     const text = content.trim();
     if (!text) return setMsg("Post cannot be empty.");
@@ -151,10 +175,17 @@ export default function FeedPage() {
     const user = userData.user;
     if (!user) { router.push("/auth/login"); return; }
 
-    const { error } = await supabase.from("posts").insert({ user_id: user.id, content: text });
+    const imageUrl = await uploadPostImage(user.id);
+
+    const { error } = await supabase.from("posts").insert({
+      user_id: user.id,
+      content: text,
+      image_url: imageUrl,
+    });
     if (error) return setMsg(`Create error: ${error.message}`);
 
     setContent("");
+    setSelectedImage(null);
     setMsg("Posted.");
     await loadPosts();
   };
@@ -298,7 +329,7 @@ export default function FeedPage() {
         style={{ width: "100%", padding: 10, marginBottom: 8 }}
       />
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-        <small>{content.length}/280</small>
+        <small>{content.length}/280 {selectedImage ? ` • ${selectedImage.name}` : ""} {uploading ? " • Uploading..." : ""}</small>
         <button onClick={createPost}>Post</button>
       </div>
 
@@ -342,6 +373,13 @@ export default function FeedPage() {
                 </div>
               ) : (
                 <div style={{ marginBottom: 10 }}>{p.content}</div>
+              {p.image_url ? (
+                <img
+                  src={p.image_url}
+                  alt="post image"
+                  style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 10 }}
+                />
+              ) : null}
               )}
 
               <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
@@ -416,5 +454,6 @@ export default function FeedPage() {
     </main>
   );
 }
+
 
 
