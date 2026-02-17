@@ -20,6 +20,13 @@ type Profile = {
 
 type FeedItem = Post & {
   profile: Profile | null;
+  likeCount: number;
+  likedByMe: boolean;
+};
+
+type LikeRow = {
+  post_id: string;
+  user_id: string;
 };
 
 export default function FeedPage() {
@@ -27,8 +34,17 @@ export default function FeedPage() {
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [msg, setMsg] = useState("");
+  const [me, setMe] = useState<string | null>(null);
 
   const loadPosts = async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+    setMe(user.id);
+
     const { data: postData, error: postError } = await supabase
       .from("posts")
       .select("id,user_id,content,created_at")
@@ -42,6 +58,7 @@ export default function FeedPage() {
 
     const basePosts = (postData ?? []) as Post[];
     const userIds = Array.from(new Set(basePosts.map((p) => p.user_id)));
+    const postIds = basePosts.map((p) => p.id);
 
     let profileMap = new Map<string, Profile>();
     if (userIds.length > 0) {
@@ -58,9 +75,34 @@ export default function FeedPage() {
       profileMap = new Map((profileData as Profile[]).map((p) => [p.id, p]));
     }
 
+    let likeRows: LikeRow[] = [];
+    if (postIds.length > 0) {
+      const { data: likesData, error: likesError } = await supabase
+        .from("post_likes")
+        .select("post_id,user_id")
+        .in("post_id", postIds);
+
+      if (likesError) {
+        setMsg(`Likes load error: ${likesError.message}`);
+        return;
+      }
+
+      likeRows = (likesData ?? []) as LikeRow[];
+    }
+
+    const likeCountByPost = new Map<string, number>();
+    const likedByMeSet = new Set<string>();
+
+    for (const l of likeRows) {
+      likeCountByPost.set(l.post_id, (likeCountByPost.get(l.post_id) ?? 0) + 1);
+      if (l.user_id === user.id) likedByMeSet.add(l.post_id);
+    }
+
     const merged: FeedItem[] = basePosts.map((p) => ({
       ...p,
       profile: profileMap.get(p.user_id) ?? null,
+      likeCount: likeCountByPost.get(p.id) ?? 0,
+      likedByMe: likedByMeSet.has(p.id),
     }));
 
     setPosts(merged);
@@ -103,6 +145,29 @@ export default function FeedPage() {
 
     setContent("");
     setMsg("Posted.");
+    await loadPosts();
+  };
+
+  const toggleLike = async (postId: string, liked: boolean) => {
+    if (!me) return;
+
+    if (liked) {
+      const { error } = await supabase
+        .from("post_likes")
+        .delete()
+        .eq("post_id", postId)
+        .eq("user_id", me);
+
+      if (error) return setMsg(`Unlike error: ${error.message}`);
+    } else {
+      const { error } = await supabase.from("post_likes").insert({
+        post_id: postId,
+        user_id: me,
+      });
+
+      if (error) return setMsg(`Like error: ${error.message}`);
+    }
+
     await loadPosts();
   };
 
@@ -153,7 +218,10 @@ export default function FeedPage() {
             <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>
               {formatAuthor(p)} • {formatTime(p.created_at)}
             </div>
-            <div>{p.content}</div>
+            <div style={{ marginBottom: 10 }}>{p.content}</div>
+            <button onClick={() => toggleLike(p.id, p.likedByMe)}>
+              {p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})
+            </button>
           </div>
         ))}
       </div>
