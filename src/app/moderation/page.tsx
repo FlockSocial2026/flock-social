@@ -16,6 +16,16 @@ type ReportRow = {
   resolution_note?: string | null;
 };
 
+type ModerationSummary = {
+  backlog: number;
+  recent: {
+    total: number;
+    byStatus: { open: number; reviewing: number; resolved: number; dismissed: number };
+    byTarget: { post: number; comment: number; user: number };
+  };
+  alerts: { openBacklogHigh: boolean; newReportsSpike: boolean; userReportsSpike: boolean };
+};
+
 export default function ModerationPage() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<"open" | "reviewing" | "resolved" | "dismissed">("open");
@@ -24,6 +34,7 @@ export default function ModerationPage() {
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [isModerator, setIsModerator] = useState<boolean>(false);
+  const [summary, setSummary] = useState<ModerationSummary | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [auditFrom, setAuditFrom] = useState("");
   const [auditTo, setAuditTo] = useState("");
@@ -60,6 +71,14 @@ export default function ModerationPage() {
         setMsg("You are not authorized for moderation.");
         setTimeout(() => router.push("/dashboard"), 900);
         return;
+      }
+
+      const summaryRes = await fetch("/api/moderation/summary?windowHours=24&openWarn=25&newWarn=15&userWarn=5", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (summaryRes.ok) {
+        const summaryJson = await summaryRes.json();
+        setSummary(summaryJson.summary ?? null);
       }
 
       setIsModerator(true);
@@ -153,6 +172,21 @@ export default function ModerationPage() {
 
       {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
       {!isModerator ? <p style={{ color: "#666", marginBottom: 12 }}>Checking moderator access…</p> : null}
+
+      {summary ? (
+        <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, marginBottom: 12, background: "#fafafa" }}>
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>24h Moderation Summary</div>
+          <div style={{ fontSize: 13, color: "#555" }}>
+            backlog {summary.backlog} • new {summary.recent.total} • targets post {summary.recent.byTarget.post} / comment {summary.recent.byTarget.comment} / user {summary.recent.byTarget.user}
+          </div>
+          <div style={{ fontSize: 12, marginTop: 6 }}>
+            alerts: {summary.alerts.openBacklogHigh ? "backlog-high " : ""}
+            {summary.alerts.newReportsSpike ? "new-spike " : ""}
+            {summary.alerts.userReportsSpike ? "user-spike" : ""}
+            {!summary.alerts.openBacklogHigh && !summary.alerts.newReportsSpike && !summary.alerts.userReportsSpike ? "none" : ""}
+          </div>
+        </div>
+      ) : null}
 
       <div style={{ display: "grid", gap: 10 }}>
         {visibleRows.map((r) => (
