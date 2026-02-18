@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const [email, setEmail] = useState<string>("");
   const [status, setStatus] = useState<string>("Checking session...");
   const [unread, setUnread] = useState<number>(0);
+  const [canModerate, setCanModerate] = useState<boolean>(false);
 
   useEffect(() => {
     const boot = async () => {
@@ -38,6 +39,16 @@ export default function DashboardPage() {
         .is("read_at", null);
 
       setUnread(count ?? 0);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (token) {
+        const modRes = await fetch("/api/moderation/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCanModerate(modRes.ok);
+      }
+
       setStatus("Ready");
     };
 
@@ -76,9 +87,11 @@ export default function DashboardPage() {
           My Reports
         </Link>
 
-        <Link href="/moderation" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
-          Moderation Queue
-        </Link>
+        {canModerate ? (
+          <Link href="/moderation" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+            Moderation Queue
+          </Link>
+        ) : null}
 
         <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
           Log Out

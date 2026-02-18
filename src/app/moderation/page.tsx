@@ -23,6 +23,7 @@ export default function ModerationPage() {
   const [rows, setRows] = useState<ReportRow[]>([]);
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [isModerator, setIsModerator] = useState<boolean>(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [resolutionDrafts, setResolutionDrafts] = useState<Record<string, string>>({});
 
@@ -48,6 +49,18 @@ export default function ModerationPage() {
       const { data } = await supabase.auth.getSession();
       const accessToken = data.session?.access_token;
       if (!accessToken) return router.push("/auth/login");
+
+      const meRes = await fetch("/api/moderation/me", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!meRes.ok) {
+        setMsg("You are not authorized for moderation.");
+        setTimeout(() => router.push("/dashboard"), 900);
+        return;
+      }
+
+      setIsModerator(true);
       setToken(accessToken);
     };
     boot();
@@ -94,7 +107,10 @@ export default function ModerationPage() {
     <main style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h1 style={{ margin: 0 }}>Moderation Queue</h1>
-        <Link href="/dashboard">Back to Dashboard</Link>
+        <div style={{ display: "flex", gap: 12 }}>
+          <a href="/api/moderation/audit?format=csv" style={{ textDecoration: "none" }}>Export Audit CSV</a>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
@@ -114,6 +130,7 @@ export default function ModerationPage() {
       </div>
 
       {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
+      {!isModerator ? <p style={{ color: "#666", marginBottom: 12 }}>Checking moderator access…</p> : null}
 
       <div style={{ display: "grid", gap: 10 }}>
         {visibleRows.map((r) => (
