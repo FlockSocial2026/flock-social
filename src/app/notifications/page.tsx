@@ -28,6 +28,12 @@ type GroupedNotification = {
   unread: boolean;
 };
 
+type NotificationDigest = {
+  unread: number;
+  last24hCount: number;
+  byType: { like: number; comment: number; follow: number };
+};
+
 const GROUP_WINDOW_MS = 60 * 60 * 1000; // 1h
 
 export default function NotificationsPage() {
@@ -35,16 +41,33 @@ export default function NotificationsPage() {
   const [me, setMe] = useState<string | null>(null);
   const [rows, setRows] = useState<NotificationRow[]>([]);
   const [profileMap, setProfileMap] = useState<Map<string, Profile>>(new Map());
+  const [digest, setDigest] = useState<NotificationDigest | null>(null);
   const [msg, setMsg] = useState("");
 
   const load = async () => {
     const { data: userData } = await supabase.auth.getUser();
+    const { data: sessionData } = await supabase.auth.getSession();
     const user = userData.user;
     if (!user) {
       router.push("/auth/login");
       return;
     }
     setMe(user.id);
+
+    const token = sessionData.session?.access_token;
+    if (token) {
+      const digestRes = await fetch("/api/notifications/digest", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (digestRes.ok) {
+        const digestJson = await digestRes.json();
+        setDigest({
+          unread: digestJson.unread ?? 0,
+          last24hCount: digestJson.last24hCount ?? 0,
+          byType: digestJson.byType ?? { like: 0, comment: 0, follow: 0 },
+        });
+      }
+    }
 
     const { data, error } = await supabase
       .from("notifications")
@@ -160,6 +183,15 @@ export default function NotificationsPage() {
       </div>
 
       {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
+
+      {digest ? (
+        <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, marginBottom: 12, background: "#fafafa" }}>
+          <strong>24h digest</strong>
+          <div style={{ fontSize: 13, color: "#555", marginTop: 6 }}>
+            total {digest.last24hCount} • likes {digest.byType.like} • comments {digest.byType.comment} • follows {digest.byType.follow}
+          </div>
+        </div>
+      ) : null}
 
       <div style={{ display: "grid", gap: 8 }}>
         {grouped.map((g) => (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,15 +14,22 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setMsg("Signing in...");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setMsg(`Login error: ${error.message}`);
+    if (error || !data.user) {
+      setMsg(`Login error: ${error?.message || "Unable to sign in"}`);
       return;
     }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id,username")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    track("login_success", { hasUsername: Boolean(profile?.username) });
     setMsg("Signed in successfully. Redirecting...");
-    router.push("/onboarding");
+    router.push(profile?.username ? "/dashboard" : "/onboarding");
   };
 
   return (
