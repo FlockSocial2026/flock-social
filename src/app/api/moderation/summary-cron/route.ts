@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getModerationSummary } from "@/lib/moderationSummary";
+import { sendModerationAlert } from "@/lib/moderationAlerts";
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization") || "";
@@ -19,7 +20,13 @@ export async function GET(req: NextRequest) {
   });
 
   const hasAlert = Object.values(summary.alerts).some(Boolean);
-  console.log("[moderation-summary-cron]", { hasAlert, summary });
+  let delivery: { delivered: boolean; reason: string } = { delivered: false, reason: "No alert triggered" };
 
-  return NextResponse.json({ ok: true, hasAlert, summary });
+  if (hasAlert) {
+    delivery = await sendModerationAlert(summary);
+  }
+
+  console.log("[moderation-summary-cron]", { hasAlert, delivery, summary });
+
+  return NextResponse.json({ ok: true, hasAlert, delivery, summary });
 }
