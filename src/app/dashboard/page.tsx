@@ -76,6 +76,10 @@ export default function DashboardPage() {
           My Reports
         </Link>
 
+        <Link href="/moderation" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Moderation Queue
+        </Link>
+
         <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
           Log Out
         </button>
