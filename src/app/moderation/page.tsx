@@ -25,6 +25,8 @@ export default function ModerationPage() {
   const [token, setToken] = useState<string | null>(null);
   const [isModerator, setIsModerator] = useState<boolean>(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [auditFrom, setAuditFrom] = useState("");
+  const [auditTo, setAuditTo] = useState("");
   const [resolutionDrafts, setResolutionDrafts] = useState<Record<string, string>>({});
 
   const load = async () => {
@@ -76,6 +78,15 @@ export default function ModerationPage() {
     [rows, targetFilter],
   );
 
+  const exportHref = useMemo(() => {
+    const params = new URLSearchParams({ format: "csv" });
+    params.set("status", statusFilter);
+    if (targetFilter !== "all") params.set("targetType", targetFilter);
+    if (auditFrom) params.set("from", new Date(auditFrom).toISOString());
+    if (auditTo) params.set("to", new Date(auditTo).toISOString());
+    return `/api/moderation/audit?${params.toString()}`;
+  }, [statusFilter, targetFilter, auditFrom, auditTo]);
+
   const updateStatus = async (id: string, next: ReportRow["status"]) => {
     if (!token) return;
     setBusyId(id);
@@ -108,7 +119,7 @@ export default function ModerationPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h1 style={{ margin: 0 }}>Moderation Queue</h1>
         <div style={{ display: "flex", gap: 12 }}>
-          <a href="/api/moderation/audit?format=csv" style={{ textDecoration: "none" }}>Export Audit CSV</a>
+          <a href={exportHref} style={{ textDecoration: "none" }}>Export Audit CSV</a>
           <Link href="/dashboard">Back to Dashboard</Link>
         </div>
       </div>
@@ -127,6 +138,17 @@ export default function ModerationPage() {
             target:{t}
           </button>
         ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <label style={{ fontSize: 12, color: "#666" }}>
+          from
+          <input type="datetime-local" value={auditFrom} onChange={(e) => setAuditFrom(e.target.value)} style={{ marginLeft: 6 }} />
+        </label>
+        <label style={{ fontSize: 12, color: "#666" }}>
+          to
+          <input type="datetime-local" value={auditTo} onChange={(e) => setAuditTo(e.target.value)} style={{ marginLeft: 6 }} />
+        </label>
       </div>
 
       {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
