@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ReportButton from "@/components/ReportButton";
+import { track } from "@/lib/analytics";
 
 type Post = {
   id: string;
@@ -272,6 +273,7 @@ export default function FeedPage() {
     setLastPostAt(Date.now());
     setActionBusy(false);
     setMsg("Posted.");
+    track("post_created", { hasImage: Boolean(imageUrl), length: text.length });
     await loadPosts();
   };
 
@@ -287,6 +289,7 @@ export default function FeedPage() {
       await createNotification({ user_id: targetUserId, actor_id: me, type: "follow" }, 60);
     }
 
+    track("follow_toggled", { targetUserId, nowFollowing: !isFollowing });
     await loadPosts();
   };
 
@@ -306,6 +309,7 @@ export default function FeedPage() {
       }
     }
 
+    track("like_toggled", { postId, nowLiked: !liked });
     await loadPosts();
   };
 
@@ -336,6 +340,7 @@ export default function FeedPage() {
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
     setLastCommentAt(Date.now());
     setActionBusy(false);
+    track("comment_created", { postId, length: text.length });
     await loadPosts();
   };
 

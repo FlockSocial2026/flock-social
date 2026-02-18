@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 
 type Profile = {
   id: string;
@@ -97,6 +98,7 @@ export default function DiscoverPage() {
     setUsers(foundUsers);
     setPosts(foundPosts);
     setProfileMap(map);
+    track("discover_search", { term, users: foundUsers.length, posts: foundPosts.length });
     setLoading(false);
   };
 

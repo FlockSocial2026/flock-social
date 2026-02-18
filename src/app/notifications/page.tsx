@@ -1,11 +1,12 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 
-type Profile = { id: string; username: string | null; full_name: string | null; };
+type Profile = { id: string; username: string | null; full_name: string | null };
 type NotificationRow = {
   id: string;
   user_id: string;
@@ -17,6 +18,18 @@ type NotificationRow = {
   read_at: string | null;
 };
 
+type GroupedNotification = {
+  key: string;
+  actor_id: string;
+  type: NotificationRow["type"];
+  post_id: string | null;
+  latest_at: string;
+  items: NotificationRow[];
+  unread: boolean;
+};
+
+const GROUP_WINDOW_MS = 60 * 60 * 1000; // 1h
+
 export default function NotificationsPage() {
   const router = useRouter();
   const [me, setMe] = useState<string | null>(null);
@@ -27,7 +40,10 @@ export default function NotificationsPage() {
   const load = async () => {
     const { data: userData } = await supabase.auth.getUser();
     const user = userData.user;
-    if (!user) { router.push("/auth/login"); return; }
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
     setMe(user.id);
 
     const { data, error } = await supabase
@@ -35,9 +51,13 @@ export default function NotificationsPage() {
       .select("id,user_id,actor_id,type,post_id,comment_id,created_at,read_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(150);
 
-    if (error) { setMsg(`Load error: ${error.message}`); return; }
+    if (error) {
+      setMsg(`Load error: ${error.message}`);
+      return;
+    }
+
     const items = (data ?? []) as NotificationRow[];
     setRows(items);
 
@@ -54,7 +74,44 @@ export default function NotificationsPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const grouped = useMemo(() => {
+    const buckets: GroupedNotification[] = [];
+
+    for (const row of rows) {
+      const rowTime = new Date(row.created_at).getTime();
+
+      const candidate = buckets.find((g) => {
+        const sameActor = g.actor_id === row.actor_id;
+        const sameType = g.type === row.type;
+        const samePost = g.post_id === row.post_id;
+        const withinWindow = Math.abs(new Date(g.latest_at).getTime() - rowTime) <= GROUP_WINDOW_MS;
+        return sameActor && sameType && samePost && withinWindow;
+      });
+
+      if (candidate) {
+        candidate.items.push(row);
+        if (new Date(candidate.latest_at).getTime() < rowTime) candidate.latest_at = row.created_at;
+        candidate.unread = candidate.unread || !row.read_at;
+      } else {
+        buckets.push({
+          key: `${row.actor_id}:${row.type}:${row.post_id ?? "none"}:${row.id}`,
+          actor_id: row.actor_id,
+          type: row.type,
+          post_id: row.post_id,
+          latest_at: row.created_at,
+          items: [row],
+          unread: !row.read_at,
+        });
+      }
+    }
+
+    return buckets.sort((a, b) => +new Date(b.latest_at) - +new Date(a.latest_at));
+  }, [rows]);
 
   const unreadCount = useMemo(() => rows.filter((r) => !r.read_at).length, [rows]);
 
@@ -66,27 +123,32 @@ export default function NotificationsPage() {
       .eq("user_id", me)
       .is("read_at", null);
 
-    if (error) return setMsg(`Mark read error: ${error.message}`);
+    if (error) {
+      setMsg(`Mark read error: ${error.message}`);
+      return;
+    }
+
+    track("notifications_mark_all_read", { unreadBefore: unreadCount });
     await load();
   };
 
   const actorName = (actorId: string) => {
     const p = profileMap.get(actorId);
-    if (!p) return `user:${actorId.slice(0,8)}...`;
+    if (!p) return `user:${actorId.slice(0, 8)}...`;
     if (p.full_name && p.username) return `${p.full_name} (@${p.username})`;
     if (p.username) return `@${p.username}`;
     if (p.full_name) return p.full_name;
-    return `user:${actorId.slice(0,8)}...`;
+    return `user:${actorId.slice(0, 8)}...`;
   };
 
-  const verb = (type: NotificationRow["type"]) => {
-    if (type === "like") return "liked your post";
-    if (type === "comment") return "commented on your post";
-    return "followed you";
+  const verb = (type: NotificationRow["type"], count: number) => {
+    if (type === "like") return count > 1 ? `liked your post ${count} times` : "liked your post";
+    if (type === "comment") return count > 1 ? `commented on your post ${count} times` : "commented on your post";
+    return count > 1 ? `followed you (${count} events)` : "followed you";
   };
 
   return (
-    <main style={{ maxWidth: 760, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
+    <main style={{ maxWidth: 760, margin: "32px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h1>Notifications</h1>
         <Link href="/dashboard">Back to Dashboard</Link>
@@ -100,13 +162,13 @@ export default function NotificationsPage() {
       {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
 
       <div style={{ display: "grid", gap: 8 }}>
-        {rows.map((n) => (
-          <div key={n.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, opacity: n.read_at ? 0.75 : 1 }}>
+        {grouped.map((g) => (
+          <div key={g.key} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, opacity: g.unread ? 1 : 0.75 }}>
             <div style={{ fontSize: 14 }}>
-              <strong>{actorName(n.actor_id)}</strong> {verb(n.type)}
+              <strong>{actorName(g.actor_id)}</strong> {verb(g.type, g.items.length)}
             </div>
             <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-              {new Date(n.created_at).toLocaleString()}
+              {new Date(g.latest_at).toLocaleString()} • grouped {g.items.length} event{g.items.length === 1 ? "" : "s"}
             </div>
           </div>
         ))}
