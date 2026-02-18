@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/moderation/summary-cron?windowHours=24&openWarn=25&newWarn=15&userWarn=5",
-      "schedule": "0 * * * *"
+      "schedule": "0 14 * * *"
     }
   ]
 }
