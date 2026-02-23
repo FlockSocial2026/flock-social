@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "audit:step30": "node scripts/step30-audit.mjs"
+    "audit:step30": "node scripts/step30-audit.mjs",
+    "readiness:step39": "node scripts/step39-release-readiness.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
