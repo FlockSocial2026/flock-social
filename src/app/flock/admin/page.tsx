@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 type MemberRow = { id: string; user_id: string; role: "member" | "group_leader" | "pastor_staff" | "church_admin"; created_at: string };
+type RoleAuditRow = { id: string; actor_user_id: string; target_user_id: string; old_role: string; new_role: string; changed_at: string };
 
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -15,13 +16,29 @@ export default function FlockAdminPage() {
   const [eventStartsAt, setEventStartsAt] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [members, setMembers] = useState<MemberRow[]>([]);
+  const [roleAudit, setRoleAudit] = useState<RoleAuditRow[]>([]);
+  const [pilotMetrics, setPilotMetrics] = useState<Record<string, number> | null>(null);
   const [msg, setMsg] = useState("");
 
   const loadMembers = async (t: string) => {
-    const res = await fetch("/api/flock/members", { headers: { Authorization: `Bearer ${t}` } });
+    const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
     if (!res.ok) return;
     const json = await res.json();
     setMembers((json.items ?? []) as MemberRow[]);
+  };
+
+  const loadRoleAudit = async (t: string) => {
+    const res = await fetch("/api/flock/role-audit?page=1&pageSize=20", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setRoleAudit((json.items ?? []) as RoleAuditRow[]);
+  };
+
+  const loadPilotMetrics = async () => {
+    const res = await fetch("/api/metrics/pilot-summary");
+    if (!res.ok) return;
+    const json = await res.json();
+    setPilotMetrics(json.metrics ?? null);
   };
 
   useEffect(() => {
@@ -36,6 +53,8 @@ export default function FlockAdminPage() {
       setRole(json.role ?? null);
 
       await loadMembers(t);
+      await loadRoleAudit(t);
+      await loadPilotMetrics();
     };
     boot();
   }, []);
@@ -98,6 +117,7 @@ export default function FlockAdminPage() {
 
     setMsg("Role updated.");
     await loadMembers(token);
+    await loadRoleAudit(token);
   };
 
   const allowed = role === "pastor_staff" || role === "church_admin";
@@ -126,6 +146,34 @@ export default function FlockAdminPage() {
         <input type="datetime-local" value={eventStartsAt} onChange={(e) => setEventStartsAt(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
         <input placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
         <button onClick={createEvent} disabled={!allowed}>Create Event</button>
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <h3 style={{ marginTop: 0 }}>Pilot Metrics Snapshot</h3>
+        {!pilotMetrics ? (
+          <p style={{ color: "#666" }}>Metrics unavailable.</p>
+        ) : (
+          <ul>
+            {Object.entries(pilotMetrics).map(([k, v]) => (
+              <li key={k}><strong>{k}</strong>: {v}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <h3 style={{ marginTop: 0 }}>Recent Role Audit</h3>
+        {roleAudit.length === 0 ? <p style={{ color: "#666" }}>No role changes logged yet.</p> : null}
+        <div style={{ display: "grid", gap: 8 }}>
+          {roleAudit.map((a) => (
+            <div key={a.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div style={{ fontSize: 12, color: "#666" }}>{new Date(a.changed_at).toLocaleString()}</div>
+              <div style={{ fontSize: 13 }}>
+                actor:{a.actor_user_id.slice(0, 8)}... changed target:{a.target_user_id.slice(0, 8)}... from <b>{a.old_role}</b> to <b>{a.new_role}</b>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>

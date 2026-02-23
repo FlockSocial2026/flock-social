@@ -29,17 +29,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, errors }, { status: 500 });
   }
 
+  const metrics = {
+    profilesTotal: usersRes.count ?? 0,
+    posts30d: postsRes.count ?? 0,
+    comments30d: commentsRes.count ?? 0,
+    followEdgesTotal: followsRes.count ?? 0,
+    churchEvents30d: eventsRes.count ?? 0,
+    churchAnnouncements30d: announcementsRes.count ?? 0,
+    eventRsvps7d: rsvpsRes.count ?? 0,
+  };
+
+  const format = req.nextUrl.searchParams.get("format") || "json";
+  if (format === "csv") {
+    const lines = ["metric,value", ...Object.entries(metrics).map(([k, v]) => `${k},${v}`)];
+    return new NextResponse(lines.join("\n"), {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename=pilot-summary-${new Date().toISOString().slice(0, 10)}.csv`,
+      },
+    });
+  }
+
   return NextResponse.json({
     ok: true,
     window: { last7Days: since7, last30Days: since30 },
-    metrics: {
-      profilesTotal: usersRes.count ?? 0,
-      posts30d: postsRes.count ?? 0,
-      comments30d: commentsRes.count ?? 0,
-      followEdgesTotal: followsRes.count ?? 0,
-      churchEvents30d: eventsRes.count ?? 0,
-      churchAnnouncements30d: announcementsRes.count ?? 0,
-      eventRsvps7d: rsvpsRes.count ?? 0,
-    },
+    metrics,
   });
 }
