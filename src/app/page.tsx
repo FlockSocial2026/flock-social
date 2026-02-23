@@ -1,38 +1,134 @@
 import Link from "next/link";
 
+const liveFeatures = [
+  "Church identity + connection (Flock)",
+  "Announcements + events + RSVP flows",
+  "Role-based admin controls (member, group leader, pastor/staff, church admin)",
+  "Pilot metrics snapshot + trend deltas",
+  "Moderation queue + audit + summary cron foundation",
+];
+
+const nextBuildItems = [
+  "Messaging/Inbox UI",
+  "Church onboarding polish + first-run wizard",
+  "Search quality and discovery ranking improvements",
+  "Prayer leaderboard release (currently gated)",
+];
+
 export default function HomePage() {
   return (
-    <main style={{ maxWidth: 640, margin: "60px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 8 }}>Flock Social</h1>
-      <p style={{ marginBottom: 24, color: "#666" }}>
-        Welcome. Choose an option to continue.
-      </p>
+    <main style={{ maxWidth: 980, margin: "42px auto", fontFamily: "Arial, sans-serif", padding: "0 16px 40px" }}>
+      <section
+        style={{
+          border: "1px solid #e5e7eb",
+          borderRadius: 14,
+          padding: 20,
+          marginBottom: 18,
+          background: "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <h1 style={{ margin: "0 0 8px" }}>Flock Social</h1>
+            <p style={{ margin: 0, color: "#4b5563", maxWidth: 700 }}>
+              Faith-centered community platform for churches: community feed, prayer, groups, events, and church operations.
+            </p>
+          </div>
+          <span
+            style={{
+              background: "#111827",
+              color: "white",
+              fontSize: 12,
+              borderRadius: 999,
+              padding: "8px 12px",
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Build status: Step 901 complete
+          </span>
+        </div>
 
-      <div style={{ display: "flex", gap: 12 }}>
-        <Link
-          href="/auth/login"
-          style={{
-            padding: "10px 14px",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            textDecoration: "none"
-          }}
-        >
-          Log In
-        </Link>
+        <div style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap" }}>
+          <Link
+            href="/auth/login"
+            style={{
+              padding: "10px 14px",
+              border: "1px solid #111827",
+              borderRadius: 8,
+              textDecoration: "none",
+              background: "#111827",
+              color: "white",
+            }}
+          >
+            Log In
+          </Link>
 
-        <Link
-          href="/auth/signup"
-          style={{
-            padding: "10px 14px",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            textDecoration: "none"
-          }}
-        >
-          Sign Up
-        </Link>
-      </div>
+          <Link
+            href="/auth/signup"
+            style={{
+              padding: "10px 14px",
+              border: "1px solid #d1d5db",
+              borderRadius: 8,
+              textDecoration: "none",
+              color: "#111827",
+            }}
+          >
+            Sign Up
+          </Link>
+
+          <Link
+            href="/discover"
+            style={{
+              padding: "10px 14px",
+              border: "1px solid #d1d5db",
+              borderRadius: 8,
+              textDecoration: "none",
+              color: "#111827",
+            }}
+          >
+            Explore Discover
+          </Link>
+        </div>
+      </section>
+
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+          <h3 style={{ marginTop: 0 }}>Live Now</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+            {liveFeatures.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+          <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+            {nextBuildItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+          <h3 style={{ marginTop: 0 }}>Where to check progress</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+            <li>
+              <Link href="/dashboard">Dashboard</Link> (after login)
+            </li>
+            <li>
+              <Link href="/flock">Flock</Link> (church connect + announcements/events)
+            </li>
+            <li>
+              <Link href="/flock/admin">Flock Admin</Link> (role-based)
+            </li>
+            <li>
+              <Link href="/events">Events</Link> and <Link href="/prayer">Prayer</Link>
+            </li>
+          </ul>
+        </div>
+      </section>
     </main>
   );
 }
