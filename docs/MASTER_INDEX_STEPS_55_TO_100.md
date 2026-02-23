@@ -1,0 +1,270 @@
+# Master Index — Steps 55 to 100
+
+Date: 2026-02-23
+
+## How to use this index
+- **Goal:** find the right artifact fast.
+- **Primary flow:** 55–60 (fundraising + launch base) → 61–67 (rehearsal + stabilization + scale transition) → 68–80 (handoff + activation + governance capstone) → 81–100 (operator-grade extended strategy stack).
+
+---
+
+## Steps 55–60: Fundraising + Launch Foundation
+
+### Step 55 — Fundraising Proof Pack
+**Use for:** narrative proof, evidence, milestone credibility.
+- `STEP_55_FUNDRAISING_PROOF_PACK.md`
+- `INDIEGOGO_CAMPAIGN_NARRATIVE.md`
+- `INDIEGOGO_PROBLEM_SOLUTION_EVIDENCE.md`
+- `INDIEGOGO_MILESTONE_PROOF_TIMELINE.md`
+- `INDIEGOGO_ASSET_CHECKLIST.md`
+
+### Step 56 — Full Indiegogo Page Draft
+**Use for:** first full campaign page copy and FAQ/perks baseline.
+- `STEP_56_INDIEGOGO_PAGE_DRAFT.md`
+- `INDIEGOGO_PAGE_COPY_V1.md`
+- `INDIEGOGO_PERKS_AND_PRICING_DRAFT.md`
+- `INDIEGOGO_FAQ_V1.md`
+
+### Step 57 — Conversion Polish
+**Use for:** copy testing variants and CTA hooks.
+- `STEP_57_INDIEGOGO_CONVERSION_POLISH.md`
+- `INDIEGOGO_HERO_OPTIMIZATION_V2.md`
+- `INDIEGOGO_PAGE_COPY_SHORT_V2.md`
+- `INDIEGOGO_PAGE_COPY_MEDIUM_V2.md`
+- `INDIEGOGO_PAGE_COPY_LONG_V2.md`
+- `INDIEGOGO_CTA_HOOK_BANK.md`
+
+### Step 58 — Launch Assembly (V3)
+**Use for:** canonical launch page + execution order.
+- `STEP_58_LAUNCH_ASSEMBLY_V3.md`
+- `INDIEGOGO_MASTER_PAGE_V3.md` (**canonical page copy**)
+- `INDIEGOGO_ASSET_PRODUCTION_ORDER.md`
+- `INDIEGOGO_LAUNCH_RUNBOOK.md`
+- `INDIEGOGO_WEEKLY_UPDATE_TEMPLATE.md`
+
+### Step 59 — Asset Generation Sprint
+**Use for:** media + launch-day copy payloads.
+- `STEP_59_ASSET_GENERATION_SPRINT.md`
+- `INDIEGOGO_VIDEO_SCRIPT_60_90S_V1.md`
+- `INDIEGOGO_VIDEO_STORYBOARD_SHOTLIST.md`
+- `INDIEGOGO_SCREENSHOT_SHOTLIST.md`
+- `INDIEGOGO_LAUNCH_DAY_ANNOUNCEMENT_PACK.md`
+- `INDIEGOGO_OBJECTION_RESPONSE_BANK.md`
+
+### Step 60 — Final Launch Gate
+**Use for:** go/no-go decisions and first-48h monitoring discipline.
+- `STEP_60_FINAL_LAUNCH_GATE.md`
+- `INDIEGOGO_GO_NO_GO_CHECKLIST.md`
+- `INDIEGOGO_PRELAUNCH_READINESS_MATRIX.md`
+- `INDIEGOGO_LAUNCH_DAY_OPERATIONS_BY_HOUR.md`
+- `INDIEGOGO_FIRST_48H_MONITORING_PROTOCOL.md`
+
+---
+
+## Steps 61–67: Rehearsal, Control, Stabilization, Scale Transition
+
+### Step 61 — Campaign Rehearsal
+**Use for:** dry-run readiness and finding gaps before live execution.
+- `STEP_61_CAMPAIGN_REHEARSAL_SPRINT.md`
+- `INDIEGOGO_LAUNCH_REHEARSAL_CHECKLIST.md`
+- `INDIEGOGO_GO_NO_GO_DECISION_RECORD_MOCK.md`
+- `INDIEGOGO_DRY_RUN_OUTPUTS.md`
+- `INDIEGOGO_REHEARSAL_FINDINGS_AND_FIXES.md`
+
+### Step 62 — Prelaunch Execution Control
+**Use for:** launch command center + lock checklists.
+- `STEP_62_PRELAUNCH_EXECUTION_CONTROL.md`
+- `INDIEGOGO_LAUNCH_COMMAND_CENTER.md`
+- `INDIEGOGO_FINAL_24H_LOCK_CHECKLIST.md`
+- `INDIEGOGO_URL_REPLACEMENT_CHECKLIST.md`
+- `INDIEGOGO_OWNER_RESPONSIBILITY_MATRIX.md`
+- `INDIEGOGO_DAY1_METRICS_CAPTURE_SHEET.md`
+
+### Step 63 — Readiness Audit + Handoff
+**Use for:** leadership audit and operator handoff.
+- `STEP_63_LAUNCH_READINESS_AUDIT_AND_HANDOFF.md`
+- `INDIEGOGO_READINESS_AUDIT_REPORT.md`
+- `INDIEGOGO_BLOCKERS_AND_MITIGATIONS.md`
+- `INDIEGOGO_FINAL_HANDOFF_BRIEF.md`
+- `INDIEGOGO_LAUNCH_HANDOFF_CHECKLIST.md`
+
+### Step 64 — Final Prelaunch Closure
+**Use for:** closure accounting before launch.
+- `STEP_64_FINAL_PRELAUNCH_CLOSURE.md`
+- `INDIEGOGO_PRELAUNCH_CLOSURE_CHECKLIST.md`
+- `INDIEGOGO_BLOCKER_RESOLUTION_LOG.md`
+- `INDIEGOGO_LAUNCH_APPROVAL_RECORD.md`
+- `INDIEGOGO_DAY0_COMMUNICATION_EXECUTION_TRACKER.md`
+
+### Step 65 — Live Command Playbook
+**Use for:** in-flight command operations.
+- `STEP_65_LAUNCH_COMMAND_PLAYBOOK.md`
+- `INDIEGOGO_LIVE_COMMAND_PLAYBOOK.md`
+- `INDIEGOGO_ESCALATION_TRIGGER_MATRIX.md`
+- `INDIEGOGO_OPTIMIZATION_DECISION_TREE.md`
+- `INDIEGOGO_CAMPAIGN_WEEKLY_STANDUP_TEMPLATE.md`
+- `INDIEGOGO_END_OF_DAY_LOG_TEMPLATE.md`
+
+### Step 66 — Post-Launch Stabilization
+**Use for:** days 1–14 control and guardrails.
+- `STEP_66_POST_LAUNCH_STABILIZATION_PLAN.md`
+- `INDIEGOGO_POST_LAUNCH_DAY_1_14_PLAN.md`
+- `INDIEGOGO_KPI_GUARDRAILS_AND_ACTIONS.md`
+- `INDIEGOGO_ISSUE_TRIAGE_WORKFLOW.md`
+- `INDIEGOGO_WEEK1_WEEK2_REVIEW_TEMPLATE.md`
+
+### Step 67 — Week 3–4 Scale Transition
+**Use for:** transition from stabilization into scale loops.
+- `STEP_67_WEEK3_4_SCALE_AND_TRANSITION_PLAN.md`
+- `INDIEGOGO_WEEK3_4_SCALE_PLAN.md`
+- `INDIEGOGO_GROWTH_LOOP_MAP.md`
+- `INDIEGOGO_PILOT_CONVERSION_PLAYBOOK.md`
+- `INDIEGOGO_SCALE_PHASE_WEEKLY_REPORT_TEMPLATE.md`
+
+---
+
+## Steps 68–80: Handoff, Activation, Capstone Governance
+
+### Step 68 — Campaign-to-Product Handoff
+- `STEP_68_CAMPAIGN_TO_PRODUCT_HANDOFF.md`
+- `INDIEGOGO_TO_PRODUCT_HANDOFF_FRAMEWORK.md`
+- `INDIEGOGO_BACKER_COMMITMENT_TRACKER.md`
+- `INDIEGOGO_PILOT_INTAKE_WORKFLOW.md`
+- `INDIEGOGO_POST_CAMPAIGN_30_DAY_EXECUTION_BOARD.md`
+
+### Step 69 — Pilot Command System
+- `STEP_69_PILOT_EXECUTION_COMMAND_SYSTEM.md`
+- `PILOT_COMMAND_OPERATING_MODEL.md`
+- `PILOT_CHURCH_WEEKLY_EXECUTION_CADENCE.md`
+- `PILOT_RISK_ESCALATION_MATRIX.md`
+- `PILOT_KPI_ACCOUNTABILITY_SCORECARD.md`
+- `PILOT_WEEKLY_COMMAND_REVIEW_TEMPLATE.md`
+
+### Step 70 — Synthesis + Next-Phase Roadmap
+- `STEP_70_EXECUTION_SYNTHESIS_AND_NEXT_PHASE_ROADMAP.md`
+- `EXECUTION_SYNTHESIS_STEP55_TO_69.md`
+- `NEXT_PHASE_ROADMAP_STEP70_PLUS.md`
+- `PRIORITY_SEQUENCING_MATRIX.md`
+- `EXECUTION_MILESTONES_30_60_90.md`
+
+### Step 71 — Execution Control Tower
+- `STEP_71_EXECUTION_CONTROL_TOWER.md`
+- `CONTROL_TOWER_DASHBOARD_SPEC.md`
+- `UNIFIED_WEEKLY_COMMAND_AGENDA.md`
+- `CROSS_WORKSTREAM_DEPENDENCY_TRACKER.md`
+- `DECISION_LOG_TEMPLATE.md`
+- `ESCALATION_COMMUNICATION_PROTOCOL.md`
+
+### Step 72 — Readiness → Execution Conversion
+- `STEP_72_READINESS_TO_EXECUTION_CONVERSION.md`
+- `EXECUTION_SPRINT_BOARD_DAY1_TO_DAY7.md`
+- `DAILY_OPERATOR_CHECKLIST_D1_D7.md`
+- `PRIORITY_ACTION_QUEUE_WEEK1.md`
+- `WEEK1_SUCCESS_SCOREBOARD.md`
+
+### Step 73 — Launch Week Execution Packet
+- `STEP_73_LAUNCH_WEEK_EXECUTION_PACKET.md`
+- `LAUNCH_WEEK_MASTER_EXECUTION_PACKET.md`
+- `D1_D7_DELIVERABLE_CHECKLIST.md`
+- `WEEK1_EVIDENCE_CAPTURE_LOG.md`
+- `DAILY_DECISION_CHECKPOINT_SHEET.md`
+- `WEEK1_RETROSPECTIVE_TEMPLATE.md`
+
+### Step 74 — Automation + Reporting
+- `STEP_74_LAUNCH_WEEK_AUTOMATION_AND_REPORTING.md`
+- `LAUNCH_WEEK_REPORTING_AUTOMATION_PLAN.md`
+- `LAUNCH_WEEK_METRICS_ROLLUP_TEMPLATE.md`
+- `LAUNCH_WEEK_ALERT_ROUTING_MATRIX.md`
+- `CAMPAIGN_TO_PILOT_KPI_HANDOFF_TEMPLATE.md`
+- `WEEK1_EXECUTIVE_SUMMARY_TEMPLATE.md`
+
+### Step 75 — Execution Reset + Sprint Brief
+- `STEP_75_EXECUTION_RESET_AND_NEXT_SPRINT_BRIEF.md`
+- `CYCLE_CLOSEOUT_STEP55_TO_74.md`
+- `NEXT_SPRINT_BRIEF_EXECUTION_FIRST.md`
+- `IMMEDIATE_UNBLOCK_CHECKLIST.md`
+- `SPRINT_ENTRY_CRITERIA_AND_DOD.md`
+- `DAY1_OPERATOR_KICKOFF_SCRIPT.md`
+
+### Step 76 — Day-1 Live Execution Packet
+- `STEP_76_DAY1_LIVE_EXECUTION_PACKET.md`
+- `DAY1_HOURLY_LIVE_RUN_SHEET.md`
+- `LAUNCH_COMMUNICATION_SEND_LEDGER.md`
+- `FIRST_24H_INCIDENT_LOG_TEMPLATE.md`
+- `DAY1_CLOSEOUT_REPORT_TEMPLATE.md`
+- `DAY2_CARRY_FORWARD_PLAN_TEMPLATE.md`
+
+### Step 77 — Readiness Finalization + Handover
+- `STEP_77_LAUNCH_READINESS_FINALIZATION_AND_HANDOVER.md`
+- `FINAL_READINESS_CONSOLIDATION_SHEET.md`
+- `HANDOVER_COMMAND_CHECKLIST.md`
+- `LIVE_LAUNCH_FALLBACK_PLAYBOOK.md`
+- `POST_LAUNCH_WEEK1_OWNERSHIP_MAP.md`
+- `LAUNCH_COMPLETION_SIGNOFF_TEMPLATE.md`
+
+### Step 78 — Final Readout
+- `STEP_78_LAUNCH_OPERATIONS_FINAL_READOUT.md`
+- `LAUNCH_OPERATIONS_FINAL_READOUT.md`
+- `READINESS_STATUS_SCOREBOARD.md`
+- `FIRST_48H_ACTION_SEQUENCE.md`
+- `OWNERSHIP_CONFIRMATION_CHECKLIST.md`
+- `EXECUTIVE_HANDOFF_NOTE_TEMPLATE.md`
+
+### Step 79 — Activation Packet
+- `STEP_79_LAUNCH_EXECUTION_ACTIVATION_PACKET.md`
+- `LAUNCH_ACTIVATION_TRIGGER_CHECKLIST.md`
+- `T0_TO_T24_COMMAND_SCRIPT.md`
+- `REALTIME_KPI_WATCHBOARD_TEMPLATE.md`
+- `OBJECTION_RESPONSE_RAPID_PATCH_WORKFLOW.md`
+- `DAY2_OPTIMIZATION_ACTIVATION_BRIEF.md`
+
+### Step 80 — Capstone Go-Live Protocol
+- `STEP_80_LAUNCH_READINESS_CAPSTONE_AND_GO_LIVE_PROTOCOL.md`
+- `GO_LIVE_CAPSTONE_PROTOCOL.md`
+- `FINAL_PRE_GO_LIVE_VALIDATION_MATRIX.md`
+- `T0_TO_T72_COMMAND_TIMELINE.md`
+- `LAUNCH_GOVERNANCE_CHECKPOINT_PROTOCOL.md`
+- `POST_72H_TRANSITION_BRIEF_TEMPLATE.md`
+
+---
+
+## Steps 81–100: Extended Operator-Grade Strategy Stack
+
+**Status:** completed and hardened to operator-grade depth.
+
+For each step **81 through 100**, use:
+- `STEP_<n>_<TOPIC>.md` (strategy package)
+- `STEP_<n>_EXECUTION_ARTIFACT.md` (execution operating artifact)
+
+### Step topics
+81 Campaign Closeout Framework  
+82 Backer Fulfillment Planning  
+83 Pilot Cohort Intake Batch 1  
+84 Pilot Onboarding Sprint Kit  
+85 Church Success Operating Rhythm  
+86 Retention Instrumentation Plan  
+87 Alert Threshold Automation Spec  
+88 Executive KPI Narrative Pack  
+89 Product Feedback Triage System  
+90 Iteration Sprint Prioritization  
+91 Church Pilot Expansion Playbook  
+92 Case Study Capture Workflow  
+93 Fundraising Follow-On Strategy  
+94 Rollout Risk Register v2  
+95 Ops Automation Backlog  
+96 Quarterly Execution Blueprint  
+97 Governance and Audit Hardening  
+98 Pilot to Productization Bridge  
+99 Scale Readiness Assessment  
+100 Step 100 Capstone Synthesis
+
+---
+
+## Fast start (what to open first)
+1. `INDIEGOGO_MASTER_PAGE_V3.md`
+2. `FINAL_PRE_GO_LIVE_VALIDATION_MATRIX.md`
+3. `LAUNCH_ACTIVATION_TRIGGER_CHECKLIST.md`
+4. `T0_TO_T24_COMMAND_SCRIPT.md`
+5. `REALTIME_KPI_WATCHBOARD_TEMPLATE.md`
+6. `PILOT_KPI_ACCOUNTABILITY_SCORECARD.md`
+7. `MASTER_INDEX_STEPS_55_TO_100.md` (this file)
