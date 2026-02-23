@@ -1,13 +1,21 @@
 # Step 83 Execution Artifact
 
-## Scope
-- Translate Step 83 into operator-ready actions
-- Define success metrics and checkpoints
+## Purpose
+Operationalize Step 83 into weekly actions, checkpoints, and measurable outcomes.
 
-## Core Actions
-- [ ] Confirm owner assignment
-- [ ] Confirm timeline and dependencies
-- [ ] Confirm reporting output
+## Weekly Checklist
+- [ ] Confirm owner and backup assignment
+- [ ] Confirm dependency status
+- [ ] Execute planned actions
+- [ ] Update KPI snapshot
+- [ ] Log decisions/escalations
 
-## Success Signal
-Step 83 accepted as operational baseline for the next cycle.
+## Reporting Block
+- Week:
+- Progress status:
+- KPI status:
+- Blockers:
+- Next action:
+
+## Completion Definition
+Step 83 is complete when planned actions are executed, KPI status is reported, and unresolved blockers have owner + deadline.

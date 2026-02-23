@@ -1,9 +1,9 @@
-# Step 84 — Pilot Onboarding Sprint Kit
+# Step 98 — Pilot to Productization Bridge
 
 Date: 2026-02-23
 
 ## Objective
-Standardize first onboarding sprint for new churches with completion gates and evidence capture.
+Translate pilot outcomes into committed product roadmap decisions and release plans.
 
 ## Strategic Scope
 - Operating model definition
@@ -16,18 +16,18 @@ Standardize first onboarding sprint for new churches with completion gates and e
 3. Success metrics and review cadence
 
 ## Success Metrics
-- Onboarding completion time, kickoff success, week-1 activity
+- Pilot-to-roadmap conversion rate, shipped pilot-driven items
 
 ## Risks
-- Owner confusion; setup drift
+- Pilot insight not reflected in roadmap
 
 ## Core Actions
-- [ ] Assign onboarding owner
-- [ ] Execute kickoff checklist
-- [ ] Capture baseline KPI snapshot
-- [ ] Close sprint with readiness signoff
+- [ ] Cluster pilot findings
+- [ ] Map to roadmap themes
+- [ ] Commit release windows
+- [ ] Track outcome after ship
 
 ## Exit Criteria
-- Step 84 is execution-ready with clear ownership.
+- Step 98 is execution-ready with clear ownership.
 - Metrics and review cadence are documented.
 - Handoff inputs for the next step are explicit.
