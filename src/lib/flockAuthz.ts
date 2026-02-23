@@ -2,6 +2,12 @@ import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export type ChurchRole = "member" | "group_leader" | "pastor_staff" | "church_admin";
 
+export const CHURCH_ROLES: ChurchRole[] = ["member", "group_leader", "pastor_staff", "church_admin"];
+
+export function isChurchRole(value: string): value is ChurchRole {
+  return CHURCH_ROLES.includes(value as ChurchRole);
+}
+
 export async function getMyChurchMembership(userId: string) {
   const admin = getSupabaseAdmin();
   const { data, error } = await admin

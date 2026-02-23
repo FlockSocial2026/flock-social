@@ -38,8 +38,43 @@ export async function POST(req: NextRequest) {
   const location = String(body?.location || "").trim();
 
   if (!title || !startsAt) return NextResponse.json({ error: "title and startsAt are required" }, { status: 400 });
+  if (title.length > 140) return NextResponse.json({ error: "title too long (max 140)" }, { status: 400 });
+  if (description.length > 5000) return NextResponse.json({ error: "description too long (max 5000)" }, { status: 400 });
+  if (location.length > 200) return NextResponse.json({ error: "location too long (max 200)" }, { status: 400 });
+
+  const startsAtDate = new Date(startsAt);
+  if (Number.isNaN(startsAtDate.getTime())) {
+    return NextResponse.json({ error: "startsAt must be a valid ISO date" }, { status: 400 });
+  }
+
+  const endsAtDate = endsAt ? new Date(endsAt) : null;
+  if (endsAt && (!endsAtDate || Number.isNaN(endsAtDate.getTime()))) {
+    return NextResponse.json({ error: "endsAt must be a valid ISO date" }, { status: 400 });
+  }
+  if (endsAtDate && endsAtDate.getTime() < startsAtDate.getTime()) {
+    return NextResponse.json({ error: "endsAt must be after startsAt" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
+
+  const { data: latestEvent, error: latestErr } = await admin
+    .from("church_events")
+    .select("created_at")
+    .eq("church_id", membership.church_id)
+    .eq("author_user_id", auth.user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestErr) return NextResponse.json({ error: latestErr.message }, { status: 500 });
+
+  if (latestEvent?.created_at) {
+    const msSinceLast = Date.now() - new Date(latestEvent.created_at).getTime();
+    if (msSinceLast < 30_000) {
+      return NextResponse.json({ error: "Event create cooldown: wait 30 seconds." }, { status: 429 });
+    }
+  }
+
   const { data, error } = await admin
     .from("church_events")
     .insert({
@@ -47,8 +82,8 @@ export async function POST(req: NextRequest) {
       author_user_id: auth.user.id,
       title,
       description: description || null,
-      starts_at: startsAt,
-      ends_at: endsAt || null,
+      starts_at: startsAtDate.toISOString(),
+      ends_at: endsAtDate ? endsAtDate.toISOString() : null,
       location: location || null,
     })
     .select("id")

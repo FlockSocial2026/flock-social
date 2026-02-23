@@ -36,11 +36,36 @@ export async function POST(req: NextRequest) {
   const audience = String(body?.audience || "all");
 
   if (!title || !text) return NextResponse.json({ error: "title and body are required" }, { status: 400 });
+  if (title.length > 120) return NextResponse.json({ error: "title too long (max 120)" }, { status: 400 });
+  if (text.length > 4000) return NextResponse.json({ error: "body too long (max 4000)" }, { status: 400 });
   if (!["all", "members", "leaders"].includes(audience)) {
     return NextResponse.json({ error: "Invalid audience" }, { status: 400 });
   }
 
   const admin = getSupabaseAdmin();
+
+  const { data: latest, error: latestErr } = await admin
+    .from("church_announcements")
+    .select("published_at")
+    .eq("church_id", membership.church_id)
+    .eq("author_user_id", auth.user.id)
+    .order("published_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestErr) return NextResponse.json({ error: latestErr.message }, { status: 500 });
+
+  const cooldownMinutes = Number(process.env.FLOCK_ANNOUNCEMENT_COOLDOWN_MINUTES || "2");
+  if (latest?.published_at) {
+    const msSinceLast = Date.now() - new Date(latest.published_at).getTime();
+    if (msSinceLast < cooldownMinutes * 60_000) {
+      return NextResponse.json(
+        { error: `Publish cooldown active. Try again in ${cooldownMinutes} minutes.` },
+        { status: 429 },
+      );
+    }
+  }
+
   const { data, error } = await admin
     .from("church_announcements")
     .insert({
