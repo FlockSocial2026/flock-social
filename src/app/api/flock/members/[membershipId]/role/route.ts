@@ -46,5 +46,20 @@ export async function PATCH(
     .eq("church_id", me.church_id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (target.role !== role) {
+    const { error: auditErr } = await admin.from("flock_role_audit").insert({
+      church_id: me.church_id,
+      membership_id: membershipId,
+      actor_user_id: auth.user.id,
+      target_user_id: target.user_id,
+      old_role: target.role,
+      new_role: role,
+      changed_at: new Date().toISOString(),
+    });
+
+    if (auditErr) return NextResponse.json({ error: auditErr.message }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true, id: membershipId, role });
 }

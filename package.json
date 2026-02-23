@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "audit:step30": "node scripts/step30-audit.mjs",
-    "readiness:step39": "node scripts/step39-release-readiness.mjs"
+    "readiness:step39": "node scripts/step39-release-readiness.mjs",
+    "schema:check:step44": "node scripts/step44-schema-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",

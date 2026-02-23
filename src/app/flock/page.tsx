@@ -14,6 +14,9 @@ export default function FlockPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [churchSlug, setChurchSlug] = useState("");
+  const [newChurchName, setNewChurchName] = useState("");
+  const [newChurchCity, setNewChurchCity] = useState("");
+  const [newChurchState, setNewChurchState] = useState("");
   const [msg, setMsg] = useState("");
 
   const load = async (accessToken: string) => {
@@ -57,6 +60,30 @@ export default function FlockPage() {
     await load(token);
   };
 
+  const bootstrapChurch = async () => {
+    if (!token || !newChurchName.trim()) return;
+    const res = await fetch("/api/flock/bootstrap", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        name: newChurchName.trim(),
+        city: newChurchCity.trim(),
+        state: newChurchState.trim(),
+      }),
+    });
+
+    if (!res.ok) {
+      setMsg(`Create church failed: ${await res.text()}`);
+      return;
+    }
+
+    setMsg("Church created and linked. You are church admin.");
+    setNewChurchName("");
+    setNewChurchCity("");
+    setNewChurchState("");
+    await load(token);
+  };
+
   const rsvp = async (eventId: string, status: "going" | "maybe" | "not_going") => {
     if (!token) return;
     const res = await fetch(`/api/flock/events/${eventId}/rsvp`, {
@@ -84,16 +111,43 @@ export default function FlockPage() {
       {msg ? <p>{msg}</p> : null}
 
       {!church ? (
-        <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-          <h3>Connect to your church</h3>
-          <input
-            placeholder="church slug (example: first-baptist-miami)"
-            value={churchSlug}
-            onChange={(e) => setChurchSlug(e.target.value)}
-            style={{ width: "100%", padding: 8, marginBottom: 8 }}
-          />
-          <button onClick={connect}>Connect</button>
-        </section>
+        <>
+          <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+            <h3>Connect to your church</h3>
+            <input
+              placeholder="church slug (example: first-baptist-miami)"
+              value={churchSlug}
+              onChange={(e) => setChurchSlug(e.target.value)}
+              style={{ width: "100%", padding: 8, marginBottom: 8 }}
+            />
+            <button onClick={connect}>Connect</button>
+          </section>
+
+          <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+            <h3>Create your church (bootstrap)</h3>
+            <input
+              placeholder="Church name"
+              value={newChurchName}
+              onChange={(e) => setNewChurchName(e.target.value)}
+              style={{ width: "100%", padding: 8, marginBottom: 8 }}
+            />
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <input
+                placeholder="City"
+                value={newChurchCity}
+                onChange={(e) => setNewChurchCity(e.target.value)}
+                style={{ flex: 1, padding: 8 }}
+              />
+              <input
+                placeholder="State"
+                value={newChurchState}
+                onChange={(e) => setNewChurchState(e.target.value)}
+                style={{ width: 120, padding: 8 }}
+              />
+            </div>
+            <button onClick={bootstrapChurch}>Create Church</button>
+          </section>
+        </>
       ) : (
         <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
           <h3 style={{ marginTop: 0 }}>{church.name}</h3>

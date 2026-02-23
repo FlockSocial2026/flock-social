@@ -8,18 +8,26 @@ export async function GET(req: NextRequest) {
   if (!auth.ok) return NextResponse.json({ error: auth.message }, { status: auth.status });
 
   const membership = await getMyChurchMembership(auth.user.id);
-  if (!membership) return NextResponse.json({ ok: true, items: [] });
+  if (!membership) return NextResponse.json({ ok: true, items: [], page: 1, pageSize: 20, total: 0, hasMore: false });
+
+  const sp = req.nextUrl.searchParams;
+  const page = Math.max(1, Number(sp.get("page") || "1") || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(sp.get("pageSize") || "20") || 20));
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   const admin = getSupabaseAdmin();
-  const { data, error } = await admin
+  const { data, error, count } = await admin
     .from("church_events")
-    .select("id,title,description,starts_at,ends_at,location")
+    .select("id,title,description,starts_at,ends_at,location", { count: "exact" })
     .eq("church_id", membership.church_id)
     .order("starts_at", { ascending: true })
-    .limit(100);
+    .range(from, to);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, items: data ?? [] });
+  const total = count ?? 0;
+  return NextResponse.json({ ok: true, items: data ?? [], page, pageSize, total, hasMore: total > page * pageSize });
 }
 
 export async function POST(req: NextRequest) {
