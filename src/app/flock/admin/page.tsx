@@ -17,7 +17,9 @@ export default function FlockAdminPage() {
   const [eventLocation, setEventLocation] = useState("");
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [roleAudit, setRoleAudit] = useState<RoleAuditRow[]>([]);
+  const [churchId, setChurchId] = useState<string | null>(null);
   const [pilotMetrics, setPilotMetrics] = useState<Record<string, number> | null>(null);
+  const [pilotTrends, setPilotTrends] = useState<Record<string, { current: number; previous: number; diff: number; pct: number | null }> | null>(null);
   const [msg, setMsg] = useState("");
 
   const loadMembers = async (t: string) => {
@@ -34,11 +36,13 @@ export default function FlockAdminPage() {
     setRoleAudit((json.items ?? []) as RoleAuditRow[]);
   };
 
-  const loadPilotMetrics = async () => {
-    const res = await fetch("/api/metrics/pilot-summary");
+  const loadPilotMetrics = async (scopeChurchId?: string | null) => {
+    const qs = scopeChurchId ? `?churchId=${encodeURIComponent(scopeChurchId)}` : "";
+    const res = await fetch(`/api/metrics/pilot-summary${qs}`);
     if (!res.ok) return;
     const json = await res.json();
     setPilotMetrics(json.metrics ?? null);
+    setPilotTrends(json.trends ?? null);
   };
 
   useEffect(() => {
@@ -52,9 +56,14 @@ export default function FlockAdminPage() {
       const json = await res.json();
       setRole(json.role ?? null);
 
+      const churchRes = await fetch("/api/flock/church", { headers: { Authorization: `Bearer ${t}` } });
+      const churchJson = await churchRes.json();
+      const cid = churchJson?.church?.id ?? null;
+      setChurchId(cid);
+
       await loadMembers(t);
       await loadRoleAudit(t);
-      await loadPilotMetrics();
+      await loadPilotMetrics(cid);
     };
     boot();
   }, []);
@@ -150,12 +159,26 @@ export default function FlockAdminPage() {
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Pilot Metrics Snapshot</h3>
+        <p style={{ color: "#666", marginTop: 0 }}>Scope: {churchId ? `church ${churchId.slice(0, 8)}...` : "global"}</p>
         {!pilotMetrics ? (
           <p style={{ color: "#666" }}>Metrics unavailable.</p>
         ) : (
           <ul>
             {Object.entries(pilotMetrics).map(([k, v]) => (
               <li key={k}><strong>{k}</strong>: {v}</li>
+            ))}
+          </ul>
+        )}
+
+        <h4 style={{ marginBottom: 6 }}>Trend Deltas</h4>
+        {!pilotTrends ? (
+          <p style={{ color: "#666" }}>Trend deltas unavailable.</p>
+        ) : (
+          <ul>
+            {Object.entries(pilotTrends).map(([k, t]) => (
+              <li key={k}>
+                <strong>{k}</strong>: {t.current} vs {t.previous} ({t.diff >= 0 ? "+" : ""}{t.diff}, {t.pct === null ? "n/a" : `${t.pct}%`})
+              </li>
             ))}
           </ul>
         )}
