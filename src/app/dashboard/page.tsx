@@ -75,6 +75,26 @@ export default function DashboardPage() {
           Discover
         </Link>
 
+        <Link href="/prayer" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Prayer
+        </Link>
+
+        <Link href="/groups" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Groups
+        </Link>
+
+        <Link href="/search" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Search
+        </Link>
+
+        <Link href="/flock" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Flock
+        </Link>
+
+        <Link href="/events" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
+          Events
+        </Link>
+
         <Link href="/notifications" style={{ padding: "10px 14px", border: "1px solid #ccc", borderRadius: 8, textDecoration: "none" }}>
           Notifications {unread > 0 ? `(${unread})` : ""}
         </Link>
