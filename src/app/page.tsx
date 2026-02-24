@@ -8,10 +8,10 @@ const liveFeatures = [
   "Moderation queue + audit + summary cron foundation",
 ];
 
-const BUILD_STAMP = "2026-02-24T09:42-EST";
+const BUILD_STAMP = "2026-02-24T14:15-EST";
 
 const nextBuildItems = [
-  "Messaging/Inbox UI",
+  "Messages live data + send flow",
   "Church onboarding polish + first-run wizard",
   "Search quality and discovery ranking improvements",
   "Prayer leaderboard release (currently gated)",
@@ -48,7 +48,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Step 901 complete
+            Build status: Step 904 complete
           </span>
         </div>
 
@@ -127,7 +127,7 @@ export default function HomePage() {
               <Link href="/flock/admin">Flock Admin</Link> (role-based)
             </li>
             <li>
-              <Link href="/events">Events</Link> and <Link href="/prayer">Prayer</Link>
+              <Link href="/events">Events</Link>, <Link href="/messages">Messages</Link>, and <Link href="/prayer">Prayer</Link>
             </li>
           </ul>
         </div>

@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const [buildStep, setBuildStep] = useState<string>("902");
+  const [buildStep, setBuildStep] = useState<string>("904");
 
   useEffect(() => {
     const boot = async () => {
@@ -160,6 +160,7 @@ export default function DashboardPage() {
           <Link href="/search">Search</Link>
           <Link href="/flock">Flock</Link>
           <Link href="/events">Events</Link>
+          <Link href="/messages">Messages</Link>
           <Link href="/notifications">Notifications</Link>
           <Link href="/settings/profile">Profile Settings</Link>
           <Link href="/reports">My Reports</Link>
@@ -171,7 +172,7 @@ export default function DashboardPage() {
         <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           <li>Dashboard activity stream (real recent actions)</li>
-          <li>Messages/Inbox surface with live data model</li>
+          <li>Messages live thread data model + send workflow</li>
           <li>Church onboarding checklist UX pass</li>
         </ul>
       </section>
