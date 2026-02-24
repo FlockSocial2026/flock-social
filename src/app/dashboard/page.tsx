@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const [buildStep, setBuildStep] = useState<string>("904");
+  const [buildStep, setBuildStep] = useState<string>("905");
 
   useEffect(() => {
     const boot = async () => {
@@ -173,7 +173,7 @@ export default function DashboardPage() {
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           <li>Dashboard activity stream (real recent actions)</li>
           <li>Messages live thread data model + send workflow</li>
-          <li>Church onboarding checklist UX pass</li>
+          <li>Role-aware onboarding completion prompts</li>
         </ul>
       </section>
 
