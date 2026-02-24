@@ -8,6 +8,8 @@ const liveFeatures = [
   "Moderation queue + audit + summary cron foundation",
 ];
 
+const BUILD_STAMP = "2026-02-24T09:42-EST";
+
 const nextBuildItems = [
   "Messaging/Inbox UI",
   "Church onboarding polish + first-run wizard",
@@ -44,6 +46,7 @@ export default function HomePage() {
               fontWeight: 600,
               whiteSpace: "nowrap",
             }}
+            title={`build ${BUILD_STAMP}`}
           >
             Build status: Step 901 complete
           </span>
