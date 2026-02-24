@@ -38,3 +38,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 <!-- redeploy trigger: 2026-02-24 09:36 EST -->
 
 <!-- redeploy trigger after git reconnect: 2026-02-24 09:41 EST -->
+
+<!-- redeploy trigger after github app permission fix: 2026-02-24 10:06 EST -->
