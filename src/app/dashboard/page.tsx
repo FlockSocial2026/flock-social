@@ -37,8 +37,9 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const [buildStep, setBuildStep] = useState<string>("906");
+  const buildStep = "907";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 
   useEffect(() => {
     const boot = async () => {
@@ -151,6 +152,23 @@ export default function DashboardPage() {
     [unread, flockRole, canModerate, buildStep]
   );
 
+  const filteredActivity = useMemo(
+    () =>
+      activityFilter === "all"
+        ? activity
+        : activity.filter((item) => item.kind === activityFilter),
+    [activity, activityFilter]
+  );
+
+  const activityCounts = useMemo(
+    () => ({
+      all: activity.length,
+      notification: activity.filter((item) => item.kind === "notification").length,
+      report: activity.filter((item) => item.kind === "report").length,
+    }),
+    [activity]
+  );
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/auth/login");
@@ -217,11 +235,39 @@ export default function DashboardPage() {
 
       <section style={{ ...cardStyle, marginBottom: 14 }}>
         <h3 style={{ marginTop: 0 }}>Recent Activity</h3>
-        {activity.length === 0 ? (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+          {([
+            { key: "all", label: `All (${activityCounts.all})` },
+            { key: "notification", label: `Notifications (${activityCounts.notification})` },
+            { key: "report", label: `Reports (${activityCounts.report})` },
+          ] as const).map((item) => {
+            const active = activityFilter === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setActivityFilter(item.key)}
+                style={{
+                  border: active ? "1px solid #111827" : "1px solid #d1d5db",
+                  background: active ? "#111827" : "#fff",
+                  color: active ? "#fff" : "#111827",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 10px",
+                  cursor: "pointer",
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {filteredActivity.length === 0 ? (
           <p style={{ color: "#6b7280", margin: 0 }}>No recent activity yet.</p>
         ) : (
           <div style={{ display: "grid", gap: 8 }}>
-            {activity.map((item) => (
+            {filteredActivity.map((item) => (
               <div key={item.id} style={{ border: "1px solid #edf0f4", borderRadius: 8, padding: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
                   <strong>{item.title}</strong>
@@ -252,11 +298,31 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      <section style={{ ...cardStyle, marginBottom: 14 }}>
+        <h3 style={{ marginTop: 0 }}>Quick Actions</h3>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Link href="/messages" style={{ fontWeight: 700 }}>
+            Open Inbox
+          </Link>
+          <Link href="/notifications" style={{ fontWeight: 700 }}>
+            Review Alerts
+          </Link>
+          <Link href="/reports" style={{ fontWeight: 700 }}>
+            Check My Reports
+          </Link>
+          {canModerate ? (
+            <Link href="/moderation" style={{ fontWeight: 700 }}>
+              Triage Moderation Queue
+            </Link>
+          ) : null}
+        </div>
+      </section>
+
       <section style={{ ...cardStyle }}>
         <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
-          <li>Messages live thread data model + send workflow</li>
-          <li>Role-aware onboarding completion prompts</li>
+          <li>Messages live thread data model + send workflow polish</li>
+          <li>Role-aware onboarding completion prompts by church role</li>
           <li>Church admin broadcast + inbox bridge</li>
         </ul>
       </section>

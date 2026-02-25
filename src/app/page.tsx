@@ -6,9 +6,10 @@ const liveFeatures = [
   "Role-based admin controls (member, group leader, pastor/staff, church admin)",
   "Pilot metrics snapshot + trend deltas",
   "Moderation queue + audit + summary cron foundation",
+  "Dashboard recent activity filters + quick actions",
 ];
 
-const BUILD_STAMP = "2026-02-24T18:28-EST";
+const BUILD_STAMP = "2026-02-25T13:15-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -48,7 +49,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Step 906 complete
+            Build status: Step 907 complete
           </span>
         </div>
 
