@@ -119,6 +119,39 @@ export default function EventsPage() {
     return rows;
   }, [filteredEvents, sortMode]);
 
+  const exportVisibleEventsCsv = () => {
+    if (sortedEvents.length === 0) {
+      setMsg("No events in current view to export.");
+      return;
+    }
+
+    const header = ["event_id", "title", "starts_at", "location", "going", "maybe", "not_going", "total", "my_rsvp"];
+    const rows = sortedEvents.map((event) => {
+      const my = rsvpMap[event.id] ?? event.my_rsvp ?? "";
+      return [
+        event.id,
+        `"${event.title.replace(/"/g, '""')}"`,
+        event.starts_at,
+        `"${(event.location ?? "").replace(/"/g, '""')}"`,
+        String(event.rsvp_summary?.going ?? 0),
+        String(event.rsvp_summary?.maybe ?? 0),
+        String(event.rsvp_summary?.not_going ?? 0),
+        String(event.rsvp_summary?.total ?? 0),
+        my,
+      ];
+    });
+
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `events-view-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setMsg("Exported current events view.");
+  };
+
   const submitRsvp = async (eventId: string, status: RSVPStatus) => {
     if (!token) return;
 
@@ -174,7 +207,7 @@ export default function EventsPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 921
+              STEP 922
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>
@@ -230,6 +263,9 @@ export default function EventsPage() {
               </button>
             );
           })}
+        </div>
+        <div style={{ marginTop: 8 }}>
+          <button onClick={exportVisibleEventsCsv}>Export Current View CSV</button>
         </div>
         {msg ? <p style={{ marginBottom: 0 }}>{msg}</p> : null}
       </section>
