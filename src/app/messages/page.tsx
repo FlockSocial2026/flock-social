@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type Thread = {
   id: string;
@@ -49,10 +50,13 @@ const initialMessages: Message[] = [
 ];
 
 export default function MessagesPage() {
+  const searchParams = useSearchParams();
   const [threads, setThreads] = useState<Thread[]>(initialThreads);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeThreadId, setActiveThreadId] = useState<string>(initialThreads[0].id);
-  const [draft, setDraft] = useState<string>("");
+  const [draft, setDraft] = useState<string>(() => decodeURIComponent(searchParams.get("prefill") ?? ""));
+
+  const sourceTag = searchParams.get("audience") ? `Broadcast bridge: ${searchParams.get("audience")}` : "";
 
   const activeThread = useMemo(
     () => threads.find((thread) => thread.id === activeThreadId) ?? threads[0],
@@ -144,6 +148,9 @@ export default function MessagesPage() {
 
         <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, background: "#fff" }}>
           <h3 style={{ marginTop: 0 }}>{activeThread?.name ?? "Thread"}</h3>
+          {sourceTag ? (
+            <p style={{ marginTop: -6, marginBottom: 10, fontSize: 12, color: "#1d4ed8", fontWeight: 700 }}>{sourceTag}</p>
+          ) : null}
 
           <div
             style={{

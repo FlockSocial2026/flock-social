@@ -111,6 +111,12 @@ export default function FlockAdminPage() {
     setMsg("Event created.");
   };
 
+  const buildBroadcastPrefill = () => {
+    const heading = title.trim() ? `Announcement: ${title.trim()}` : "Announcement";
+    const content = body.trim() || "(add announcement message)";
+    return encodeURIComponent(`${heading}\n\n${content}`);
+  };
+
   const updateRole = async (membershipId: string, nextRole: MemberRow["role"]) => {
     if (!token) return;
     const res = await fetch(`/api/flock/members/${membershipId}/role`, {
@@ -146,7 +152,18 @@ export default function FlockAdminPage() {
         <h3 style={{ marginTop: 0 }}>Weekly Push Announcement</h3>
         <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
         <textarea placeholder="Body" value={body} onChange={(e) => setBody(e.target.value)} rows={4} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
-        <button onClick={publishAnnouncement} disabled={!allowed}>Publish Announcement</button>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button onClick={publishAnnouncement} disabled={!allowed}>Publish Announcement</button>
+          <Link
+            href={`/messages?audience=church_all&prefill=${buildBroadcastPrefill()}`}
+            style={{ alignSelf: "center", fontSize: 14 }}
+          >
+            Bridge to Inbox Draft
+          </Link>
+        </div>
+        <p style={{ marginBottom: 0, color: "#666", fontSize: 12 }}>
+          Bridge sends your announcement into Messages as a prefilled draft for direct inbox follow-up.
+        </p>
       </section>
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
