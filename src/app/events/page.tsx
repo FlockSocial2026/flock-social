@@ -207,7 +207,7 @@ export default function EventsPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 922
+              STEP 924
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>

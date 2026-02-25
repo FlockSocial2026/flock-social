@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const buildStep = "923";
+  const buildStep = "924";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 
@@ -324,12 +324,22 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      <section style={{ ...cardStyle, marginBottom: 14 }}>
+        <h3 style={{ marginTop: 0 }}>Execution Console</h3>
+        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+          <li><Link href="/events?focus=upcoming">Run upcoming event outreach</Link></li>
+          <li><Link href="/flock/admin">Open admin attendance drilldown</Link></li>
+          <li>Runbook: <code>docs/STEP_923_EVENT_REMINDER_AUTOMATION.md</code></li>
+          <li>Closeout: <code>docs/STEP_924_CLOSEOUT_915_924.md</code></li>
+        </ul>
+      </section>
+
       <section style={{ ...cardStyle }}>
         <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
-          <li>Messages live thread data model + send workflow polish</li>
-          <li>Role-aware onboarding completion prompts by church role</li>
-          <li>Event reminder automation + attendance follow-up workflows</li>
+          <li>Scheduled reminder automation (T-72/T-24/T-2 cadence)</li>
+          <li>Event-message send logs tied to attendance conversion</li>
+          <li>Conversion trend analytics (maybe -&gt; going)</li>
         </ul>
       </section>
 
