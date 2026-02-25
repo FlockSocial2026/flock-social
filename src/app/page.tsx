@@ -8,9 +8,10 @@ const liveFeatures = [
   "Moderation queue + audit + summary cron foundation",
   "Dashboard recent activity filters + quick actions",
   "Church admin broadcast-to-inbox draft bridge",
+  "Discover relevance ranking + mode filters",
 ];
 
-const BUILD_STAMP = "2026-02-25T14:10-EST";
+const BUILD_STAMP = "2026-02-25T14:28-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -50,7 +51,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Step 910 complete
+            Build status: Step 911 complete
           </span>
         </div>
 

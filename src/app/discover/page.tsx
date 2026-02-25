@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -20,11 +20,47 @@ type Post = {
   created_at: string;
 };
 
+type SearchMode = "all" | "users" | "posts";
+type SortMode = "relevance" | "recent";
+
+const normalize = (v: string) => v.trim().toLowerCase();
+
+const userScore = (u: Profile, term: string) => {
+  const uname = normalize(u.username ?? "");
+  const full = normalize(u.full_name ?? "");
+  let score = 0;
+
+  if (uname === term) score += 120;
+  if (full === term) score += 100;
+  if (uname.startsWith(term)) score += 70;
+  if (full.startsWith(term)) score += 50;
+  if (uname.includes(term)) score += 30;
+  if (full.includes(term)) score += 20;
+
+  return score;
+};
+
+const postScore = (p: Post, term: string) => {
+  const text = normalize(p.content);
+  let score = 0;
+
+  if (text.startsWith(term)) score += 40;
+  if (text.includes(term)) score += 20;
+
+  const ageHours = Math.max(0, (Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60));
+  const recencyBoost = Math.max(0, 24 - ageHours);
+  score += recencyBoost;
+
+  return score;
+};
+
 export default function DiscoverPage() {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [searchMode, setSearchMode] = useState<SearchMode>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("relevance");
 
   const [users, setUsers] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -39,48 +75,66 @@ export default function DiscoverPage() {
   }, [router]);
 
   const search = async () => {
-    const term = q.trim();
-    if (!term) {
+    const termRaw = q.trim();
+    if (!termRaw) {
       setUsers([]);
       setPosts([]);
       setMsg("Type something to search.");
       return;
     }
 
+    const term = normalize(termRaw);
+
     setLoading(true);
     setMsg("");
 
-    // Users search
-    const { data: usersData, error: usersErr } = await supabase
-      .from("profiles")
-      .select("id,username,full_name")
-      .or(`username.ilike.%${term}%,full_name.ilike.%${term}%`)
-      .limit(20);
+    const shouldSearchUsers = searchMode === "all" || searchMode === "users";
+    const shouldSearchPosts = searchMode === "all" || searchMode === "posts";
 
-    if (usersErr) {
-      setMsg(`User search error: ${usersErr.message}`);
-      setLoading(false);
-      return;
+    let foundUsers: Profile[] = [];
+    let foundPosts: Post[] = [];
+
+    if (shouldSearchUsers) {
+      const { data: usersData, error: usersErr } = await supabase
+        .from("profiles")
+        .select("id,username,full_name")
+        .or(`username.ilike.%${termRaw}%,full_name.ilike.%${termRaw}%`)
+        .limit(30);
+
+      if (usersErr) {
+        setMsg(`User search error: ${usersErr.message}`);
+        setLoading(false);
+        return;
+      }
+
+      foundUsers = (usersData ?? []) as Profile[];
+
+      if (sortMode === "relevance") {
+        foundUsers = foundUsers.sort((a, b) => userScore(b, term) - userScore(a, term));
+      }
     }
 
-    // Posts search
-    const { data: postsData, error: postsErr } = await supabase
-      .from("posts")
-      .select("id,user_id,content,image_url,created_at")
-      .ilike("content", `%${term}%`)
-      .order("created_at", { ascending: false })
-      .limit(30);
+    if (shouldSearchPosts) {
+      const { data: postsData, error: postsErr } = await supabase
+        .from("posts")
+        .select("id,user_id,content,image_url,created_at")
+        .ilike("content", `%${termRaw}%`)
+        .order("created_at", { ascending: false })
+        .limit(40);
 
-    if (postsErr) {
-      setMsg(`Post search error: ${postsErr.message}`);
-      setLoading(false);
-      return;
+      if (postsErr) {
+        setMsg(`Post search error: ${postsErr.message}`);
+        setLoading(false);
+        return;
+      }
+
+      foundPosts = (postsData ?? []) as Post[];
+
+      if (sortMode === "relevance") {
+        foundPosts = foundPosts.sort((a, b) => postScore(b, term) - postScore(a, term));
+      }
     }
 
-    const foundUsers = (usersData ?? []) as Profile[];
-    const foundPosts = (postsData ?? []) as Post[];
-
-    // Map profiles for post authors
     const ids = Array.from(new Set(foundPosts.map((p) => p.user_id)));
     let map = new Map<string, Profile>();
 
@@ -98,7 +152,19 @@ export default function DiscoverPage() {
     setUsers(foundUsers);
     setPosts(foundPosts);
     setProfileMap(map);
-    track("discover_search", { term, users: foundUsers.length, posts: foundPosts.length });
+
+    track("discover_search", {
+      term: termRaw,
+      mode: searchMode,
+      sort: sortMode,
+      users: foundUsers.length,
+      posts: foundPosts.length,
+    });
+
+    if (foundUsers.length === 0 && foundPosts.length === 0) {
+      setMsg("No results yet. Try a broader keyword.");
+    }
+
     setLoading(false);
   };
 
@@ -116,11 +182,16 @@ export default function DiscoverPage() {
   return (
     <main style={{ maxWidth: 900, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <h1>Discover</h1>
+        <div>
+          <h1 style={{ marginBottom: 6 }}>Discover</h1>
+          <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
+            STEP 911
+          </span>
+        </div>
         <Link href="/dashboard">Back to Dashboard</Link>
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -134,6 +205,63 @@ export default function DiscoverPage() {
           {loading ? "Searching..." : "Search"}
         </button>
       </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+        {([
+          { key: "all", label: "All" },
+          { key: "users", label: "Users" },
+          { key: "posts", label: "Posts" },
+        ] as const).map((item) => {
+          const active = searchMode === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => setSearchMode(item.key)}
+              style={{
+                border: active ? "1px solid #111827" : "1px solid #d1d5db",
+                background: active ? "#111827" : "#fff",
+                color: active ? "#fff" : "#111827",
+                borderRadius: 999,
+                padding: "6px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+
+        {([
+          { key: "relevance", label: "Sort: Relevance" },
+          { key: "recent", label: "Sort: Recent" },
+        ] as const).map((item) => {
+          const active = sortMode === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => setSortMode(item.key)}
+              style={{
+                border: active ? "1px solid #1d4ed8" : "1px solid #d1d5db",
+                background: active ? "#eff6ff" : "#fff",
+                color: active ? "#1d4ed8" : "#111827",
+                borderRadius: 999,
+                padding: "6px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <p style={{ marginTop: 0, marginBottom: 12, color: "#6b7280" }}>
+        Results: {users.length} users • {posts.length} posts
+      </p>
 
       {msg ? <p style={{ marginBottom: 12 }}>{msg}</p> : null}
 
