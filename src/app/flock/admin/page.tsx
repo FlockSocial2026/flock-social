@@ -16,10 +16,22 @@ type EventAttendanceRow = {
 
 type DispatchLogItem = {
   id: string;
+  eventId?: string | null;
   eventTitle: string;
   audience: string;
   cadence: "T-72h" | "T-24h" | "T-2h";
   createdAt: string;
+};
+
+type ConversionTimelineItem = {
+  event_id: string;
+  title: string;
+  starts_at: string;
+  going: number;
+  maybe: number;
+  not_going: number;
+  total: number;
+  maybe_to_going_pct: number | null;
 };
 
 export default function FlockAdminPage() {
@@ -49,6 +61,7 @@ export default function FlockAdminPage() {
     }
   });
   const [msg, setMsg] = useState("");
+  const [conversionTimeline, setConversionTimeline] = useState<ConversionTimelineItem[]>([]);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -80,6 +93,28 @@ export default function FlockAdminPage() {
     setEventAttendance((json.items ?? []) as EventAttendanceRow[]);
   };
 
+  const loadDispatchLogs = async (t: string) => {
+    const res = await fetch("/api/flock/dispatch-logs?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    const items = ((json.items ?? []) as Array<Record<string, unknown>>).map((item) => ({
+      id: String(item.id ?? ""),
+      eventId: item.event_id ? String(item.event_id) : null,
+      eventTitle: String(item.event_title ?? "(event)"),
+      audience: String(item.audience ?? "all"),
+      cadence: String(item.cadence ?? "T-24h") as "T-72h" | "T-24h" | "T-2h",
+      createdAt: String(item.created_at ?? new Date().toISOString()),
+    }));
+    setDispatchLog(items);
+  };
+
+  const loadConversionTimeline = async (t: string) => {
+    const res = await fetch("/api/flock/conversion-timeline?limit=12", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setConversionTimeline((json.items ?? []) as ConversionTimelineItem[]);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -100,6 +135,8 @@ export default function FlockAdminPage() {
       await loadRoleAudit(t);
       await loadPilotMetrics(cid);
       await loadEventAttendance(t);
+      await loadDispatchLogs(t);
+      await loadConversionTimeline(t);
     };
     boot();
   }, []);
@@ -201,17 +238,36 @@ export default function FlockAdminPage() {
     setMsg("Event attendance CSV exported.");
   };
 
-  const logDispatch = (event: EventAttendanceRow, audience: string, cadence: "T-72h" | "T-24h" | "T-2h") => {
-    setDispatchLog((prev) => [
-      {
-        id: `d-${Date.now()}`,
-        eventTitle: event.title,
-        audience,
-        cadence,
-        createdAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
+  const logDispatch = async (event: EventAttendanceRow, audience: string, cadence: "T-72h" | "T-24h" | "T-2h") => {
+    const fallbackItem: DispatchLogItem = {
+      id: `local-${event.id}-${audience}-${cadence}-${dispatchLog.length + 1}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      audience,
+      cadence,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!token) {
+      setDispatchLog((prev) => [fallbackItem, ...prev]);
+      setMsg(`Logged ${cadence} dispatch for ${event.title} (${audience}).`);
+      return;
+    }
+
+    const res = await fetch("/api/flock/dispatch-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ eventId: event.id, eventTitle: event.title, audience, cadence }),
+    });
+
+    if (!res.ok) {
+      setDispatchLog((prev) => [fallbackItem, ...prev]);
+      setMsg(`Dispatch API unavailable; logged locally for ${event.title}.`);
+      return;
+    }
+
+    await loadDispatchLogs(token);
+    await loadConversionTimeline(token);
     setMsg(`Logged ${cadence} dispatch for ${event.title} (${audience}).`);
   };
 
@@ -417,6 +473,30 @@ export default function FlockAdminPage() {
               <b>{log.cadence}</b> • {log.eventTitle} • audience: {log.audience} • {new Date(log.createdAt).toLocaleString()}
             </div>
           ))}
+        </div>
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <h3 style={{ marginTop: 0 }}>Conversion Timeline</h3>
+        {conversionTimeline.length === 0 ? <p style={{ color: "#666" }}>No conversion timeline data yet.</p> : null}
+        <div style={{ display: "grid", gap: 8 }}>
+          {conversionTimeline.map((item) => {
+            const pct = item.maybe_to_going_pct ?? 0;
+            return (
+              <div key={item.event_id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                  <strong>{item.title}</strong>
+                  <span style={{ fontSize: 12, color: "#666" }}>{new Date(item.starts_at).toLocaleString()}</span>
+                </div>
+                <div style={{ marginTop: 6, background: "#f3f4f6", borderRadius: 999, height: 8 }}>
+                  <div style={{ width: `${pct}%`, background: pct >= 60 ? "#166534" : pct >= 40 ? "#92400e" : "#b91c1c", height: 8, borderRadius: 999 }} />
+                </div>
+                <div style={{ fontSize: 12, color: "#555", marginTop: 6 }}>
+                  maybe→going: {item.maybe_to_going_pct === null ? "n/a" : `${item.maybe_to_going_pct}%`} • total responses: {item.total}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
