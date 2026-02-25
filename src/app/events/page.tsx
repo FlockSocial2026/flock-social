@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type RSVPStatus = "going" | "maybe" | "not_going";
+
 type EventRow = {
   id: string;
   title: string;
@@ -12,9 +14,16 @@ type EventRow = {
   starts_at: string;
   ends_at: string | null;
   location: string | null;
+  my_rsvp: RSVPStatus | null;
+  rsvp_summary: {
+    going: number;
+    maybe: number;
+    not_going: number;
+    total: number;
+  };
 };
 
-type RSVPStatus = "going" | "maybe" | "not_going";
+type EventFilter = "all" | "upcoming" | "past";
 
 const rsvpOptions: RSVPStatus[] = ["going", "maybe", "not_going"];
 
@@ -26,6 +35,7 @@ export default function EventsPage() {
   const [busyEventId, setBusyEventId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [nowTs] = useState<number>(() => Date.now());
+  const [filterMode, setFilterMode] = useState<EventFilter>("all");
 
   useEffect(() => {
     const boot = async () => {
@@ -50,7 +60,14 @@ export default function EventsPage() {
       }
 
       const json = await res.json();
-      setEvents((json.items ?? []) as EventRow[]);
+      const rows = (json.items ?? []) as EventRow[];
+      setEvents(rows);
+
+      const initialRsvp: Record<string, RSVPStatus | undefined> = {};
+      for (const row of rows) {
+        if (row.my_rsvp) initialRsvp[row.id] = row.my_rsvp;
+      }
+      setRsvpMap(initialRsvp);
     };
 
     boot();
@@ -60,6 +77,12 @@ export default function EventsPage() {
     () => events.filter((event) => new Date(event.starts_at).getTime() >= nowTs).length,
     [events, nowTs]
   );
+
+  const filteredEvents = useMemo(() => {
+    if (filterMode === "all") return events;
+    if (filterMode === "upcoming") return events.filter((event) => new Date(event.starts_at).getTime() >= nowTs);
+    return events.filter((event) => new Date(event.starts_at).getTime() < nowTs);
+  }, [events, filterMode, nowTs]);
 
   const submitRsvp = async (eventId: string, status: RSVPStatus) => {
     if (!token) return;
@@ -83,6 +106,25 @@ export default function EventsPage() {
     }
 
     setRsvpMap((prev) => ({ ...prev, [eventId]: status }));
+    setEvents((prev) =>
+      prev.map((event) => {
+        if (event.id !== eventId) return event;
+
+        const oldStatus = rsvpMap[eventId];
+        const nextSummary = { ...event.rsvp_summary };
+
+        if (oldStatus) {
+          nextSummary[oldStatus] = Math.max(0, nextSummary[oldStatus] - 1);
+          nextSummary.total = Math.max(0, nextSummary.total - 1);
+        }
+
+        nextSummary[status] += 1;
+        nextSummary.total += 1;
+
+        return { ...event, my_rsvp: status, rsvp_summary: nextSummary };
+      })
+    );
+
     setBusyEventId(null);
     setMsg(`RSVP updated: ${status.replace("_", " ")}.`);
   };
@@ -93,11 +135,11 @@ export default function EventsPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Events</h1>
-            <p style={{ margin: 0, color: "#6b7280" }}>Church event stream + RSVP workflow.</p>
+            <p style={{ margin: 0, color: "#6b7280" }}>Church event stream + RSVP workflow with attendance signals.</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 912
+              STEP 913
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>
@@ -108,17 +150,39 @@ export default function EventsPage() {
         <p style={{ margin: 0, color: "#374151" }}>
           <strong>{events.length}</strong> total events • <strong>{upcomingCount}</strong> upcoming
         </p>
+        <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+          {(["all", "upcoming", "past"] as const).map((mode) => {
+            const active = filterMode === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => setFilterMode(mode)}
+                style={{
+                  border: active ? "1px solid #111827" : "1px solid #d1d5db",
+                  background: active ? "#111827" : "#fff",
+                  color: active ? "#fff" : "#111827",
+                  borderRadius: 999,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                {mode}
+              </button>
+            );
+          })}
+        </div>
         {msg ? <p style={{ marginBottom: 0 }}>{msg}</p> : null}
       </section>
 
       <section style={{ display: "grid", gap: 10 }}>
-        {events.length === 0 ? (
+        {filteredEvents.length === 0 ? (
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, color: "#6b7280" }}>
-            No events yet. Church staff can publish events from Flock Admin.
+            No events in this view yet. Church staff can publish events from Flock Admin.
           </div>
         ) : (
-          events.map((event) => {
-            const selected = rsvpMap[event.id];
+          filteredEvents.map((event) => {
+            const selected = rsvpMap[event.id] ?? event.my_rsvp ?? undefined;
             const isBusy = busyEventId === event.id;
 
             return (
@@ -131,7 +195,7 @@ export default function EventsPage() {
                 {event.location ? <p style={{ margin: "0 0 6px", color: "#4b5563" }}>Location: {event.location}</p> : null}
                 {event.description ? <p style={{ margin: "0 0 10px" }}>{event.description}</p> : null}
 
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
                   {rsvpOptions.map((option) => {
                     const active = selected === option;
                     return (
@@ -154,6 +218,10 @@ export default function EventsPage() {
                   })}
                   {selected ? <span style={{ fontSize: 12, color: "#166534" }}>Your RSVP: {selected.replace("_", " ")}</span> : null}
                 </div>
+
+                <p style={{ margin: 0, fontSize: 12, color: "#6b7280" }}>
+                  Attendance signal: {event.rsvp_summary.going} going • {event.rsvp_summary.maybe} maybe • {event.rsvp_summary.not_going} not going • {event.rsvp_summary.total} total responses
+                </p>
               </article>
             );
           })

@@ -3,6 +3,23 @@ import { requireAuth } from "@/lib/auth";
 import { canPublish, getMyChurchMembership } from "@/lib/flockAuthz";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
+type RsvpStatus = "going" | "maybe" | "not_going";
+
+type EventRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  location: string | null;
+};
+
+type EventRsvpRow = {
+  event_id: string;
+  status: RsvpStatus;
+  user_id: string;
+};
+
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
   if (!auth.ok) return NextResponse.json({ error: auth.message }, { status: auth.status });
@@ -26,8 +43,46 @@ export async function GET(req: NextRequest) {
     .range(from, to);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const events = (data ?? []) as EventRow[];
+  const eventIds = events.map((event) => event.id);
+
+  const summaryByEvent: Record<string, { going: number; maybe: number; not_going: number; total: number }> = {};
+  const myRsvpByEvent: Record<string, RsvpStatus | null> = {};
+
+  if (eventIds.length > 0) {
+    const { data: rsvps, error: rsvpErr } = await admin
+      .from("event_rsvps")
+      .select("event_id,status,user_id")
+      .in("event_id", eventIds);
+
+    if (rsvpErr) return NextResponse.json({ error: rsvpErr.message }, { status: 500 });
+
+    for (const eventId of eventIds) {
+      summaryByEvent[eventId] = { going: 0, maybe: 0, not_going: 0, total: 0 };
+      myRsvpByEvent[eventId] = null;
+    }
+
+    for (const row of (rsvps ?? []) as EventRsvpRow[]) {
+      const bucket = summaryByEvent[row.event_id];
+      if (!bucket) continue;
+      bucket[row.status] += 1;
+      bucket.total += 1;
+
+      if (row.user_id === auth.user.id) {
+        myRsvpByEvent[row.event_id] = row.status;
+      }
+    }
+  }
+
   const total = count ?? 0;
-  return NextResponse.json({ ok: true, items: data ?? [], page, pageSize, total, hasMore: total > page * pageSize });
+  const items = events.map((event) => ({
+    ...event,
+    rsvp_summary: summaryByEvent[event.id] ?? { going: 0, maybe: 0, not_going: 0, total: 0 },
+    my_rsvp: myRsvpByEvent[event.id] ?? null,
+  }));
+
+  return NextResponse.json({ ok: true, items, page, pageSize, total, hasMore: total > page * pageSize });
 }
 
 export async function POST(req: NextRequest) {
