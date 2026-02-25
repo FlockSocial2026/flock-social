@@ -4,6 +4,22 @@
     {
       "path": "/api/moderation/summary-cron?windowHours=24&openWarn=25&newWarn=15&userWarn=5",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/flock/attendance-snapshot-cron?sinceHours=336",
+      "schedule": "15 */6 * * *"
+    },
+    {
+      "path": "/api/flock/reminder-cron?cadence=T-72h",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/flock/reminder-cron?cadence=T-24h",
+      "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/flock/reminder-cron?cadence=T-2h",
+      "schedule": "20 * * * *"
     }
   ]
 }

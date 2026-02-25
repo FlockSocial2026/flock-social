@@ -2,7 +2,7 @@
 create table if not exists public.flock_dispatch_logs (
   id uuid primary key default gen_random_uuid(),
   church_id uuid not null references public.churches(id) on delete cascade,
-  actor_user_id uuid not null references auth.users(id) on delete cascade,
+  actor_user_id uuid null references auth.users(id) on delete set null,
   event_id uuid null references public.church_events(id) on delete set null,
   event_title text not null,
   audience text not null,
