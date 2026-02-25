@@ -11,19 +11,88 @@ type ChecklistItem = {
   required?: boolean;
 };
 
+type ChurchRole = "member" | "group_leader" | "pastor_staff" | "church_admin";
+
+const rolePrompts: Record<ChurchRole, { title: string; points: string[] }> = {
+  member: {
+    title: "Member setup focus",
+    points: [
+      "Complete your profile so your church community can recognize you.",
+      "Enable prayer + group participation from day one.",
+      "Keep notifications on for church updates and event changes.",
+    ],
+  },
+  group_leader: {
+    title: "Group leader setup focus",
+    points: [
+      "Set a complete profile so members trust group communications.",
+      "Prepare to post group announcements and schedule reminders.",
+      "Use messages to keep your small-group attendance steady week to week.",
+    ],
+  },
+  pastor_staff: {
+    title: "Pastor/staff setup focus",
+    points: [
+      "Prepare your profile for congregation-facing trust and clarity.",
+      "Use announcements + events to keep weekly communication consistent.",
+      "Monitor engagement signals to identify members needing follow-up.",
+    ],
+  },
+  church_admin: {
+    title: "Church admin setup focus",
+    points: [
+      "Set your profile for clear identity in church operations.",
+      "Validate role and communication pathways before member rollout.",
+      "Own reliability of updates, moderation workflow, and response SLAs.",
+    ],
+  },
+};
+
+function toPromptRole(roleValue: string | null | undefined): ChurchRole {
+  switch (roleValue) {
+    case "group_leader":
+      return "group_leader";
+    case "pastor_staff":
+      return "pastor_staff";
+    case "church_admin":
+      return "church_admin";
+    default:
+      return "member";
+  }
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [ackCommunityRules, setAckCommunityRules] = useState(false);
   const [ackProfileVisibility, setAckProfileVisibility] = useState(false);
+  const [ackRoleResponsibilities, setAckRoleResponsibilities] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<ChurchRole>("member");
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const check = async () => {
       const { data } = await supabase.auth.getUser();
-      if (!data.user) router.push("/auth/login");
+      if (!data.user) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) return;
+
+      const flockRes = await fetch("/api/flock/church", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!flockRes.ok) return;
+
+      const flockJson = await flockRes.json();
+      setSelectedRole(toPromptRole(flockJson?.membership?.role));
     };
+
     check();
   }, [router]);
 
@@ -36,12 +105,14 @@ export default function OnboardingPage() {
       { label: "Add your full name", done: normalizedFullName.length >= 2, required: true },
       { label: "Acknowledge community rules", done: ackCommunityRules, required: true },
       { label: "Confirm profile visibility", done: ackProfileVisibility, required: true },
+      { label: `Confirm ${selectedRole.replace("_", " ")} responsibilities`, done: ackRoleResponsibilities, required: true },
     ],
-    [normalizedUsername, normalizedFullName, ackCommunityRules, ackProfileVisibility]
+    [normalizedUsername, normalizedFullName, ackCommunityRules, ackProfileVisibility, ackRoleResponsibilities, selectedRole]
   );
 
   const requiredDone = checklist.filter((c) => c.required).every((c) => c.done);
   const completedCount = checklist.filter((c) => c.done).length;
+  const rolePrompt = rolePrompts[selectedRole];
 
   const saveProfile = async () => {
     if (!requiredDone) {
@@ -78,9 +149,18 @@ export default function OnboardingPage() {
             <p style={{ margin: 0, color: "#6b7280" }}>Complete your first-run setup to unlock the dashboard.</p>
           </div>
           <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "8px 12px", background: "#111827", color: "#fff" }}>
-            STEP 905
+            STEP 909
           </span>
         </div>
+      </section>
+
+      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 14, background: "#f8fafc" }}>
+        <h3 style={{ marginTop: 0 }}>{rolePrompt.title}</h3>
+        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+          {rolePrompt.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
       </section>
 
       <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 14 }}>
@@ -119,9 +199,14 @@ export default function OnboardingPage() {
           I agree to follow community conduct rules.
         </label>
 
-        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <input type="checkbox" checked={ackProfileVisibility} onChange={(e) => setAckProfileVisibility(e.target.checked)} />
           I understand my profile is visible to members in my church community.
+        </label>
+
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <input type="checkbox" checked={ackRoleResponsibilities} onChange={(e) => setAckRoleResponsibilities(e.target.checked)} />
+          I understand responsibilities for my current role: <strong>{selectedRole.replace("_", " ")}</strong>.
         </label>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
