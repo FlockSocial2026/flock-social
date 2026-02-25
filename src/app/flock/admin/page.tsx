@@ -264,6 +264,9 @@ export default function FlockAdminPage() {
           <button onClick={exportEventAttendanceCsv}>Export CSV</button>
         </div>
         {eventAttendance.length === 0 ? <p style={{ color: "#666" }}>No event attendance data yet.</p> : null}
+        <p style={{ fontSize: 12, color: "#666", marginTop: 0 }}>
+          Use the event reminder automation runbook: <code>docs/STEP_923_EVENT_REMINDER_AUTOMATION.md</code>
+        </p>
         <div style={{ display: "grid", gap: 8 }}>
           {eventAttendance.map((event) => (
             <div key={event.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
