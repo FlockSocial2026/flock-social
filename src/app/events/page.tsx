@@ -24,6 +24,7 @@ type EventRow = {
 };
 
 type EventFilter = "all" | "upcoming" | "past";
+type EventSort = "soonest" | "latest" | "most_responses";
 
 const rsvpOptions: RSVPStatus[] = ["going", "maybe", "not_going"];
 
@@ -36,6 +37,7 @@ export default function EventsPage() {
   const [msg, setMsg] = useState<string>("");
   const [nowTs] = useState<number>(() => Date.now());
   const [filterMode, setFilterMode] = useState<EventFilter>("all");
+  const [sortMode, setSortMode] = useState<EventSort>("soonest");
 
   useEffect(() => {
     const boot = async () => {
@@ -83,6 +85,20 @@ export default function EventsPage() {
     if (filterMode === "upcoming") return events.filter((event) => new Date(event.starts_at).getTime() >= nowTs);
     return events.filter((event) => new Date(event.starts_at).getTime() < nowTs);
   }, [events, filterMode, nowTs]);
+
+  const sortedEvents = useMemo(() => {
+    const rows = [...filteredEvents];
+    if (sortMode === "latest") {
+      rows.sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime());
+      return rows;
+    }
+    if (sortMode === "most_responses") {
+      rows.sort((a, b) => (b.rsvp_summary?.total ?? 0) - (a.rsvp_summary?.total ?? 0));
+      return rows;
+    }
+    rows.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
+    return rows;
+  }, [filteredEvents, sortMode]);
 
   const submitRsvp = async (eventId: string, status: RSVPStatus) => {
     if (!token) return;
@@ -171,17 +187,41 @@ export default function EventsPage() {
               </button>
             );
           })}
+          {([
+            { key: "soonest", label: "Sort: Soonest" },
+            { key: "latest", label: "Sort: Latest" },
+            { key: "most_responses", label: "Sort: Most Responses" },
+          ] as const).map((item) => {
+            const active = sortMode === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setSortMode(item.key)}
+                style={{
+                  border: active ? "1px solid #1d4ed8" : "1px solid #d1d5db",
+                  background: active ? "#eff6ff" : "#fff",
+                  color: active ? "#1d4ed8" : "#111827",
+                  borderRadius: 999,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </div>
         {msg ? <p style={{ marginBottom: 0 }}>{msg}</p> : null}
       </section>
 
       <section style={{ display: "grid", gap: 10 }}>
-        {filteredEvents.length === 0 ? (
+        {sortedEvents.length === 0 ? (
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, color: "#6b7280" }}>
             No events in this view yet. Church staff can publish events from Flock Admin.
           </div>
         ) : (
-          filteredEvents.map((event) => {
+          sortedEvents.map((event) => {
             const selected = rsvpMap[event.id] ?? event.my_rsvp ?? undefined;
             const isBusy = busyEventId === event.id;
 
