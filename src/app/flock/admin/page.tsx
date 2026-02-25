@@ -14,6 +14,14 @@ type EventAttendanceRow = {
   rsvp_summary: { going: number; maybe: number; not_going: number; total: number };
 };
 
+type DispatchLogItem = {
+  id: string;
+  eventTitle: string;
+  audience: string;
+  cadence: "T-72h" | "T-24h" | "T-2h";
+  createdAt: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -28,6 +36,7 @@ export default function FlockAdminPage() {
   const [pilotMetrics, setPilotMetrics] = useState<Record<string, number> | null>(null);
   const [pilotTrends, setPilotTrends] = useState<Record<string, { current: number; previous: number; diff: number; pct: number | null }> | null>(null);
   const [eventAttendance, setEventAttendance] = useState<EventAttendanceRow[]>([]);
+  const [dispatchLog, setDispatchLog] = useState<DispatchLogItem[]>([]);
   const [msg, setMsg] = useState("");
 
   const loadMembers = async (t: string) => {
@@ -174,6 +183,33 @@ export default function FlockAdminPage() {
     setMsg("Event attendance CSV exported.");
   };
 
+  const logDispatch = (event: EventAttendanceRow, audience: string, cadence: "T-72h" | "T-24h" | "T-2h") => {
+    setDispatchLog((prev) => [
+      {
+        id: `d-${Date.now()}`,
+        eventTitle: event.title,
+        audience,
+        cadence,
+        createdAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+    setMsg(`Logged ${cadence} dispatch for ${event.title} (${audience}).`);
+  };
+
+  const conversionProxy = eventAttendance.reduce(
+    (acc, event) => {
+      acc.going += event.rsvp_summary?.going ?? 0;
+      acc.maybe += event.rsvp_summary?.maybe ?? 0;
+      return acc;
+    },
+    { going: 0, maybe: 0 }
+  );
+
+  const maybeToGoingRate = conversionProxy.going + conversionProxy.maybe === 0
+    ? null
+    : Math.round((conversionProxy.going / (conversionProxy.going + conversionProxy.maybe)) * 100);
+
   const updateRole = async (membershipId: string, nextRole: MemberRow["role"]) => {
     if (!token) return;
     const res = await fetch(`/api/flock/members/${membershipId}/role`, {
@@ -281,13 +317,31 @@ export default function FlockAdminPage() {
                 <Link href={`/messages?audience=event_reminder&prefill=${buildEventReminderPrefill(event)}`} style={{ fontSize: 13 }}>
                   Send Reminder Draft
                 </Link>
+                <button onClick={() => logDispatch(event, "all", "T-24h")} style={{ fontSize: 12 }}>Log T-24h</button>
                 <Link href={`/messages?audience=follow_up_maybe&prefill=${buildFollowUpPrefill(event, "maybe")}`} style={{ fontSize: 13 }}>
                   Follow Up Maybe ({event.rsvp_summary?.maybe ?? 0})
                 </Link>
+                <button onClick={() => logDispatch(event, "maybe", "T-2h")} style={{ fontSize: 12 }}>Log Maybe Follow-up</button>
                 <Link href={`/messages?audience=follow_up_not_going&prefill=${buildFollowUpPrefill(event, "not_going")}`} style={{ fontSize: 13 }}>
                   Follow Up Not Going ({event.rsvp_summary?.not_going ?? 0})
                 </Link>
+                <button onClick={() => logDispatch(event, "not_going", "T-72h")} style={{ fontSize: 12 }}>Log Re-engage</button>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <h3 style={{ marginTop: 0 }}>Reminder Dispatch Log (Ops)</h3>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+          Maybe→Going proxy: {maybeToGoingRate === null ? "n/a" : `${maybeToGoingRate}%`} (based on current attendance snapshot)
+        </p>
+        {dispatchLog.length === 0 ? <p style={{ color: "#666" }}>No dispatches logged in this session.</p> : null}
+        <div style={{ display: "grid", gap: 6 }}>
+          {dispatchLog.map((log) => (
+            <div key={log.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8, fontSize: 13 }}>
+              <b>{log.cadence}</b> • {log.eventTitle} • audience: {log.audience} • {new Date(log.createdAt).toLocaleString()}
             </div>
           ))}
         </div>
