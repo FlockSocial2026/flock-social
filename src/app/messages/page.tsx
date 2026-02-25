@@ -25,11 +25,17 @@ const initialThreads: Thread[] = [
   { id: "t-3", name: "Community Group Leaders", unread: 3, lastAt: "1h ago" },
 ];
 
-const quickTemplates = [
-  "Reminder: We’d love to see you at this week’s event.",
-  "Quick check-in: are you still available to serve this Sunday?",
-  "Thanks for the update — we appreciate you.",
-];
+const quickTemplates = {
+  reminder: [
+    "Reminder: We’d love to see you at this week’s event.",
+    "Final reminder: event starts soon — we saved you a spot.",
+  ],
+  followUp: [
+    "Quick check-in: are you still available to serve this Sunday?",
+    "Checking in — anything we can do to help you attend?",
+  ],
+  appreciation: ["Thanks for the update — we appreciate you."],
+};
 
 const initialMessages: Message[] = [
   {
@@ -107,7 +113,7 @@ export default function MessagesPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Messages</h1>
-            <p style={{ margin: 0, color: "#6b7280" }}>Live thread selection + send workflow + quick templates (Step 919).</p>
+            <p style={{ margin: 0, color: "#6b7280" }}>Live thread selection + send workflow + grouped quick templates (Step 936).</p>
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: unreadTotal > 0 ? "#92400e" : "#166534" }}>
@@ -192,22 +198,29 @@ export default function MessagesPage() {
           </div>
 
           <div style={{ display: "grid", gap: 8 }}>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {quickTemplates.map((template) => (
-                <button
-                  key={template}
-                  onClick={() => setDraft(template)}
-                  style={{
-                    border: "1px solid #d1d5db",
-                    background: "#fff",
-                    borderRadius: 999,
-                    padding: "6px 10px",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  {template.length > 28 ? `${template.slice(0, 28)}...` : template}
-                </button>
+            <div style={{ display: "grid", gap: 8 }}>
+              {Object.entries(quickTemplates).map(([group, templates]) => (
+                <div key={group}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", marginBottom: 4 }}>{group}</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {templates.map((template) => (
+                      <button
+                        key={template}
+                        onClick={() => setDraft((prev) => (prev.trim() ? `${prev}\n\n${template}` : template))}
+                        style={{
+                          border: "1px solid #d1d5db",
+                          background: "#fff",
+                          borderRadius: 999,
+                          padding: "6px 10px",
+                          fontSize: 12,
+                          cursor: "pointer",
+                        }}
+                      >
+                        + {template.length > 26 ? `${template.slice(0, 26)}...` : template}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             <textarea
