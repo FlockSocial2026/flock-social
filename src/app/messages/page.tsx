@@ -25,6 +25,12 @@ const initialThreads: Thread[] = [
   { id: "t-3", name: "Community Group Leaders", unread: 3, lastAt: "1h ago" },
 ];
 
+const quickTemplates = [
+  "Reminder: We’d love to see you at this week’s event.",
+  "Quick check-in: are you still available to serve this Sunday?",
+  "Thanks for the update — we appreciate you.",
+];
+
 const initialMessages: Message[] = [
   {
     id: "m-1",
@@ -101,7 +107,7 @@ export default function MessagesPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Messages</h1>
-            <p style={{ margin: 0, color: "#6b7280" }}>Live thread selection + send workflow (Step 908).</p>
+            <p style={{ margin: 0, color: "#6b7280" }}>Live thread selection + send workflow + quick templates (Step 919).</p>
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: unreadTotal > 0 ? "#92400e" : "#166534" }}>
@@ -186,6 +192,24 @@ export default function MessagesPage() {
           </div>
 
           <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {quickTemplates.map((template) => (
+                <button
+                  key={template}
+                  onClick={() => setDraft(template)}
+                  style={{
+                    border: "1px solid #d1d5db",
+                    background: "#fff",
+                    borderRadius: 999,
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  {template.length > 28 ? `${template.slice(0, 28)}...` : template}
+                </button>
+              ))}
+            </div>
             <textarea
               placeholder="Write a message..."
               rows={4}
