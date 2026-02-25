@@ -14,9 +14,10 @@ const liveFeatures = [
   "Admin event attendance drilldown + CSV export",
   "Execution console + event outreach runbook linkage",
   "Wild-beta attendance control tower playbook",
+  "Dispatch logging + conversion risk operations",
 ];
 
-const BUILD_STAMP = "2026-02-25T18:02-EST";
+const BUILD_STAMP = "2026-02-25T18:16-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -56,7 +57,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Steps 951-975 complete
+            Build status: Steps 976-999 complete
           </span>
         </div>
 

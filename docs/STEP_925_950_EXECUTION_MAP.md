@@ -4,10 +4,14 @@
 - 931-936: Grouped message template expansion for outreach
 - 937-942: Conversion risk analytics in admin console
 - 943-950: Wild-beta control-tower operationalization
+- 951-975: Dispatch persistence + expansion operations
+- 976-999: Finalization and readiness consolidation
 
 See:
 - `docs/STEP_925_930_AUTOMATION_FOUNDATION.md`
 - `docs/STEP_931_936_DISPATCH_LOGGING.md`
 - `docs/STEP_937_942_CONVERSION_ANALYTICS.md`
 - `docs/STEP_943_950_WILD_BETA_CONTROL_TOWER.md`
+- `docs/STEP_951_975_AUTONOMOUS_EXPANSION.md`
+- `docs/STEP_976_999_FINALIZATION.md`
 - `docs/STEP_924_CLOSEOUT_915_924.md`

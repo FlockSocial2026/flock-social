@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const buildStep = "975";
+  const buildStep = "999";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 
@@ -334,6 +334,7 @@ export default function DashboardPage() {
           <li>Control tower: <code>docs/STEP_943_950_WILD_BETA_CONTROL_TOWER.md</code></li>
           <li>Execution map: <code>docs/STEP_925_950_EXECUTION_MAP.md</code></li>
           <li>Expansion block: <code>docs/STEP_951_975_AUTONOMOUS_EXPANSION.md</code></li>
+          <li>Finalization: <code>docs/STEP_976_999_FINALIZATION.md</code></li>
         </ul>
       </section>
 
