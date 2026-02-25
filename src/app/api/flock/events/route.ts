@@ -30,17 +30,29 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const page = Math.max(1, Number(sp.get("page") || "1") || 1);
   const pageSize = Math.min(100, Math.max(1, Number(sp.get("pageSize") || "20") || 20));
+  const filter = String(sp.get("filter") || "all");
+  const sort = String(sp.get("sort") || "soonest");
 
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
+  const nowIso = new Date().toISOString();
+
   const admin = getSupabaseAdmin();
-  const { data, error, count } = await admin
+  let query = admin
     .from("church_events")
     .select("id,title,description,starts_at,ends_at,location", { count: "exact" })
-    .eq("church_id", membership.church_id)
-    .order("starts_at", { ascending: true })
-    .range(from, to);
+    .eq("church_id", membership.church_id);
+
+  if (filter === "upcoming") {
+    query = query.gte("starts_at", nowIso);
+  } else if (filter === "past") {
+    query = query.lt("starts_at", nowIso);
+  }
+
+  query = query.order("starts_at", { ascending: sort !== "latest" }).range(from, to);
+
+  const { data, error, count } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

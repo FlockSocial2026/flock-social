@@ -38,6 +38,8 @@ export default function EventsPage() {
   const [nowTs] = useState<number>(() => Date.now());
   const [filterMode, setFilterMode] = useState<EventFilter>("all");
   const [sortMode, setSortMode] = useState<EventSort>("soonest");
+  const apiFilter = filterMode === "all" || filterMode === "upcoming" || filterMode === "past" ? filterMode : "all";
+  const apiSort = sortMode === "latest" ? "latest" : "soonest";
 
   useEffect(() => {
     const boot = async () => {
@@ -51,9 +53,17 @@ export default function EventsPage() {
       const t = sessionData.session?.access_token;
       if (!t) return;
       setToken(t);
+    };
 
-      const res = await fetch("/api/flock/events?page=1&pageSize=50", {
-        headers: { Authorization: `Bearer ${t}` },
+    boot();
+  }, [router]);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      if (!token) return;
+
+      const res = await fetch(`/api/flock/events?page=1&pageSize=50&filter=${encodeURIComponent(apiFilter)}&sort=${encodeURIComponent(apiSort)}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
@@ -72,8 +82,8 @@ export default function EventsPage() {
       setRsvpMap(initialRsvp);
     };
 
-    boot();
-  }, [router]);
+    loadEvents();
+  }, [token, apiFilter, apiSort]);
 
   const upcomingCount = useMemo(
     () => events.filter((event) => new Date(event.starts_at).getTime() >= nowTs).length,
@@ -158,7 +168,7 @@ export default function EventsPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 918
+              STEP 920
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>
