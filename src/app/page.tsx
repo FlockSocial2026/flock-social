@@ -16,7 +16,7 @@ const liveFeatures = [
   "Wild-beta attendance control tower playbook",
 ];
 
-const BUILD_STAMP = "2026-02-25T17:50-EST";
+const BUILD_STAMP = "2026-02-25T18:02-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -56,7 +56,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Steps 943-950 complete
+            Build status: Steps 951-975 complete
           </span>
         </div>
 

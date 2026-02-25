@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -36,7 +36,18 @@ export default function FlockAdminPage() {
   const [pilotMetrics, setPilotMetrics] = useState<Record<string, number> | null>(null);
   const [pilotTrends, setPilotTrends] = useState<Record<string, { current: number; previous: number; diff: number; pct: number | null }> | null>(null);
   const [eventAttendance, setEventAttendance] = useState<EventAttendanceRow[]>([]);
-  const [dispatchLog, setDispatchLog] = useState<DispatchLogItem[]>([]);
+  const dispatchStorageKey = "flock_admin_dispatch_log_v1";
+  const [dispatchLog, setDispatchLog] = useState<DispatchLogItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem(dispatchStorageKey);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as DispatchLogItem[];
+      return Array.isArray(parsed) ? parsed.slice(0, 200) : [];
+    } catch {
+      return [];
+    }
+  });
   const [msg, setMsg] = useState("");
 
   const loadMembers = async (t: string) => {
@@ -92,6 +103,13 @@ export default function FlockAdminPage() {
     };
     boot();
   }, []);
+
+  // dispatch log is initialized from localStorage via useState lazy initializer
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(dispatchStorageKey, JSON.stringify(dispatchLog.slice(0, 200)));
+  }, [dispatchLog, dispatchStorageKey]);
 
   const publishAnnouncement = async () => {
     if (!token) return;
@@ -218,6 +236,42 @@ export default function FlockAdminPage() {
         ? "medium"
         : "healthy";
 
+  const cadenceSummary = useMemo(() => {
+    return dispatchLog.reduce(
+      (acc, item) => {
+        acc[item.cadence] += 1;
+        return acc;
+      },
+      { "T-72h": 0, "T-24h": 0, "T-2h": 0 } as Record<"T-72h" | "T-24h" | "T-2h", number>
+    );
+  }, [dispatchLog]);
+
+  const exportDispatchLogCsv = () => {
+    if (dispatchLog.length === 0) {
+      setMsg("No dispatch logs to export.");
+      return;
+    }
+
+    const header = ["id", "event_title", "audience", "cadence", "created_at"];
+    const rows = dispatchLog.map((item) => [
+      item.id,
+      `"${item.eventTitle.replace(/"/g, '""')}"`,
+      item.audience,
+      item.cadence,
+      item.createdAt,
+    ]);
+
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dispatch-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setMsg("Dispatch log exported.");
+  };
+
   const updateRole = async (membershipId: string, nextRole: MemberRow["role"]) => {
     if (!token) return;
     const res = await fetch(`/api/flock/members/${membershipId}/role`, {
@@ -341,7 +395,10 @@ export default function FlockAdminPage() {
       </section>
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-        <h3 style={{ marginTop: 0 }}>Reminder Dispatch Log (Ops)</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <h3 style={{ marginTop: 0, marginBottom: 8 }}>Reminder Dispatch Log (Ops)</h3>
+          <button onClick={exportDispatchLogCsv}>Export Dispatch Log CSV</button>
+        </div>
         <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
           Maybe→Going proxy: {maybeToGoingRate === null ? "n/a" : `${maybeToGoingRate}%`} (based on current attendance snapshot)
         </p>
@@ -349,6 +406,9 @@ export default function FlockAdminPage() {
           Attendance conversion risk: <b>{attendanceRisk}</b>
           {attendanceRisk === "high" ? " — escalate with extra reminder + leader outreach." : ""}
           {attendanceRisk === "medium" ? " — monitor and push one more follow-up cycle." : ""}
+        </p>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+          Cadence coverage: T-72h {cadenceSummary["T-72h"]} • T-24h {cadenceSummary["T-24h"]} • T-2h {cadenceSummary["T-2h"]}
         </p>
         {dispatchLog.length === 0 ? <p style={{ color: "#666" }}>No dispatches logged in this session.</p> : null}
         <div style={{ display: "grid", gap: 6 }}>
