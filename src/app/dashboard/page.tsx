@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const buildStep = "915";
+  const buildStep = "916";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 

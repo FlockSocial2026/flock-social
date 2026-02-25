@@ -139,6 +139,12 @@ export default function FlockAdminPage() {
     return encodeURIComponent(`Reminder: ${event.title}\nWhen: ${when}${where}\n\nReply if you can still make it.`);
   };
 
+  const buildFollowUpPrefill = (event: EventAttendanceRow, status: "maybe" | "not_going") => {
+    const when = new Date(event.starts_at).toLocaleString();
+    const label = status === "maybe" ? "maybe" : "not going";
+    return encodeURIComponent(`Follow-up: ${event.title}\nWhen: ${when}\nAudience: ${label}\n\nChecking in — can we help you attend?`);
+  };
+
   const exportEventAttendanceCsv = () => {
     if (eventAttendance.length === 0) {
       setMsg("No event attendance data to export.");
@@ -268,9 +274,15 @@ export default function FlockAdminPage() {
               <div style={{ fontSize: 13, marginTop: 4 }}>
                 going: <b>{event.rsvp_summary?.going ?? 0}</b> • maybe: <b>{event.rsvp_summary?.maybe ?? 0}</b> • not going: <b>{event.rsvp_summary?.not_going ?? 0}</b> • total: <b>{event.rsvp_summary?.total ?? 0}</b>
               </div>
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 8, display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <Link href={`/messages?audience=event_reminder&prefill=${buildEventReminderPrefill(event)}`} style={{ fontSize: 13 }}>
                   Send Reminder Draft
+                </Link>
+                <Link href={`/messages?audience=follow_up_maybe&prefill=${buildFollowUpPrefill(event, "maybe")}`} style={{ fontSize: 13 }}>
+                  Follow Up Maybe ({event.rsvp_summary?.maybe ?? 0})
+                </Link>
+                <Link href={`/messages?audience=follow_up_not_going&prefill=${buildFollowUpPrefill(event, "not_going")}`} style={{ fontSize: 13 }}>
+                  Follow Up Not Going ({event.rsvp_summary?.not_going ?? 0})
                 </Link>
               </div>
             </div>
