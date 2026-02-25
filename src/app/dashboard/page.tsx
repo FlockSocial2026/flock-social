@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const buildStep = "913";
+  const buildStep = "914";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 
@@ -323,7 +323,7 @@ export default function DashboardPage() {
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           <li>Messages live thread data model + send workflow polish</li>
           <li>Role-aware onboarding completion prompts by church role</li>
-          <li>Church admin event attendance drilldowns + export</li>
+          <li>Event reminder automation + attendance follow-up workflows</li>
         </ul>
       </section>
 

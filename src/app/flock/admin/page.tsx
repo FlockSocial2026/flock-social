@@ -6,6 +6,13 @@ import { supabase } from "@/lib/supabase";
 
 type MemberRow = { id: string; user_id: string; role: "member" | "group_leader" | "pastor_staff" | "church_admin"; created_at: string };
 type RoleAuditRow = { id: string; actor_user_id: string; target_user_id: string; old_role: string; new_role: string; changed_at: string };
+type EventAttendanceRow = {
+  id: string;
+  title: string;
+  starts_at: string;
+  location: string | null;
+  rsvp_summary: { going: number; maybe: number; not_going: number; total: number };
+};
 
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -20,6 +27,7 @@ export default function FlockAdminPage() {
   const [churchId, setChurchId] = useState<string | null>(null);
   const [pilotMetrics, setPilotMetrics] = useState<Record<string, number> | null>(null);
   const [pilotTrends, setPilotTrends] = useState<Record<string, { current: number; previous: number; diff: number; pct: number | null }> | null>(null);
+  const [eventAttendance, setEventAttendance] = useState<EventAttendanceRow[]>([]);
   const [msg, setMsg] = useState("");
 
   const loadMembers = async (t: string) => {
@@ -45,6 +53,13 @@ export default function FlockAdminPage() {
     setPilotTrends(json.trends ?? null);
   };
 
+  const loadEventAttendance = async (t: string) => {
+    const res = await fetch("/api/flock/events?page=1&pageSize=50", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setEventAttendance((json.items ?? []) as EventAttendanceRow[]);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -64,6 +79,7 @@ export default function FlockAdminPage() {
       await loadMembers(t);
       await loadRoleAudit(t);
       await loadPilotMetrics(cid);
+      await loadEventAttendance(t);
     };
     boot();
   }, []);
@@ -115,6 +131,35 @@ export default function FlockAdminPage() {
     const heading = title.trim() ? `Announcement: ${title.trim()}` : "Announcement";
     const content = body.trim() || "(add announcement message)";
     return encodeURIComponent(`${heading}\n\n${content}`);
+  };
+
+  const exportEventAttendanceCsv = () => {
+    if (eventAttendance.length === 0) {
+      setMsg("No event attendance data to export.");
+      return;
+    }
+
+    const header = ["event_id", "title", "starts_at", "location", "going", "maybe", "not_going", "total"];
+    const rows = eventAttendance.map((event) => [
+      event.id,
+      `"${event.title.replace(/"/g, '""')}"`,
+      event.starts_at,
+      `"${(event.location ?? "").replace(/"/g, '""')}"`,
+      String(event.rsvp_summary?.going ?? 0),
+      String(event.rsvp_summary?.maybe ?? 0),
+      String(event.rsvp_summary?.not_going ?? 0),
+      String(event.rsvp_summary?.total ?? 0),
+    ]);
+
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `event-attendance-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setMsg("Event attendance CSV exported.");
   };
 
   const updateRole = async (membershipId: string, nextRole: MemberRow["role"]) => {
@@ -199,6 +244,27 @@ export default function FlockAdminPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <h3 style={{ marginTop: 0, marginBottom: 8 }}>Event Attendance Drilldown</h3>
+          <button onClick={exportEventAttendanceCsv}>Export CSV</button>
+        </div>
+        {eventAttendance.length === 0 ? <p style={{ color: "#666" }}>No event attendance data yet.</p> : null}
+        <div style={{ display: "grid", gap: 8 }}>
+          {eventAttendance.map((event) => (
+            <div key={event.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div style={{ fontWeight: 700 }}>{event.title}</div>
+              <div style={{ fontSize: 12, color: "#666" }}>
+                {new Date(event.starts_at).toLocaleString()} {event.location ? `• ${event.location}` : ""}
+              </div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>
+                going: <b>{event.rsvp_summary?.going ?? 0}</b> • maybe: <b>{event.rsvp_summary?.maybe ?? 0}</b> • not going: <b>{event.rsvp_summary?.not_going ?? 0}</b> • total: <b>{event.rsvp_summary?.total ?? 0}</b>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
