@@ -133,6 +133,12 @@ export default function FlockAdminPage() {
     return encodeURIComponent(`${heading}\n\n${content}`);
   };
 
+  const buildEventReminderPrefill = (event: EventAttendanceRow) => {
+    const when = new Date(event.starts_at).toLocaleString();
+    const where = event.location ? `\nLocation: ${event.location}` : "";
+    return encodeURIComponent(`Reminder: ${event.title}\nWhen: ${when}${where}\n\nReply if you can still make it.`);
+  };
+
   const exportEventAttendanceCsv = () => {
     if (eventAttendance.length === 0) {
       setMsg("No event attendance data to export.");
@@ -261,6 +267,11 @@ export default function FlockAdminPage() {
               </div>
               <div style={{ fontSize: 13, marginTop: 4 }}>
                 going: <b>{event.rsvp_summary?.going ?? 0}</b> • maybe: <b>{event.rsvp_summary?.maybe ?? 0}</b> • not going: <b>{event.rsvp_summary?.not_going ?? 0}</b> • total: <b>{event.rsvp_summary?.total ?? 0}</b>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <Link href={`/messages?audience=event_reminder&prefill=${buildEventReminderPrefill(event)}`} style={{ fontSize: 13 }}>
+                  Send Reminder Draft
+                </Link>
               </div>
             </div>
           ))}
