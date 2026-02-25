@@ -23,7 +23,7 @@ type EventRow = {
   };
 };
 
-type EventFilter = "all" | "upcoming" | "past";
+type EventFilter = "all" | "upcoming" | "past" | "my_going" | "my_maybe" | "my_not_going";
 type EventSort = "soonest" | "latest" | "most_responses";
 
 const rsvpOptions: RSVPStatus[] = ["going", "maybe", "not_going"];
@@ -83,8 +83,11 @@ export default function EventsPage() {
   const filteredEvents = useMemo(() => {
     if (filterMode === "all") return events;
     if (filterMode === "upcoming") return events.filter((event) => new Date(event.starts_at).getTime() >= nowTs);
-    return events.filter((event) => new Date(event.starts_at).getTime() < nowTs);
-  }, [events, filterMode, nowTs]);
+    if (filterMode === "past") return events.filter((event) => new Date(event.starts_at).getTime() < nowTs);
+    if (filterMode === "my_going") return events.filter((event) => (rsvpMap[event.id] ?? event.my_rsvp) === "going");
+    if (filterMode === "my_maybe") return events.filter((event) => (rsvpMap[event.id] ?? event.my_rsvp) === "maybe");
+    return events.filter((event) => (rsvpMap[event.id] ?? event.my_rsvp) === "not_going");
+  }, [events, filterMode, nowTs, rsvpMap]);
 
   const sortedEvents = useMemo(() => {
     const rows = [...filteredEvents];
@@ -155,7 +158,7 @@ export default function EventsPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 913
+              STEP 918
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>
@@ -167,7 +170,7 @@ export default function EventsPage() {
           <strong>{events.length}</strong> total events • <strong>{upcomingCount}</strong> upcoming
         </p>
         <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-          {(["all", "upcoming", "past"] as const).map((mode) => {
+          {(["all", "upcoming", "past", "my_going", "my_maybe", "my_not_going"] as const).map((mode) => {
             const active = filterMode === mode;
             return (
               <button
@@ -183,7 +186,7 @@ export default function EventsPage() {
                   fontWeight: 700,
                 }}
               >
-                {mode}
+                {mode.split("_").join(" ")}
               </button>
             );
           })}
