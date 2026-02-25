@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type RSVPStatus = "going" | "maybe" | "not_going";
@@ -30,13 +30,19 @@ const rsvpOptions: RSVPStatus[] = ["going", "maybe", "not_going"];
 
 export default function EventsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [rsvpMap, setRsvpMap] = useState<Record<string, RSVPStatus | undefined>>({});
   const [busyEventId, setBusyEventId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [nowTs] = useState<number>(() => Date.now());
-  const [filterMode, setFilterMode] = useState<EventFilter>("all");
+  const [filterMode, setFilterMode] = useState<EventFilter>(() => {
+    const focus = searchParams.get("focus");
+    if (focus === "upcoming") return "upcoming";
+    if (focus === "my") return "my_going";
+    return "all";
+  });
   const [sortMode, setSortMode] = useState<EventSort>("soonest");
   const apiFilter = filterMode === "all" || filterMode === "upcoming" || filterMode === "past" ? filterMode : "all";
   const apiSort = sortMode === "latest" ? "latest" : "soonest";
@@ -168,7 +174,7 @@ export default function EventsPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
-              STEP 920
+              STEP 921
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
           </div>

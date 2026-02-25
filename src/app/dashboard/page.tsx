@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [canModerate, setCanModerate] = useState<boolean>(false);
   const [flockRole, setFlockRole] = useState<string>("not connected");
   const [churchName, setChurchName] = useState<string>("No church connected");
-  const buildStep = "920";
+  const buildStep = "921";
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [activityFilter, setActivityFilter] = useState<"all" | "notification" | "report">("all");
 
@@ -309,6 +309,12 @@ export default function DashboardPage() {
           </Link>
           <Link href="/reports" style={{ fontWeight: 700 }}>
             Check My Reports
+          </Link>
+          <Link href="/events?focus=upcoming" style={{ fontWeight: 700 }}>
+            Upcoming Events
+          </Link>
+          <Link href="/events?focus=my" style={{ fontWeight: 700 }}>
+            My RSVPs
           </Link>
           {canModerate ? (
             <Link href="/moderation" style={{ fontWeight: 700 }}>
