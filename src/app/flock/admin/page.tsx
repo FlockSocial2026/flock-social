@@ -210,6 +210,14 @@ export default function FlockAdminPage() {
     ? null
     : Math.round((conversionProxy.going / (conversionProxy.going + conversionProxy.maybe)) * 100);
 
+  const attendanceRisk = maybeToGoingRate === null
+    ? "unknown"
+    : maybeToGoingRate < 40
+      ? "high"
+      : maybeToGoingRate < 60
+        ? "medium"
+        : "healthy";
+
   const updateRole = async (membershipId: string, nextRole: MemberRow["role"]) => {
     if (!token) return;
     const res = await fetch(`/api/flock/members/${membershipId}/role`, {
@@ -336,6 +344,11 @@ export default function FlockAdminPage() {
         <h3 style={{ marginTop: 0 }}>Reminder Dispatch Log (Ops)</h3>
         <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
           Maybe→Going proxy: {maybeToGoingRate === null ? "n/a" : `${maybeToGoingRate}%`} (based on current attendance snapshot)
+        </p>
+        <p style={{ marginTop: 0, fontSize: 12, color: attendanceRisk === "high" ? "#b91c1c" : attendanceRisk === "medium" ? "#92400e" : "#166534" }}>
+          Attendance conversion risk: <b>{attendanceRisk}</b>
+          {attendanceRisk === "high" ? " — escalate with extra reminder + leader outreach." : ""}
+          {attendanceRisk === "medium" ? " — monitor and push one more follow-up cycle." : ""}
         </p>
         {dispatchLog.length === 0 ? <p style={{ color: "#666" }}>No dispatches logged in this session.</p> : null}
         <div style={{ display: "grid", gap: 6 }}>

@@ -15,7 +15,7 @@ const liveFeatures = [
   "Execution console + event outreach runbook linkage",
 ];
 
-const BUILD_STAMP = "2026-02-25T17:34-EST";
+const BUILD_STAMP = "2026-02-25T17:41-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -55,7 +55,7 @@ export default function HomePage() {
             }}
             title={`build ${BUILD_STAMP}`}
           >
-            Build status: Steps 931-936 complete
+            Build status: Steps 937-942 complete
           </span>
         </div>
 
