@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { createCronRunMeta, requireCronSecret } from "@/lib/cron";
 
 type EventRow = { id: string; church_id: string; title: string; starts_at: string };
 
@@ -11,18 +12,17 @@ function cadenceWindow(cadence: string) {
 }
 
 export async function GET(req: NextRequest) {
-  try {
-    const auth = req.headers.get("authorization") || "";
-    const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-    const cronSecret = process.env.CRON_SECRET;
+  const startedAtMs = Date.now();
 
-    if (!cronSecret || token !== cronSecret) {
-      return NextResponse.json({ error: "Unauthorized cron request" }, { status: 401 });
+  try {
+    const auth = requireCronSecret(req);
+    if (!auth.ok) {
+      return NextResponse.json({ ok: false, error: auth.error, ...createCronRunMeta(startedAtMs) }, { status: auth.status });
     }
 
     const cadence = String(req.nextUrl.searchParams.get("cadence") || "T-24h") as "T-72h" | "T-24h" | "T-2h";
     if (!["T-72h", "T-24h", "T-2h"].includes(cadence)) {
-      return NextResponse.json({ error: "Invalid cadence" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Invalid cadence", ...createCronRunMeta(startedAtMs) }, { status: 400 });
     }
 
     const window = cadenceWindow(cadence);
@@ -38,28 +38,35 @@ export async function GET(req: NextRequest) {
       .order("starts_at", { ascending: true })
       .limit(200);
 
-    if (eventsErr) return NextResponse.json({ error: eventsErr.message }, { status: 500 });
+    if (eventsErr) {
+      return NextResponse.json({ ok: false, error: eventsErr.message, stage: "load_events", ...createCronRunMeta(startedAtMs) }, { status: 500 });
+    }
 
     const rows = (events ?? []) as EventRow[];
-    if (rows.length === 0) return NextResponse.json({ ok: true, cadence, inserted: 0, scanned: 0 });
+    if (rows.length === 0) {
+      return NextResponse.json({ ok: true, cadence, inserted: 0, skippedExisting: 0, scanned: 0, ...createCronRunMeta(startedAtMs) });
+    }
 
     const dayStart = new Date();
     dayStart.setHours(0, 0, 0, 0);
 
+    const eventIds = rows.map((row) => row.id);
+    const { data: existingRows, error: existingErr } = await admin
+      .from("flock_dispatch_logs")
+      .select("event_id")
+      .eq("cadence", cadence)
+      .in("event_id", eventIds)
+      .gte("created_at", dayStart.toISOString());
+
+    if (existingErr) {
+      return NextResponse.json({ ok: false, error: existingErr.message, stage: "load_existing_dispatches", ...createCronRunMeta(startedAtMs) }, { status: 500 });
+    }
+
+    const existingEventIds = new Set((existingRows ?? []).map((row) => String((row as { event_id: string | null }).event_id || "")).filter(Boolean));
+
     const inserts: Array<Record<string, string | null>> = [];
-
     for (const event of rows) {
-      const { data: existing, error: existingErr } = await admin
-        .from("flock_dispatch_logs")
-        .select("id")
-        .eq("event_id", event.id)
-        .eq("cadence", cadence)
-        .gte("created_at", dayStart.toISOString())
-        .limit(1)
-        .maybeSingle();
-
-      if (existingErr) return NextResponse.json({ error: existingErr.message }, { status: 500 });
-      if (existing?.id) continue;
+      if (existingEventIds.has(event.id)) continue;
 
       inserts.push({
         church_id: event.church_id,
@@ -73,12 +80,22 @@ export async function GET(req: NextRequest) {
 
     if (inserts.length > 0) {
       const { error: insertErr } = await admin.from("flock_dispatch_logs").insert(inserts);
-      if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });
+      if (insertErr) {
+        return NextResponse.json({ ok: false, error: insertErr.message, stage: "insert_dispatches", ...createCronRunMeta(startedAtMs) }, { status: 500 });
+      }
     }
 
-    return NextResponse.json({ ok: true, cadence, inserted: inserts.length, scanned: rows.length });
+    return NextResponse.json({
+      ok: true,
+      cadence,
+      inserted: inserts.length,
+      skippedExisting: rows.length - inserts.length,
+      scanned: rows.length,
+      window: { fromIso, toIso },
+      ...createCronRunMeta(startedAtMs),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown runtime error";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: message, stage: "runtime", ...createCronRunMeta(startedAtMs) }, { status: 500 });
   }
 }
