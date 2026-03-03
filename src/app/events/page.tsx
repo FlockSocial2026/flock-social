@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -28,7 +28,7 @@ type EventSort = "soonest" | "latest" | "most_responses";
 
 const rsvpOptions: RSVPStatus[] = ["going", "maybe", "not_going"];
 
-export default function EventsPage() {
+function EventsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
@@ -323,5 +323,13 @@ export default function EventsPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function EventsPage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px" }}>Loading events…</main>}>
+      <EventsPageInner />
+    </Suspense>
   );
 }

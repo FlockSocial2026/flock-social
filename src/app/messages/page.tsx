@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -61,7 +61,7 @@ const initialMessages: Message[] = [
   },
 ];
 
-export default function MessagesPage() {
+function MessagesPageInner() {
   const searchParams = useSearchParams();
   const [threads, setThreads] = useState<Thread[]>(initialThreads);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -240,5 +240,13 @@ export default function MessagesPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: 1100, margin: "42px auto", padding: "0 16px" }}>Loading messages…</main>}>
+      <MessagesPageInner />
+    </Suspense>
   );
 }
