@@ -12,7 +12,8 @@
     "schema:check:step44": "node scripts/step44-schema-check.mjs",
     "rollout:check:step46": "node scripts/step46-rollout-check.mjs",
     "readiness:step1028": "node scripts/step1028-infra-parity-check.mjs",
-    "verify:step1029": "node scripts/step1029-live-verification.mjs"
+    "verify:step1029": "node scripts/step1029-live-verification.mjs",
+    "verify:step1031": "node scripts/step1031-supabase-schema-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
