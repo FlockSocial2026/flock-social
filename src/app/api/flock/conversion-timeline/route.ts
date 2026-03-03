@@ -44,7 +44,9 @@ export async function GET(req: NextRequest) {
   if (eventsErr) return NextResponse.json({ error: eventsErr.message }, { status: 500 });
   const eventRows = (events ?? []) as EventRow[];
   const eventIds = eventRows.map((e) => e.id);
-  if (eventIds.length === 0) return NextResponse.json({ ok: true, items: [], source: "none" });
+  if (eventIds.length === 0) {
+    return NextResponse.json({ ok: true, items: [], source: "none", generatedAt: new Date().toISOString(), itemCount: 0 });
+  }
 
   // Preferred source: latest snapshots per event
   const { data: snapshots, error: snapshotErr } = await admin
@@ -88,7 +90,13 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ ok: true, items, source: "snapshot" });
+    return NextResponse.json({
+      ok: true,
+      items,
+      source: "snapshot",
+      generatedAt: new Date().toISOString(),
+      itemCount: items.length,
+    });
   }
 
   // Fallback: compute live from current RSVPs
@@ -123,5 +131,11 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  return NextResponse.json({ ok: true, items, source: "live" });
+  return NextResponse.json({
+    ok: true,
+    items,
+    source: "live",
+    generatedAt: new Date().toISOString(),
+    itemCount: items.length,
+  });
 }

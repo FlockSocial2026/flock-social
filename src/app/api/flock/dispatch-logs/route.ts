@@ -17,18 +17,39 @@ export async function GET(req: NextRequest) {
   const pageSize = Math.min(200, Math.max(1, Number(sp.get("pageSize") || "50") || 50));
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
+  const cadence = String(sp.get("cadence") || "").trim() as Cadence | "";
+  const audience = String(sp.get("audience") || "").trim();
+  const fromIso = String(sp.get("from") || "").trim();
+  const toIso = String(sp.get("to") || "").trim();
 
   const admin = getSupabaseAdmin();
-  const { data, error, count } = await admin
+  let query = admin
     .from("flock_dispatch_logs")
     .select("id,event_id,event_title,audience,cadence,created_at", { count: "exact" })
-    .eq("church_id", membership.church_id)
+    .eq("church_id", membership.church_id);
+
+  if (cadence && ["T-72h", "T-24h", "T-2h"].includes(cadence)) {
+    query = query.eq("cadence", cadence);
+  }
+  if (audience) query = query.eq("audience", audience);
+  if (fromIso) query = query.gte("created_at", fromIso);
+  if (toIso) query = query.lte("created_at", toIso);
+
+  const { data, error, count } = await query
     .order("created_at", { ascending: false })
     .range(from, to);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const total = count ?? 0;
-  return NextResponse.json({ ok: true, items: data ?? [], page, pageSize, total, hasMore: total > page * pageSize });
+  return NextResponse.json({
+    ok: true,
+    items: data ?? [],
+    page,
+    pageSize,
+    total,
+    hasMore: total > page * pageSize,
+    filters: { cadence: cadence || null, audience: audience || null, from: fromIso || null, to: toIso || null },
+  });
 }
 
 export async function POST(req: NextRequest) {

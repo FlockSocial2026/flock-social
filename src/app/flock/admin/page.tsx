@@ -34,6 +34,8 @@ type ConversionTimelineItem = {
   maybe_to_going_pct: number | null;
 };
 
+type TimelineSource = "snapshot" | "live" | "none";
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -62,6 +64,10 @@ export default function FlockAdminPage() {
   });
   const [msg, setMsg] = useState("");
   const [conversionTimeline, setConversionTimeline] = useState<ConversionTimelineItem[]>([]);
+  const [timelineSource, setTimelineSource] = useState<TimelineSource>("none");
+  const [timelineGeneratedAt, setTimelineGeneratedAt] = useState<string | null>(null);
+  const [dispatchCadenceFilter, setDispatchCadenceFilter] = useState<"all" | "T-72h" | "T-24h" | "T-2h">("all");
+  const [dispatchAudienceFilter, setDispatchAudienceFilter] = useState("all");
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -93,8 +99,12 @@ export default function FlockAdminPage() {
     setEventAttendance((json.items ?? []) as EventAttendanceRow[]);
   };
 
-  const loadDispatchLogs = async (t: string) => {
-    const res = await fetch("/api/flock/dispatch-logs?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
+  const loadDispatchLogs = async (t: string, filters?: { cadence?: string; audience?: string }) => {
+    const params = new URLSearchParams({ page: "1", pageSize: "100" });
+    if (filters?.cadence && filters.cadence !== "all") params.set("cadence", filters.cadence);
+    if (filters?.audience && filters.audience !== "all") params.set("audience", filters.audience);
+
+    const res = await fetch(`/api/flock/dispatch-logs?${params.toString()}`, { headers: { Authorization: `Bearer ${t}` } });
     if (!res.ok) return;
     const json = await res.json();
     const items = ((json.items ?? []) as Array<Record<string, unknown>>).map((item) => ({
@@ -113,6 +123,8 @@ export default function FlockAdminPage() {
     if (!res.ok) return;
     const json = await res.json();
     setConversionTimeline((json.items ?? []) as ConversionTimelineItem[]);
+    setTimelineSource((json.source ?? "none") as TimelineSource);
+    setTimelineGeneratedAt(json.generatedAt ?? null);
   };
 
   useEffect(() => {
@@ -135,11 +147,16 @@ export default function FlockAdminPage() {
       await loadRoleAudit(t);
       await loadPilotMetrics(cid);
       await loadEventAttendance(t);
-      await loadDispatchLogs(t);
+      await loadDispatchLogs(t, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
       await loadConversionTimeline(t);
     };
     boot();
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    loadDispatchLogs(token, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
+  }, [token, dispatchCadenceFilter, dispatchAudienceFilter]);
 
   // dispatch log is initialized from localStorage via useState lazy initializer
 
@@ -147,6 +164,13 @@ export default function FlockAdminPage() {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(dispatchStorageKey, JSON.stringify(dispatchLog.slice(0, 200)));
   }, [dispatchLog, dispatchStorageKey]);
+
+  const refreshOpsPanels = async () => {
+    if (!token) return;
+    await loadDispatchLogs(token, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
+    await loadConversionTimeline(token);
+    setMsg("Ops panels refreshed.");
+  };
 
   const publishAnnouncement = async () => {
     if (!token) return;
@@ -266,7 +290,7 @@ export default function FlockAdminPage() {
       return;
     }
 
-    await loadDispatchLogs(token);
+    await loadDispatchLogs(token, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
     await loadConversionTimeline(token);
     setMsg(`Logged ${cadence} dispatch for ${event.title} (${audience}).`);
   };
@@ -453,7 +477,22 @@ export default function FlockAdminPage() {
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <h3 style={{ marginTop: 0, marginBottom: 8 }}>Reminder Dispatch Log (Ops)</h3>
-          <button onClick={exportDispatchLogCsv}>Export Dispatch Log CSV</button>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={dispatchCadenceFilter} onChange={(e) => setDispatchCadenceFilter(e.target.value as "all" | "T-72h" | "T-24h" | "T-2h")}>
+              <option value="all">all cadence</option>
+              <option value="T-72h">T-72h</option>
+              <option value="T-24h">T-24h</option>
+              <option value="T-2h">T-2h</option>
+            </select>
+            <select value={dispatchAudienceFilter} onChange={(e) => setDispatchAudienceFilter(e.target.value)}>
+              <option value="all">all audience</option>
+              <option value="all">all</option>
+              <option value="maybe">maybe</option>
+              <option value="not_going">not_going</option>
+            </select>
+            <button onClick={refreshOpsPanels}>Refresh</button>
+            <button onClick={exportDispatchLogCsv}>Export Dispatch Log CSV</button>
+          </div>
         </div>
         <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
           Maybe→Going proxy: {maybeToGoingRate === null ? "n/a" : `${maybeToGoingRate}%`} (based on current attendance snapshot)
@@ -478,6 +517,9 @@ export default function FlockAdminPage() {
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Conversion Timeline</h3>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+          Source: <b>{timelineSource}</b>{timelineGeneratedAt ? ` • refreshed ${new Date(timelineGeneratedAt).toLocaleString()}` : ""}
+        </p>
         {conversionTimeline.length === 0 ? <p style={{ color: "#666" }}>No conversion timeline data yet.</p> : null}
         <div style={{ display: "grid", gap: 8 }}>
           {conversionTimeline.map((item) => {
