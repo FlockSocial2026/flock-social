@@ -14,7 +14,8 @@
     "readiness:step1028": "node scripts/step1028-infra-parity-check.mjs",
     "verify:step1029": "node scripts/step1029-live-verification.mjs",
     "verify:step1031": "node scripts/step1031-supabase-schema-check.mjs",
-    "verify:step1033": "node scripts/step1033-cron-e2e-smoke.mjs"
+    "verify:step1033": "node scripts/step1033-cron-e2e-smoke.mjs",
+    "verify:step1034": "node scripts/step1034-admin-surface-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
