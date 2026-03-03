@@ -7,19 +7,19 @@
     },
     {
       "path": "/api/flock/attendance-snapshot-cron?sinceHours=336",
-      "schedule": "15 */6 * * *"
+      "schedule": "15 14 * * *"
     },
     {
       "path": "/api/flock/reminder-cron?cadence=T-72h",
-      "schedule": "0 * * * *"
+      "schedule": "20 14 * * *"
     },
     {
       "path": "/api/flock/reminder-cron?cadence=T-24h",
-      "schedule": "10 * * * *"
+      "schedule": "25 14 * * *"
     },
     {
       "path": "/api/flock/reminder-cron?cadence=T-2h",
-      "schedule": "20 * * * *"
+      "schedule": "30 14 * * *"
     }
   ]
 }
