@@ -47,6 +47,15 @@ type OpsHealth = {
   upcomingEvents: { next24h: number; next72h: number };
 };
 
+type OpsGuidance = {
+  guidance: {
+    snapshotFreshness: { healthyMinutes: number; healthyMeaning: string; staleMeaning: string };
+    dispatchCoverage: Record<string, string>;
+    recommendedActions: string[];
+  };
+  generatedAt: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -80,6 +89,7 @@ export default function FlockAdminPage() {
   const [dispatchCadenceFilter, setDispatchCadenceFilter] = useState<"all" | "T-72h" | "T-24h" | "T-2h">("all");
   const [dispatchAudienceFilter, setDispatchAudienceFilter] = useState("all");
   const [opsHealth, setOpsHealth] = useState<OpsHealth | null>(null);
+  const [opsGuidance, setOpsGuidance] = useState<OpsGuidance | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -146,6 +156,13 @@ export default function FlockAdminPage() {
     setOpsHealth((json ?? null) as OpsHealth | null);
   };
 
+  const loadOpsGuidance = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/explain", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsGuidance((json ?? null) as OpsGuidance | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -169,6 +186,7 @@ export default function FlockAdminPage() {
       await loadDispatchLogs(t, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
       await loadConversionTimeline(t);
       await loadOpsHealth(t);
+      await loadOpsGuidance(t);
     };
     boot();
   }, []);
@@ -190,6 +208,7 @@ export default function FlockAdminPage() {
     await loadDispatchLogs(token, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
     await loadConversionTimeline(token);
     await loadOpsHealth(token);
+    await loadOpsGuidance(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -513,6 +532,18 @@ export default function FlockAdminPage() {
             <p style={{ marginTop: 0, fontSize: 13 }}>
               Dispatches last 24h: <b>{opsHealth.dispatchLast24h.total}</b> (T-72h {opsHealth.dispatchLast24h.cadence["T-72h"]} • T-24h {opsHealth.dispatchLast24h.cadence["T-24h"]} • T-2h {opsHealth.dispatchLast24h.cadence["T-2h"]})
             </p>
+            {opsGuidance ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fafafa" }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Guidance refreshed {new Date(opsGuidance.generatedAt).toLocaleString()}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {opsGuidance.guidance.recommendedActions.slice(0, 3).map((item) => (
+                    <li key={item} style={{ fontSize: 12, color: "#333" }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </>
         )}
       </section>
