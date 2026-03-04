@@ -16,7 +16,8 @@
     "verify:step1031": "node scripts/step1031-supabase-schema-check.mjs",
     "verify:step1033": "node scripts/step1033-cron-e2e-smoke.mjs",
     "verify:step1034": "node scripts/step1034-admin-surface-smoke.mjs",
-    "verify:step1036": "node scripts/step1036-dispatch-filter-smoke.mjs"
+    "verify:step1036": "node scripts/step1036-dispatch-filter-smoke.mjs",
+    "verify:step1037": "node scripts/step1037-ops-health-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",

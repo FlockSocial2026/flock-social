@@ -36,6 +36,17 @@ type ConversionTimelineItem = {
 
 type TimelineSource = "snapshot" | "live" | "none";
 
+type OpsHealth = {
+  generatedAt: string;
+  snapshot: { latestAt: string | null; ageMin: number | null; healthy: boolean };
+  dispatchLast24h: {
+    total: number;
+    cadence: { "T-72h": number; "T-24h": number; "T-2h": number };
+    audience: Record<string, number>;
+  };
+  upcomingEvents: { next24h: number; next72h: number };
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -68,6 +79,7 @@ export default function FlockAdminPage() {
   const [timelineGeneratedAt, setTimelineGeneratedAt] = useState<string | null>(null);
   const [dispatchCadenceFilter, setDispatchCadenceFilter] = useState<"all" | "T-72h" | "T-24h" | "T-2h">("all");
   const [dispatchAudienceFilter, setDispatchAudienceFilter] = useState("all");
+  const [opsHealth, setOpsHealth] = useState<OpsHealth | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -127,6 +139,13 @@ export default function FlockAdminPage() {
     setTimelineGeneratedAt(json.generatedAt ?? null);
   };
 
+  const loadOpsHealth = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsHealth((json ?? null) as OpsHealth | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -149,6 +168,7 @@ export default function FlockAdminPage() {
       await loadEventAttendance(t);
       await loadDispatchLogs(t, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
       await loadConversionTimeline(t);
+      await loadOpsHealth(t);
     };
     boot();
   }, []);
@@ -169,6 +189,7 @@ export default function FlockAdminPage() {
     if (!token) return;
     await loadDispatchLogs(token, { cadence: dispatchCadenceFilter, audience: dispatchAudienceFilter });
     await loadConversionTimeline(token);
+    await loadOpsHealth(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -472,6 +493,28 @@ export default function FlockAdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <h3 style={{ marginTop: 0, marginBottom: 8 }}>Ops Health Snapshot</h3>
+        {!opsHealth ? (
+          <p style={{ color: "#666" }}>Ops health unavailable.</p>
+        ) : (
+          <>
+            <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+              Generated: {new Date(opsHealth.generatedAt).toLocaleString()}
+            </p>
+            <p style={{ marginTop: 0, fontSize: 13, color: opsHealth.snapshot.healthy ? "#166534" : "#b91c1c" }}>
+              Snapshot freshness: {opsHealth.snapshot.ageMin === null ? "none" : `${opsHealth.snapshot.ageMin} min old`} ({opsHealth.snapshot.healthy ? "healthy" : "stale"})
+            </p>
+            <p style={{ marginTop: 0, fontSize: 13 }}>
+              Upcoming events: <b>{opsHealth.upcomingEvents.next24h}</b> in next 24h • <b>{opsHealth.upcomingEvents.next72h}</b> in next 72h
+            </p>
+            <p style={{ marginTop: 0, fontSize: 13 }}>
+              Dispatches last 24h: <b>{opsHealth.dispatchLast24h.total}</b> (T-72h {opsHealth.dispatchLast24h.cadence["T-72h"]} • T-24h {opsHealth.dispatchLast24h.cadence["T-24h"]} • T-2h {opsHealth.dispatchLast24h.cadence["T-2h"]})
+            </p>
+          </>
+        )}
       </section>
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
