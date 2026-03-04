@@ -18,7 +18,8 @@
     "verify:step1034": "node scripts/step1034-admin-surface-smoke.mjs",
     "verify:step1036": "node scripts/step1036-dispatch-filter-smoke.mjs",
     "verify:step1037": "node scripts/step1037-ops-health-smoke.mjs",
-    "verify:step1038": "node scripts/step1038-ops-guidance-smoke.mjs"
+    "verify:step1038": "node scripts/step1038-ops-guidance-smoke.mjs",
+    "verify:step1039": "node scripts/step1039-ops-alerts-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",

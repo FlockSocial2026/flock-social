@@ -56,6 +56,13 @@ type OpsGuidance = {
   generatedAt: string;
 };
 
+type OpsAlert = { level: "info" | "warning" | "critical"; key: string; message: string; action: string };
+
+type OpsAlertsPayload = {
+  generatedAt: string;
+  alerts: OpsAlert[];
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -90,6 +97,7 @@ export default function FlockAdminPage() {
   const [dispatchAudienceFilter, setDispatchAudienceFilter] = useState("all");
   const [opsHealth, setOpsHealth] = useState<OpsHealth | null>(null);
   const [opsGuidance, setOpsGuidance] = useState<OpsGuidance | null>(null);
+  const [opsAlerts, setOpsAlerts] = useState<OpsAlertsPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -163,6 +171,13 @@ export default function FlockAdminPage() {
     setOpsGuidance((json ?? null) as OpsGuidance | null);
   };
 
+  const loadOpsAlerts = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/alerts", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsAlerts((json ?? null) as OpsAlertsPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -187,6 +202,7 @@ export default function FlockAdminPage() {
       await loadConversionTimeline(t);
       await loadOpsHealth(t);
       await loadOpsGuidance(t);
+      await loadOpsAlerts(t);
     };
     boot();
   }, []);
@@ -209,6 +225,7 @@ export default function FlockAdminPage() {
     await loadConversionTimeline(token);
     await loadOpsHealth(token);
     await loadOpsGuidance(token);
+    await loadOpsAlerts(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -542,6 +559,33 @@ export default function FlockAdminPage() {
                     <li key={item} style={{ fontSize: 12, color: "#333" }}>{item}</li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {opsAlerts ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Alerts refreshed {new Date(opsAlerts.generatedAt).toLocaleString()}
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {opsAlerts.alerts.map((alert) => (
+                    <div
+                      key={alert.key}
+                      style={{
+                        border: "1px solid #eee",
+                        borderRadius: 8,
+                        padding: 8,
+                        background: alert.level === "critical" ? "#fef2f2" : alert.level === "warning" ? "#fffbeb" : "#f8fafc",
+                      }}
+                    >
+                      <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: alert.level === "critical" ? "#b91c1c" : alert.level === "warning" ? "#92400e" : "#334155" }}>
+                        {alert.level}
+                      </div>
+                      <div style={{ fontSize: 13, color: "#111827" }}>{alert.message}</div>
+                      <div style={{ fontSize: 12, color: "#4b5563", marginTop: 2 }}>Action: {alert.action}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
           </>
