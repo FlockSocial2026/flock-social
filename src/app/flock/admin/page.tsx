@@ -68,6 +68,12 @@ type OpsSummaryPayload = {
   status: { healthy: boolean; criticalCount: number; warningCount: number };
 };
 
+type OpsIncidentsPayload = {
+  generatedAt: string;
+  openCount: number;
+  incidents: Array<{ id: string; severity: "critical" | "warning"; summary: string; action: string }>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -104,6 +110,7 @@ export default function FlockAdminPage() {
   const [opsGuidance, setOpsGuidance] = useState<OpsGuidance | null>(null);
   const [opsAlerts, setOpsAlerts] = useState<OpsAlertsPayload | null>(null);
   const [opsSummary, setOpsSummary] = useState<OpsSummaryPayload | null>(null);
+  const [opsIncidents, setOpsIncidents] = useState<OpsIncidentsPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -191,6 +198,13 @@ export default function FlockAdminPage() {
     setOpsSummary((json ?? null) as OpsSummaryPayload | null);
   };
 
+  const loadOpsIncidents = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/incidents", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsIncidents((json ?? null) as OpsIncidentsPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -217,6 +231,7 @@ export default function FlockAdminPage() {
       await loadOpsGuidance(t);
       await loadOpsAlerts(t);
       await loadOpsSummary(t);
+      await loadOpsIncidents(t);
     };
     boot();
   }, []);
@@ -241,6 +256,7 @@ export default function FlockAdminPage() {
     await loadOpsGuidance(token);
     await loadOpsAlerts(token);
     await loadOpsSummary(token);
+    await loadOpsIncidents(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -606,6 +622,27 @@ export default function FlockAdminPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : null}
+
+            {opsIncidents ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Open incidents: <b>{opsIncidents.openCount}</b>
+                </div>
+                {opsIncidents.incidents.length === 0 ? (
+                  <div style={{ fontSize: 12, color: "#166534" }}>No open incidents.</div>
+                ) : (
+                  <div style={{ display: "grid", gap: 6 }}>
+                    {opsIncidents.incidents.map((incident) => (
+                      <div key={incident.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: incident.severity === "critical" ? "#b91c1c" : "#92400e" }}>{incident.severity}</div>
+                        <div style={{ fontSize: 13 }}>{incident.summary}</div>
+                        <div style={{ fontSize: 12, color: "#4b5563" }}>Action: {incident.action}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : null}
           </>
