@@ -100,6 +100,11 @@ type OpsRunbookPayload = {
   checklist: Array<{ id: string; type: "protocol" | "action"; text: string }>;
 };
 
+type OpsHandoffPayload = {
+  generatedAt: string;
+  handoffText: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -141,6 +146,7 @@ export default function FlockAdminPage() {
   const [opsEscalations, setOpsEscalations] = useState<OpsEscalationsPayload | null>(null);
   const [opsDailyBrief, setOpsDailyBrief] = useState<OpsDailyBriefPayload | null>(null);
   const [opsRunbook, setOpsRunbook] = useState<OpsRunbookPayload | null>(null);
+  const [opsHandoff, setOpsHandoff] = useState<OpsHandoffPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -263,6 +269,13 @@ export default function FlockAdminPage() {
     setOpsRunbook((json ?? null) as OpsRunbookPayload | null);
   };
 
+  const loadOpsHandoff = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/handoff", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsHandoff((json ?? null) as OpsHandoffPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -294,6 +307,7 @@ export default function FlockAdminPage() {
       await loadOpsEscalations(t);
       await loadOpsDailyBrief(t);
       await loadOpsRunbook(t);
+      await loadOpsHandoff(t);
     };
     boot();
   }, []);
@@ -323,6 +337,7 @@ export default function FlockAdminPage() {
     await loadOpsEscalations(token);
     await loadOpsDailyBrief(token);
     await loadOpsRunbook(token);
+    await loadOpsHandoff(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -765,6 +780,13 @@ export default function FlockAdminPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : null}
+
+            {opsHandoff ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>Shift handoff preview</div>
+                <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHandoff.handoffText}</pre>
               </div>
             ) : null}
           </>
