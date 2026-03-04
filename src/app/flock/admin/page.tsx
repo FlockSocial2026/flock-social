@@ -74,6 +74,12 @@ type OpsIncidentsPayload = {
   incidents: Array<{ id: string; severity: "critical" | "warning"; summary: string; action: string }>;
 };
 
+type OpsNextActionsPayload = {
+  generatedAt: string;
+  total: number;
+  items: Array<{ priority: "P0" | "P1" | "P2"; key: string; action: string }>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -111,6 +117,7 @@ export default function FlockAdminPage() {
   const [opsAlerts, setOpsAlerts] = useState<OpsAlertsPayload | null>(null);
   const [opsSummary, setOpsSummary] = useState<OpsSummaryPayload | null>(null);
   const [opsIncidents, setOpsIncidents] = useState<OpsIncidentsPayload | null>(null);
+  const [opsNextActions, setOpsNextActions] = useState<OpsNextActionsPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -205,6 +212,13 @@ export default function FlockAdminPage() {
     setOpsIncidents((json ?? null) as OpsIncidentsPayload | null);
   };
 
+  const loadOpsNextActions = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/next-actions", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsNextActions((json ?? null) as OpsNextActionsPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -232,6 +246,7 @@ export default function FlockAdminPage() {
       await loadOpsAlerts(t);
       await loadOpsSummary(t);
       await loadOpsIncidents(t);
+      await loadOpsNextActions(t);
     };
     boot();
   }, []);
@@ -257,6 +272,7 @@ export default function FlockAdminPage() {
     await loadOpsAlerts(token);
     await loadOpsSummary(token);
     await loadOpsIncidents(token);
+    await loadOpsNextActions(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -643,6 +659,22 @@ export default function FlockAdminPage() {
                     ))}
                   </div>
                 )}
+              </div>
+            ) : null}
+
+            {opsNextActions ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Priority action queue ({opsNextActions.total})
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {opsNextActions.items.slice(0, 5).map((item) => (
+                    <div key={item.key} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: item.priority === "P0" ? "#b91c1c" : item.priority === "P1" ? "#92400e" : "#334155" }}>{item.priority}</div>
+                      <div style={{ fontSize: 13 }}>{item.action}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
           </>
