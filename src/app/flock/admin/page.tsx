@@ -87,6 +87,13 @@ type OpsEscalationsPayload = {
   protocol: string[];
 };
 
+type OpsDailyBriefPayload = {
+  generatedAt: string;
+  headline: string;
+  metrics: { healthy: boolean; critical: number; warning: number; openIncidents: number };
+  topActions: Array<{ priority: "P0" | "P1" | "P2"; key: string; action: string }>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -126,6 +133,7 @@ export default function FlockAdminPage() {
   const [opsIncidents, setOpsIncidents] = useState<OpsIncidentsPayload | null>(null);
   const [opsNextActions, setOpsNextActions] = useState<OpsNextActionsPayload | null>(null);
   const [opsEscalations, setOpsEscalations] = useState<OpsEscalationsPayload | null>(null);
+  const [opsDailyBrief, setOpsDailyBrief] = useState<OpsDailyBriefPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -234,6 +242,13 @@ export default function FlockAdminPage() {
     setOpsEscalations((json ?? null) as OpsEscalationsPayload | null);
   };
 
+  const loadOpsDailyBrief = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/daily-brief", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsDailyBrief((json ?? null) as OpsDailyBriefPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -263,6 +278,7 @@ export default function FlockAdminPage() {
       await loadOpsIncidents(t);
       await loadOpsNextActions(t);
       await loadOpsEscalations(t);
+      await loadOpsDailyBrief(t);
     };
     boot();
   }, []);
@@ -290,6 +306,7 @@ export default function FlockAdminPage() {
     await loadOpsIncidents(token);
     await loadOpsNextActions(token);
     await loadOpsEscalations(token);
+    await loadOpsDailyBrief(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -601,6 +618,14 @@ export default function FlockAdminPage() {
           <p style={{ marginTop: 0, fontSize: 12, color: opsSummary.status.healthy ? "#166534" : "#b91c1c" }}>
             Summary: {opsSummary.status.healthy ? "healthy" : "attention needed"} • critical {opsSummary.status.criticalCount} • warning {opsSummary.status.warningCount}
           </p>
+        ) : null}
+        {opsDailyBrief ? (
+          <div style={{ marginTop: 0, marginBottom: 8, padding: 8, border: "1px solid #e5e7eb", borderRadius: 8, background: "#f9fafb" }}>
+            <div style={{ fontSize: 12, color: "#374151" }}><b>Daily brief:</b> {opsDailyBrief.headline}</div>
+            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
+              incidents {opsDailyBrief.metrics.openIncidents} • critical {opsDailyBrief.metrics.critical} • warning {opsDailyBrief.metrics.warning}
+            </div>
+          </div>
         ) : null}
         {!opsHealth ? (
           <p style={{ color: "#666" }}>Ops health unavailable.</p>
