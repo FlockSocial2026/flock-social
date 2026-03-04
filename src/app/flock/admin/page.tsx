@@ -63,6 +63,11 @@ type OpsAlertsPayload = {
   alerts: OpsAlert[];
 };
 
+type OpsSummaryPayload = {
+  generatedAt: string;
+  status: { healthy: boolean; criticalCount: number; warningCount: number };
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -98,6 +103,7 @@ export default function FlockAdminPage() {
   const [opsHealth, setOpsHealth] = useState<OpsHealth | null>(null);
   const [opsGuidance, setOpsGuidance] = useState<OpsGuidance | null>(null);
   const [opsAlerts, setOpsAlerts] = useState<OpsAlertsPayload | null>(null);
+  const [opsSummary, setOpsSummary] = useState<OpsSummaryPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -178,6 +184,13 @@ export default function FlockAdminPage() {
     setOpsAlerts((json ?? null) as OpsAlertsPayload | null);
   };
 
+  const loadOpsSummary = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/summary", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsSummary((json ?? null) as OpsSummaryPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -203,6 +216,7 @@ export default function FlockAdminPage() {
       await loadOpsHealth(t);
       await loadOpsGuidance(t);
       await loadOpsAlerts(t);
+      await loadOpsSummary(t);
     };
     boot();
   }, []);
@@ -226,6 +240,7 @@ export default function FlockAdminPage() {
     await loadOpsHealth(token);
     await loadOpsGuidance(token);
     await loadOpsAlerts(token);
+    await loadOpsSummary(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -533,6 +548,11 @@ export default function FlockAdminPage() {
 
       <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0, marginBottom: 8 }}>Ops Health Snapshot</h3>
+        {opsSummary ? (
+          <p style={{ marginTop: 0, fontSize: 12, color: opsSummary.status.healthy ? "#166534" : "#b91c1c" }}>
+            Summary: {opsSummary.status.healthy ? "healthy" : "attention needed"} • critical {opsSummary.status.criticalCount} • warning {opsSummary.status.warningCount}
+          </p>
+        ) : null}
         {!opsHealth ? (
           <p style={{ color: "#666" }}>Ops health unavailable.</p>
         ) : (
