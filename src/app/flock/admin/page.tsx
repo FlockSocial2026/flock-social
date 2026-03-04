@@ -80,6 +80,13 @@ type OpsNextActionsPayload = {
   items: Array<{ priority: "P0" | "P1" | "P2"; key: string; action: string }>;
 };
 
+type OpsEscalationsPayload = {
+  generatedAt: string;
+  level: "none" | "watch" | "escalate";
+  counts: { critical: number; warning: number };
+  protocol: string[];
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -118,6 +125,7 @@ export default function FlockAdminPage() {
   const [opsSummary, setOpsSummary] = useState<OpsSummaryPayload | null>(null);
   const [opsIncidents, setOpsIncidents] = useState<OpsIncidentsPayload | null>(null);
   const [opsNextActions, setOpsNextActions] = useState<OpsNextActionsPayload | null>(null);
+  const [opsEscalations, setOpsEscalations] = useState<OpsEscalationsPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -219,6 +227,13 @@ export default function FlockAdminPage() {
     setOpsNextActions((json ?? null) as OpsNextActionsPayload | null);
   };
 
+  const loadOpsEscalations = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/escalations", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsEscalations((json ?? null) as OpsEscalationsPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -247,6 +262,7 @@ export default function FlockAdminPage() {
       await loadOpsSummary(t);
       await loadOpsIncidents(t);
       await loadOpsNextActions(t);
+      await loadOpsEscalations(t);
     };
     boot();
   }, []);
@@ -273,6 +289,7 @@ export default function FlockAdminPage() {
     await loadOpsSummary(token);
     await loadOpsIncidents(token);
     await loadOpsNextActions(token);
+    await loadOpsEscalations(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -675,6 +692,22 @@ export default function FlockAdminPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : null}
+
+            {opsEscalations ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fafafa" }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Escalation level: <b style={{ color: opsEscalations.level === "escalate" ? "#b91c1c" : opsEscalations.level === "watch" ? "#92400e" : "#166534" }}>{opsEscalations.level}</b>
+                </div>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  critical {opsEscalations.counts.critical} • warning {opsEscalations.counts.warning}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {opsEscalations.protocol.map((line) => (
+                    <li key={line} style={{ fontSize: 12, color: "#333" }}>{line}</li>
+                  ))}
+                </ul>
               </div>
             ) : null}
           </>
