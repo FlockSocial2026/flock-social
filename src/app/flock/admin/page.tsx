@@ -110,6 +110,16 @@ type OpsHandoffMarkdownPayload = {
   markdown: string;
 };
 
+type OpsPacketPayload = {
+  generatedAt: string;
+  packetVersion: string;
+  packet: {
+    summary: { status?: { criticalCount?: number; warningCount?: number; healthy?: boolean } };
+    incidents: { openCount?: number };
+    runbook: { level?: string };
+  };
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -153,6 +163,7 @@ export default function FlockAdminPage() {
   const [opsRunbook, setOpsRunbook] = useState<OpsRunbookPayload | null>(null);
   const [opsHandoff, setOpsHandoff] = useState<OpsHandoffPayload | null>(null);
   const [opsHandoffMarkdown, setOpsHandoffMarkdown] = useState<OpsHandoffMarkdownPayload | null>(null);
+  const [opsPacket, setOpsPacket] = useState<OpsPacketPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -289,6 +300,13 @@ export default function FlockAdminPage() {
     setOpsHandoffMarkdown((json ?? null) as OpsHandoffMarkdownPayload | null);
   };
 
+  const loadOpsPacket = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/packet", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsPacket((json ?? null) as OpsPacketPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -322,6 +340,7 @@ export default function FlockAdminPage() {
       await loadOpsRunbook(t);
       await loadOpsHandoff(t);
       await loadOpsHandoffMarkdown(t);
+      await loadOpsPacket(t);
     };
     boot();
   }, []);
@@ -353,6 +372,7 @@ export default function FlockAdminPage() {
     await loadOpsRunbook(token);
     await loadOpsHandoff(token);
     await loadOpsHandoffMarkdown(token);
+    await loadOpsPacket(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -807,6 +827,14 @@ export default function FlockAdminPage() {
                     <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Markdown handoff export</summary>
                     <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHandoffMarkdown.markdown}</pre>
                   </details>
+                ) : null}
+
+                {opsPacket ? (
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8 }}>
+                    <div style={{ fontSize: 12, color: "#374151" }}>
+                      Packet {opsPacket.packetVersion} • incidents {opsPacket.packet?.incidents?.openCount ?? 0} • runbook level {opsPacket.packet?.runbook?.level ?? "n/a"}
+                    </div>
+                  </div>
                 ) : null}
               </div>
             ) : null}
