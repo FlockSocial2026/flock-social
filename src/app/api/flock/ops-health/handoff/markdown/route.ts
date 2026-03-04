@@ -20,9 +20,33 @@ export async function GET(req: NextRequest) {
   if (!membership) return NextResponse.json({ error: "No church membership" }, { status: 403 });
   if (!canPublish(membership.role)) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-  const handoff = await fetchJson(req, "/api/flock/ops-health/handoff");
+  let handoff = await fetchJson(req, "/api/flock/ops-health/handoff");
+
+  // Fallback composition path in case the aggregated handoff route is transiently unavailable.
   if (handoff.status !== 200) {
-    return NextResponse.json({ ok: false, error: "handoff_unavailable" }, { status: 500 });
+    const [briefRes, runbookRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/daily-brief"),
+      fetchJson(req, "/api/flock/ops-health/runbook"),
+    ]);
+
+    if (briefRes.status !== 200 || runbookRes.status !== 200) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "handoff_unavailable",
+          statuses: { handoff: handoff.status, brief: briefRes.status, runbook: runbookRes.status },
+        },
+        { status: 500 }
+      );
+    }
+
+    handoff = {
+      status: 200,
+      json: {
+        brief: briefRes.json,
+        runbook: runbookRes.json,
+      },
+    };
   }
 
   const brief = handoff.json?.brief ?? {};
