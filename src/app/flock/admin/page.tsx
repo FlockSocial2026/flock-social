@@ -105,6 +105,11 @@ type OpsHandoffPayload = {
   handoffText: string;
 };
 
+type OpsHandoffMarkdownPayload = {
+  generatedAt: string;
+  markdown: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -147,6 +152,7 @@ export default function FlockAdminPage() {
   const [opsDailyBrief, setOpsDailyBrief] = useState<OpsDailyBriefPayload | null>(null);
   const [opsRunbook, setOpsRunbook] = useState<OpsRunbookPayload | null>(null);
   const [opsHandoff, setOpsHandoff] = useState<OpsHandoffPayload | null>(null);
+  const [opsHandoffMarkdown, setOpsHandoffMarkdown] = useState<OpsHandoffMarkdownPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -276,6 +282,13 @@ export default function FlockAdminPage() {
     setOpsHandoff((json ?? null) as OpsHandoffPayload | null);
   };
 
+  const loadOpsHandoffMarkdown = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/handoff/markdown", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsHandoffMarkdown((json ?? null) as OpsHandoffMarkdownPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -308,6 +321,7 @@ export default function FlockAdminPage() {
       await loadOpsDailyBrief(t);
       await loadOpsRunbook(t);
       await loadOpsHandoff(t);
+      await loadOpsHandoffMarkdown(t);
     };
     boot();
   }, []);
@@ -338,6 +352,7 @@ export default function FlockAdminPage() {
     await loadOpsDailyBrief(token);
     await loadOpsRunbook(token);
     await loadOpsHandoff(token);
+    await loadOpsHandoffMarkdown(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -787,6 +802,12 @@ export default function FlockAdminPage() {
               <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>Shift handoff preview</div>
                 <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHandoff.handoffText}</pre>
+                {opsHandoffMarkdown ? (
+                  <details style={{ marginTop: 8 }}>
+                    <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Markdown handoff export</summary>
+                    <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHandoffMarkdown.markdown}</pre>
+                  </details>
+                ) : null}
               </div>
             ) : null}
           </>

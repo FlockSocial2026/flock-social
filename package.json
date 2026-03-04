@@ -26,7 +26,8 @@
     "verify:step1043": "node scripts/step1043-ops-escalation-smoke.mjs",
     "verify:step1044": "node scripts/step1044-daily-brief-smoke.mjs",
     "verify:step1045": "node scripts/step1045-ops-runbook-smoke.mjs",
-    "verify:step1046": "node scripts/step1046-ops-handoff-smoke.mjs"
+    "verify:step1046": "node scripts/step1046-ops-handoff-smoke.mjs",
+    "verify:step1047": "node scripts/step1047-handoff-markdown-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
