@@ -94,6 +94,12 @@ type OpsDailyBriefPayload = {
   topActions: Array<{ priority: "P0" | "P1" | "P2"; key: string; action: string }>;
 };
 
+type OpsRunbookPayload = {
+  generatedAt: string;
+  level: "none" | "watch" | "escalate";
+  checklist: Array<{ id: string; type: "protocol" | "action"; text: string }>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -134,6 +140,7 @@ export default function FlockAdminPage() {
   const [opsNextActions, setOpsNextActions] = useState<OpsNextActionsPayload | null>(null);
   const [opsEscalations, setOpsEscalations] = useState<OpsEscalationsPayload | null>(null);
   const [opsDailyBrief, setOpsDailyBrief] = useState<OpsDailyBriefPayload | null>(null);
+  const [opsRunbook, setOpsRunbook] = useState<OpsRunbookPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -249,6 +256,13 @@ export default function FlockAdminPage() {
     setOpsDailyBrief((json ?? null) as OpsDailyBriefPayload | null);
   };
 
+  const loadOpsRunbook = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/runbook", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsRunbook((json ?? null) as OpsRunbookPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -279,6 +293,7 @@ export default function FlockAdminPage() {
       await loadOpsNextActions(t);
       await loadOpsEscalations(t);
       await loadOpsDailyBrief(t);
+      await loadOpsRunbook(t);
     };
     boot();
   }, []);
@@ -307,6 +322,7 @@ export default function FlockAdminPage() {
     await loadOpsNextActions(token);
     await loadOpsEscalations(token);
     await loadOpsDailyBrief(token);
+    await loadOpsRunbook(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -733,6 +749,22 @@ export default function FlockAdminPage() {
                     <li key={line} style={{ fontSize: 12, color: "#333" }}>{line}</li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {opsRunbook ? (
+              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
+                  Runbook ({opsRunbook.level})
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {opsRunbook.checklist.slice(0, 6).map((item) => (
+                    <div key={item.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: item.type === "protocol" ? "#334155" : "#166534" }}>{item.type}</div>
+                      <div style={{ fontSize: 13 }}>{item.text}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
           </>
