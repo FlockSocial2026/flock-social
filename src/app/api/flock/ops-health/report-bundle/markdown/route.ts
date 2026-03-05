@@ -49,6 +49,41 @@ export async function GET(req: NextRequest) {
           },
         },
       };
+    } else {
+      const [summaryRes, dailyBriefRes, nextActionsRes] = await Promise.all([
+        fetchJson(req, "/api/flock/ops-health/summary"),
+        fetchJson(req, "/api/flock/ops-health/daily-brief"),
+        fetchJson(req, "/api/flock/ops-health/next-actions"),
+      ]);
+
+      if (summaryRes.status === 200 && dailyBriefRes.status === 200 && nextActionsRes.status === 200) {
+        const s = summaryRes.json?.status ?? {};
+        const actions = Array.isArray(nextActionsRes.json?.items)
+          ? nextActionsRes.json.items.slice(0, 3).map((item: { action?: string }) => String(item?.action || ""))
+          : [];
+
+        bundleRes = {
+          status: 200,
+          json: {
+            summaryLine: `Ops ${s.healthy ? "healthy" : "attention"} | critical ${Number(s.criticalCount || 0)} | warning ${Number(s.warningCount || 0)}`,
+            posture: {
+              healthy: Boolean(s.healthy),
+              critical: Number(s.criticalCount || 0),
+              warning: Number(s.warningCount || 0),
+              openIncidents: 0,
+              runbookLevel: "watch",
+            },
+            bundle: {
+              executive: {
+                headline: String(dailyBriefRes.json?.headline || ""),
+                reportText: `Status: ${s.healthy ? "healthy" : "attention"} (critical ${Number(s.criticalCount || 0)}, warning ${Number(s.warningCount || 0)})`,
+              },
+              hourly: { report: `Top actions: ${actions.join(" | ") || "none"}` },
+              overnight: { report: `Morning focus: ${actions.join(" | ") || "none"}` },
+            },
+          },
+        };
+      }
     }
   }
 
