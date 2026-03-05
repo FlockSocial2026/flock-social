@@ -20,7 +20,38 @@ export async function GET(req: NextRequest) {
   if (!membership) return NextResponse.json({ error: "No church membership" }, { status: 403 });
   if (!canPublish(membership.role)) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-  const bundleRes = await fetchJson(req, "/api/flock/ops-health/report-bundle");
+  let bundleRes = await fetchJson(req, "/api/flock/ops-health/report-bundle");
+  if (bundleRes.status !== 200) {
+    const [executiveRes, hourlyRes, overnightRes, snapshotRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/executive-update"),
+      fetchJson(req, "/api/flock/ops-health/hourly-report"),
+      fetchJson(req, "/api/flock/ops-health/overnight-report"),
+      fetchJson(req, "/api/flock/ops-health/snapshot"),
+    ]);
+
+    if (executiveRes.status === 200 && hourlyRes.status === 200 && overnightRes.status === 200 && snapshotRes.status === 200) {
+      const s = snapshotRes.json?.snapshot ?? {};
+      bundleRes = {
+        status: 200,
+        json: {
+          summaryLine: `Ops ${s.healthy ? "healthy" : "attention"} | critical ${Number(s.critical || 0)} | warning ${Number(s.warning || 0)} | incidents ${Number(s.openIncidents || 0)} | runbook ${String(s.runbookLevel || "none")}`,
+          posture: {
+            healthy: Boolean(s.healthy),
+            critical: Number(s.critical || 0),
+            warning: Number(s.warning || 0),
+            openIncidents: Number(s.openIncidents || 0),
+            runbookLevel: String(s.runbookLevel || "none"),
+          },
+          bundle: {
+            executive: executiveRes.json,
+            hourly: hourlyRes.json,
+            overnight: overnightRes.json,
+          },
+        },
+      };
+    }
+  }
+
   if (bundleRes.status !== 200) {
     return NextResponse.json({ ok: false, error: "report_bundle_markdown_unavailable", bundleStatus: bundleRes.status }, { status: 500 });
   }
