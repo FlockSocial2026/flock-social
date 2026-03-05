@@ -165,6 +165,11 @@ type OpsReportBundlePayload = {
   };
 };
 
+type OpsReportBundleMarkdownPayload = {
+  generatedAt: string;
+  markdown: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -214,6 +219,7 @@ export default function FlockAdminPage() {
   const [opsHourlyReport, setOpsHourlyReport] = useState<OpsHourlyReportPayload | null>(null);
   const [opsOvernightReport, setOpsOvernightReport] = useState<OpsOvernightReportPayload | null>(null);
   const [opsReportBundle, setOpsReportBundle] = useState<OpsReportBundlePayload | null>(null);
+  const [opsReportBundleMarkdown, setOpsReportBundleMarkdown] = useState<OpsReportBundleMarkdownPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -392,6 +398,13 @@ export default function FlockAdminPage() {
     setOpsReportBundle((json ?? null) as OpsReportBundlePayload | null);
   };
 
+  const loadOpsReportBundleMarkdown = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/markdown", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundleMarkdown((json ?? null) as OpsReportBundleMarkdownPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -431,6 +444,7 @@ export default function FlockAdminPage() {
       await loadOpsHourlyReport(t);
       await loadOpsOvernightReport(t);
       await loadOpsReportBundle(t);
+      await loadOpsReportBundleMarkdown(t);
     };
     boot();
   }, []);
@@ -468,6 +482,7 @@ export default function FlockAdminPage() {
     await loadOpsHourlyReport(token);
     await loadOpsOvernightReport(token);
     await loadOpsReportBundle(token);
+    await loadOpsReportBundleMarkdown(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -982,6 +997,12 @@ export default function FlockAdminPage() {
                       <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show overnight</summary>
                       <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundle.bundle.overnight.report}</pre>
                     </details>
+                    {opsReportBundleMarkdown ? (
+                      <details>
+                        <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show markdown export</summary>
+                        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleMarkdown.markdown}</pre>
+                      </details>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
