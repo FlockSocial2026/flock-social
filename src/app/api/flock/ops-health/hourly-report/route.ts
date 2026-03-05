@@ -20,11 +20,34 @@ export async function GET(req: NextRequest) {
   if (!membership) return NextResponse.json({ error: "No church membership" }, { status: 403 });
   if (!canPublish(membership.role)) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-  const [dispatchRes, timelineRes, execRes] = await Promise.all([
+  let [dispatchRes, timelineRes, execRes] = await Promise.all([
     fetchJson(req, "/api/flock/dispatch-logs?page=1&pageSize=100"),
     fetchJson(req, "/api/flock/conversion-timeline?limit=12"),
     fetchJson(req, "/api/flock/ops-health/executive-update"),
   ]);
+
+  if (execRes.status !== 200) {
+    const [dailyBriefRes, nextActionsRes, summaryRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/daily-brief"),
+      fetchJson(req, "/api/flock/ops-health/next-actions"),
+      fetchJson(req, "/api/flock/ops-health/summary"),
+    ]);
+
+    if (dailyBriefRes.status === 200 && nextActionsRes.status === 200 && summaryRes.status === 200) {
+      const s = summaryRes.json?.status ?? {};
+      const topActions = Array.isArray(nextActionsRes.json?.items)
+        ? nextActionsRes.json.items.slice(0, 3).map((item: { action?: string }) => String(item?.action || ""))
+        : [];
+      execRes = {
+        status: 200,
+        json: {
+          headline: String(dailyBriefRes.json?.headline || ""),
+          topActions,
+          reportText: `Status: ${s.healthy ? "healthy" : "attention"} (critical ${Number(s.criticalCount || 0)}, warning ${Number(s.warningCount || 0)})`,
+        },
+      };
+    }
+  }
 
   if (dispatchRes.status !== 200 || timelineRes.status !== 200 || execRes.status !== 200) {
     return NextResponse.json(
