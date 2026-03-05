@@ -35,7 +35,8 @@
     "verify:step1052": "node scripts/step1052-overnight-report-smoke.mjs",
     "verify:step1053": "node scripts/step1053-report-bundle-smoke.mjs",
     "verify:step1054": "node scripts/step1054-report-bundle-markdown-smoke.mjs",
-    "verify:step1055": "node scripts/step1055-report-bundle-brief-smoke.mjs"
+    "verify:step1055": "node scripts/step1055-report-bundle-brief-smoke.mjs",
+    "verify:step1056": "node scripts/step1056-report-bundle-slack-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",

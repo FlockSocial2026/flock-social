@@ -176,6 +176,12 @@ type OpsReportBundleBriefPayload = {
   maxLen: number;
 };
 
+type OpsReportBundleSlackPayload = {
+  generatedAt: string;
+  text: string;
+  blocks: Array<{ type: string; text?: { type: string; text: string } }>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -227,6 +233,7 @@ export default function FlockAdminPage() {
   const [opsReportBundle, setOpsReportBundle] = useState<OpsReportBundlePayload | null>(null);
   const [opsReportBundleMarkdown, setOpsReportBundleMarkdown] = useState<OpsReportBundleMarkdownPayload | null>(null);
   const [opsReportBundleBrief, setOpsReportBundleBrief] = useState<OpsReportBundleBriefPayload | null>(null);
+  const [opsReportBundleSlack, setOpsReportBundleSlack] = useState<OpsReportBundleSlackPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -419,6 +426,13 @@ export default function FlockAdminPage() {
     setOpsReportBundleBrief((json ?? null) as OpsReportBundleBriefPayload | null);
   };
 
+  const loadOpsReportBundleSlack = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/slack", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundleSlack((json ?? null) as OpsReportBundleSlackPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -460,6 +474,7 @@ export default function FlockAdminPage() {
       await loadOpsReportBundle(t);
       await loadOpsReportBundleMarkdown(t);
       await loadOpsReportBundleBrief(t);
+      await loadOpsReportBundleSlack(t);
     };
     boot();
   }, []);
@@ -499,6 +514,7 @@ export default function FlockAdminPage() {
     await loadOpsReportBundle(token);
     await loadOpsReportBundleMarkdown(token);
     await loadOpsReportBundleBrief(token);
+    await loadOpsReportBundleSlack(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -1024,6 +1040,12 @@ export default function FlockAdminPage() {
                         <div style={{ fontSize: 12, color: "#374151", marginBottom: 4 }}>Brief send format ({opsReportBundleBrief.maxLen} chars)</div>
                         <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleBrief.brief}</pre>
                       </div>
+                    ) : null}
+                    {opsReportBundleSlack ? (
+                      <details style={{ marginTop: 8 }}>
+                        <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show Slack payload preview</summary>
+                        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{JSON.stringify(opsReportBundleSlack, null, 2)}</pre>
+                      </details>
                     ) : null}
                   </div>
                 ) : null}
