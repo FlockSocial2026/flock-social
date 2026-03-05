@@ -126,6 +126,15 @@ type OpsSnapshotPayload = {
   compactText: string;
 };
 
+type OpsExecutiveUpdatePayload = {
+  generatedAt: string;
+  status: { healthy: boolean; critical: number; warning: number; openIncidents: number; runbookLevel: string };
+  headline: string;
+  topActions: string[];
+  concise: string[];
+  reportText: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -171,6 +180,7 @@ export default function FlockAdminPage() {
   const [opsHandoffMarkdown, setOpsHandoffMarkdown] = useState<OpsHandoffMarkdownPayload | null>(null);
   const [opsPacket, setOpsPacket] = useState<OpsPacketPayload | null>(null);
   const [opsSnapshot, setOpsSnapshot] = useState<OpsSnapshotPayload | null>(null);
+  const [opsExecutiveUpdate, setOpsExecutiveUpdate] = useState<OpsExecutiveUpdatePayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -321,6 +331,13 @@ export default function FlockAdminPage() {
     setOpsSnapshot((json ?? null) as OpsSnapshotPayload | null);
   };
 
+  const loadOpsExecutiveUpdate = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/executive-update", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsExecutiveUpdate((json ?? null) as OpsExecutiveUpdatePayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -356,6 +373,7 @@ export default function FlockAdminPage() {
       await loadOpsHandoffMarkdown(t);
       await loadOpsPacket(t);
       await loadOpsSnapshot(t);
+      await loadOpsExecutiveUpdate(t);
     };
     boot();
   }, []);
@@ -389,6 +407,7 @@ export default function FlockAdminPage() {
     await loadOpsHandoffMarkdown(token);
     await loadOpsPacket(token);
     await loadOpsSnapshot(token);
+    await loadOpsExecutiveUpdate(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -856,6 +875,14 @@ export default function FlockAdminPage() {
                 {opsSnapshot ? (
                   <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8 }}>
                     <div style={{ fontSize: 12, color: "#374151" }}>{opsSnapshot.compactText}</div>
+                  </div>
+                ) : null}
+
+                {opsExecutiveUpdate ? (
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "#f8fafc" }}>
+                    <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Executive Update (ready to send)</div>
+                    <div style={{ fontSize: 12, color: "#374151", marginBottom: 4 }}>{opsExecutiveUpdate.headline}</div>
+                    <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsExecutiveUpdate.reportText}</pre>
                   </div>
                 ) : null}
               </div>
