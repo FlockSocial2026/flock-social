@@ -154,6 +154,17 @@ type OpsOvernightReportPayload = {
   report: string;
 };
 
+type OpsReportBundlePayload = {
+  generatedAt: string;
+  posture: { healthy: boolean; critical: number; warning: number; openIncidents: number; runbookLevel: string };
+  summaryLine: string;
+  bundle: {
+    executive: { headline: string; reportText: string; topActions: string[] };
+    hourly: { report: string; dispatchCount: number; timelineSampleSize: number };
+    overnight: { report: string; packetVersion: string; topActions: Array<{ priority: string; action: string }> };
+  };
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -202,6 +213,7 @@ export default function FlockAdminPage() {
   const [opsExecutiveUpdate, setOpsExecutiveUpdate] = useState<OpsExecutiveUpdatePayload | null>(null);
   const [opsHourlyReport, setOpsHourlyReport] = useState<OpsHourlyReportPayload | null>(null);
   const [opsOvernightReport, setOpsOvernightReport] = useState<OpsOvernightReportPayload | null>(null);
+  const [opsReportBundle, setOpsReportBundle] = useState<OpsReportBundlePayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -373,6 +385,13 @@ export default function FlockAdminPage() {
     setOpsOvernightReport((json ?? null) as OpsOvernightReportPayload | null);
   };
 
+  const loadOpsReportBundle = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundle((json ?? null) as OpsReportBundlePayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -411,6 +430,7 @@ export default function FlockAdminPage() {
       await loadOpsExecutiveUpdate(t);
       await loadOpsHourlyReport(t);
       await loadOpsOvernightReport(t);
+      await loadOpsReportBundle(t);
     };
     boot();
   }, []);
@@ -447,6 +467,7 @@ export default function FlockAdminPage() {
     await loadOpsExecutiveUpdate(token);
     await loadOpsHourlyReport(token);
     await loadOpsOvernightReport(token);
+    await loadOpsReportBundle(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -942,6 +963,25 @@ export default function FlockAdminPage() {
                       Packet {opsOvernightReport.packetVersion} • {opsOvernightReport.dailyBriefHeadline}
                     </div>
                     <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsOvernightReport.report}</pre>
+                  </div>
+                ) : null}
+
+                {opsReportBundle ? (
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "#f9fafb" }}>
+                    <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Unified Report Bundle (executive + hourly + overnight)</div>
+                    <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 4 }}>{opsReportBundle.summaryLine}</div>
+                    <details>
+                      <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show executive</summary>
+                      <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundle.bundle.executive.reportText}</pre>
+                    </details>
+                    <details>
+                      <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show hourly</summary>
+                      <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundle.bundle.hourly.report}</pre>
+                    </details>
+                    <details>
+                      <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show overnight</summary>
+                      <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundle.bundle.overnight.report}</pre>
+                    </details>
                   </div>
                 ) : null}
               </div>
