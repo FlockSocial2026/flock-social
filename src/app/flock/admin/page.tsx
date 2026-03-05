@@ -135,6 +135,16 @@ type OpsExecutiveUpdatePayload = {
   reportText: string;
 };
 
+type OpsHourlyReportPayload = {
+  generatedAt: string;
+  dispatchCount: number;
+  cadence: { "T-72h": number; "T-24h": number; "T-2h": number };
+  timelineSampleSize: number;
+  averageMaybeToGoingPct: number;
+  topActions: string[];
+  report: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -181,6 +191,7 @@ export default function FlockAdminPage() {
   const [opsPacket, setOpsPacket] = useState<OpsPacketPayload | null>(null);
   const [opsSnapshot, setOpsSnapshot] = useState<OpsSnapshotPayload | null>(null);
   const [opsExecutiveUpdate, setOpsExecutiveUpdate] = useState<OpsExecutiveUpdatePayload | null>(null);
+  const [opsHourlyReport, setOpsHourlyReport] = useState<OpsHourlyReportPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -338,6 +349,13 @@ export default function FlockAdminPage() {
     setOpsExecutiveUpdate((json ?? null) as OpsExecutiveUpdatePayload | null);
   };
 
+  const loadOpsHourlyReport = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/hourly-report", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsHourlyReport((json ?? null) as OpsHourlyReportPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -374,6 +392,7 @@ export default function FlockAdminPage() {
       await loadOpsPacket(t);
       await loadOpsSnapshot(t);
       await loadOpsExecutiveUpdate(t);
+      await loadOpsHourlyReport(t);
     };
     boot();
   }, []);
@@ -408,6 +427,7 @@ export default function FlockAdminPage() {
     await loadOpsPacket(token);
     await loadOpsSnapshot(token);
     await loadOpsExecutiveUpdate(token);
+    await loadOpsHourlyReport(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -883,6 +903,16 @@ export default function FlockAdminPage() {
                     <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Executive Update (ready to send)</div>
                     <div style={{ fontSize: 12, color: "#374151", marginBottom: 4 }}>{opsExecutiveUpdate.headline}</div>
                     <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsExecutiveUpdate.reportText}</pre>
+                  </div>
+                ) : null}
+
+                {opsHourlyReport ? (
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "#f9fafb" }}>
+                    <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Hourly Progress Report (ready to send)</div>
+                    <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 4 }}>
+                      Dispatches {opsHourlyReport.dispatchCount} • Timeline samples {opsHourlyReport.timelineSampleSize} • Maybe→Going avg {opsHourlyReport.averageMaybeToGoingPct}%
+                    </div>
+                    <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHourlyReport.report}</pre>
                   </div>
                 ) : null}
               </div>

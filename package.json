@@ -30,7 +30,8 @@
     "verify:step1047": "node scripts/step1047-handoff-markdown-smoke.mjs",
     "verify:step1048": "node scripts/step1048-ops-packet-smoke.mjs",
     "verify:step1049": "node scripts/step1049-ops-snapshot-smoke.mjs",
-    "verify:step1050": "node scripts/step1050-executive-update-smoke.mjs"
+    "verify:step1050": "node scripts/step1050-executive-update-smoke.mjs",
+    "verify:step1051": "node scripts/step1051-hourly-report-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
