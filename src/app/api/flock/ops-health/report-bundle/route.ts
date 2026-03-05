@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
       fetchJson(req, "/api/flock/ops-health/next-actions"),
     ]);
 
-    if (packetRes.status === 200 && dailyBriefRes.status === 200 && nextActionsRes.status === 200 && snapshotRes.status === 200) {
+    if (dailyBriefRes.status === 200 && nextActionsRes.status === 200 && snapshotRes.status === 200) {
       const s = snapshotRes.json?.snapshot ?? {};
       const topActions = Array.isArray(nextActionsRes.json?.items)
         ? nextActionsRes.json.items.slice(0, 5).map((item: { priority?: string; action?: string }) => ({
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
       overnightRes = {
         status: 200,
         json: {
-          packetVersion: String(packetRes.json?.packetVersion || "v1"),
+          packetVersion: packetRes.status === 200 ? String(packetRes.json?.packetVersion || "v1") : "v1-fallback",
           topActions,
           report: `Overnight Full Report\nGenerated: ${new Date().toISOString()}\n\nOps posture: ${s.healthy ? "healthy" : "attention"} (critical ${Number(s.critical || 0)}, warning ${Number(s.warning || 0)}, open incidents ${Number(s.openIncidents || 0)}, runbook ${String(s.runbookLevel || "none")})\nDaily brief: ${String(dailyBriefRes.json?.headline || "No headline available")}`,
         },
