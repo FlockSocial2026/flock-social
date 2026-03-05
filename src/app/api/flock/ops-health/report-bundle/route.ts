@@ -51,6 +51,54 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  if (executiveRes.status !== 200) {
+    const [dailyBriefRes, nextActionsRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/daily-brief"),
+      fetchJson(req, "/api/flock/ops-health/next-actions"),
+    ]);
+
+    if (dailyBriefRes.status === 200 && nextActionsRes.status === 200 && snapshotRes.status === 200) {
+      const s = snapshotRes.json?.snapshot ?? {};
+      const topActions = Array.isArray(nextActionsRes.json?.items)
+        ? nextActionsRes.json.items.slice(0, 3).map((item: { action?: string }) => String(item?.action || ""))
+        : [];
+      executiveRes = {
+        status: 200,
+        json: {
+          headline: String(dailyBriefRes.json?.headline || ""),
+          topActions,
+          reportText: `Status: ${s.healthy ? "healthy" : "attention"} (critical ${Number(s.critical || 0)}, warning ${Number(s.warning || 0)}, incidents ${Number(s.openIncidents || 0)})`,
+        },
+      };
+    }
+  }
+
+  if (overnightRes.status !== 200) {
+    const [packetRes, dailyBriefRes, nextActionsRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/packet"),
+      fetchJson(req, "/api/flock/ops-health/daily-brief"),
+      fetchJson(req, "/api/flock/ops-health/next-actions"),
+    ]);
+
+    if (packetRes.status === 200 && dailyBriefRes.status === 200 && nextActionsRes.status === 200 && snapshotRes.status === 200) {
+      const s = snapshotRes.json?.snapshot ?? {};
+      const topActions = Array.isArray(nextActionsRes.json?.items)
+        ? nextActionsRes.json.items.slice(0, 5).map((item: { priority?: string; action?: string }) => ({
+            priority: String(item?.priority || "P2"),
+            action: String(item?.action || ""),
+          }))
+        : [];
+      overnightRes = {
+        status: 200,
+        json: {
+          packetVersion: String(packetRes.json?.packetVersion || "v1"),
+          topActions,
+          report: `Overnight Full Report\nGenerated: ${new Date().toISOString()}\n\nOps posture: ${s.healthy ? "healthy" : "attention"} (critical ${Number(s.critical || 0)}, warning ${Number(s.warning || 0)}, open incidents ${Number(s.openIncidents || 0)}, runbook ${String(s.runbookLevel || "none")})\nDaily brief: ${String(dailyBriefRes.json?.headline || "No headline available")}`,
+        },
+      };
+    }
+  }
+
   if (executiveRes.status !== 200 || hourlyRes.status !== 200 || overnightRes.status !== 200 || snapshotRes.status !== 200) {
     return NextResponse.json(
       {
