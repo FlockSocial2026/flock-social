@@ -170,6 +170,12 @@ type OpsReportBundleMarkdownPayload = {
   markdown: string;
 };
 
+type OpsReportBundleBriefPayload = {
+  generatedAt: string;
+  brief: string;
+  maxLen: number;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -220,6 +226,7 @@ export default function FlockAdminPage() {
   const [opsOvernightReport, setOpsOvernightReport] = useState<OpsOvernightReportPayload | null>(null);
   const [opsReportBundle, setOpsReportBundle] = useState<OpsReportBundlePayload | null>(null);
   const [opsReportBundleMarkdown, setOpsReportBundleMarkdown] = useState<OpsReportBundleMarkdownPayload | null>(null);
+  const [opsReportBundleBrief, setOpsReportBundleBrief] = useState<OpsReportBundleBriefPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -405,6 +412,13 @@ export default function FlockAdminPage() {
     setOpsReportBundleMarkdown((json ?? null) as OpsReportBundleMarkdownPayload | null);
   };
 
+  const loadOpsReportBundleBrief = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/brief", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundleBrief((json ?? null) as OpsReportBundleBriefPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -445,6 +459,7 @@ export default function FlockAdminPage() {
       await loadOpsOvernightReport(t);
       await loadOpsReportBundle(t);
       await loadOpsReportBundleMarkdown(t);
+      await loadOpsReportBundleBrief(t);
     };
     boot();
   }, []);
@@ -483,6 +498,7 @@ export default function FlockAdminPage() {
     await loadOpsOvernightReport(token);
     await loadOpsReportBundle(token);
     await loadOpsReportBundleMarkdown(token);
+    await loadOpsReportBundleBrief(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -1002,6 +1018,12 @@ export default function FlockAdminPage() {
                         <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show markdown export</summary>
                         <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleMarkdown.markdown}</pre>
                       </details>
+                    ) : null}
+                    {opsReportBundleBrief ? (
+                      <div style={{ marginTop: 8, border: "1px solid #e5e7eb", borderRadius: 8, padding: 8 }}>
+                        <div style={{ fontSize: 12, color: "#374151", marginBottom: 4 }}>Brief send format ({opsReportBundleBrief.maxLen} chars)</div>
+                        <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleBrief.brief}</pre>
+                      </div>
                     ) : null}
                   </div>
                 ) : null}
