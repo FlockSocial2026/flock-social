@@ -120,6 +120,12 @@ type OpsPacketPayload = {
   };
 };
 
+type OpsSnapshotPayload = {
+  generatedAt: string;
+  snapshot: { healthy: boolean; critical: number; warning: number; openIncidents: number; runbookLevel: string };
+  compactText: string;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -164,6 +170,7 @@ export default function FlockAdminPage() {
   const [opsHandoff, setOpsHandoff] = useState<OpsHandoffPayload | null>(null);
   const [opsHandoffMarkdown, setOpsHandoffMarkdown] = useState<OpsHandoffMarkdownPayload | null>(null);
   const [opsPacket, setOpsPacket] = useState<OpsPacketPayload | null>(null);
+  const [opsSnapshot, setOpsSnapshot] = useState<OpsSnapshotPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -307,6 +314,13 @@ export default function FlockAdminPage() {
     setOpsPacket((json ?? null) as OpsPacketPayload | null);
   };
 
+  const loadOpsSnapshot = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/snapshot", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsSnapshot((json ?? null) as OpsSnapshotPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -341,6 +355,7 @@ export default function FlockAdminPage() {
       await loadOpsHandoff(t);
       await loadOpsHandoffMarkdown(t);
       await loadOpsPacket(t);
+      await loadOpsSnapshot(t);
     };
     boot();
   }, []);
@@ -373,6 +388,7 @@ export default function FlockAdminPage() {
     await loadOpsHandoff(token);
     await loadOpsHandoffMarkdown(token);
     await loadOpsPacket(token);
+    await loadOpsSnapshot(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -834,6 +850,12 @@ export default function FlockAdminPage() {
                     <div style={{ fontSize: 12, color: "#374151" }}>
                       Packet {opsPacket.packetVersion} • incidents {opsPacket.packet?.incidents?.openCount ?? 0} • runbook level {opsPacket.packet?.runbook?.level ?? "n/a"}
                     </div>
+                  </div>
+                ) : null}
+
+                {opsSnapshot ? (
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8 }}>
+                    <div style={{ fontSize: 12, color: "#374151" }}>{opsSnapshot.compactText}</div>
                   </div>
                 ) : null}
               </div>
