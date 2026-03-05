@@ -20,9 +20,37 @@ export async function GET(req: NextRequest) {
   if (!membership) return NextResponse.json({ error: "No church membership" }, { status: 403 });
   if (!canPublish(membership.role)) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-  const packet = await fetchJson(req, "/api/flock/ops-health/packet");
+  let packet = await fetchJson(req, "/api/flock/ops-health/packet");
+
+  // Fallback when packet aggregation is transiently unavailable.
   if (packet.status !== 200) {
-    return NextResponse.json({ ok: false, error: "snapshot_unavailable", packetStatus: packet.status }, { status: 500 });
+    const [summaryRes, incidentsRes, runbookRes] = await Promise.all([
+      fetchJson(req, "/api/flock/ops-health/summary"),
+      fetchJson(req, "/api/flock/ops-health/incidents"),
+      fetchJson(req, "/api/flock/ops-health/runbook"),
+    ]);
+
+    if (summaryRes.status !== 200 || incidentsRes.status !== 200 || runbookRes.status !== 200) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "snapshot_unavailable",
+          statuses: { packet: packet.status, summary: summaryRes.status, incidents: incidentsRes.status, runbook: runbookRes.status },
+        },
+        { status: 500 }
+      );
+    }
+
+    packet = {
+      status: 200,
+      json: {
+        packet: {
+          summary: summaryRes.json,
+          incidents: incidentsRes.json,
+          runbook: runbookRes.json,
+        },
+      },
+    };
   }
 
   const p = packet.json?.packet ?? {};
