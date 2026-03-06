@@ -2,10 +2,14 @@ import Link from "next/link";
 
 export default function SearchPage() {
   return (
-    <main style={{ maxWidth: 720, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Search</h1>
-      <p>Global search scaffolded (people, groups, churches, events).</p>
-      <Link href="/dashboard">Back to Dashboard</Link>
+    <main className="app-shell" style={{ maxWidth: 720 }}>
+      <section className="card">
+        <div className="row-between" style={{ marginBottom: 8 }}>
+          <h1 style={{ margin: 0 }}>Search</h1>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
+        <p className="small-muted" style={{ margin: 0 }}>Global search scaffolded (people, groups, churches, events).</p>
+      </section>
     </main>
   );
 }

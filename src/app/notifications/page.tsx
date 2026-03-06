@@ -171,40 +171,42 @@ export default function NotificationsPage() {
   };
 
   return (
-    <main style={{ maxWidth: 760, margin: "32px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h1>Notifications</h1>
-        <Link href="/dashboard">Back to Dashboard</Link>
-      </div>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <button onClick={markAllRead}>Mark all read</button>
-        <span style={{ color: "#666", alignSelf: "center" }}>Unread: {unreadCount}</span>
-      </div>
-
-      {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
-
-      {digest ? (
-        <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, marginBottom: 12, background: "#fafafa" }}>
-          <strong>24h digest</strong>
-          <div style={{ fontSize: 13, color: "#555", marginTop: 6 }}>
-            total {digest.last24hCount} • likes {digest.byType.like} • comments {digest.byType.comment} • follows {digest.byType.follow}
-          </div>
+    <main className="app-shell" style={{ maxWidth: 760 }}>
+      <section className="card">
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0 }}>Notifications</h1>
+          <Link href="/dashboard">Back to Dashboard</Link>
         </div>
-      ) : null}
 
-      <div style={{ display: "grid", gap: 8 }}>
-        {grouped.map((g) => (
-          <div key={g.key} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, opacity: g.unread ? 1 : 0.75 }}>
-            <div style={{ fontSize: 14 }}>
-              <strong>{actorName(g.actor_id)}</strong> {verb(g.type, g.items.length)}
-            </div>
-            <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-              {new Date(g.latest_at).toLocaleString()} • grouped {g.items.length} event{g.items.length === 1 ? "" : "s"}
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <button className="btn-secondary" onClick={markAllRead}>Mark all read</button>
+          <span className="small-muted" style={{ alignSelf: "center" }}>Unread: {unreadCount}</span>
+        </div>
+
+        {msg ? <p style={{ marginBottom: 10 }}>{msg}</p> : null}
+
+        {digest ? (
+          <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, marginBottom: 12, background: "var(--surface-alt)" }}>
+            <strong>24h digest</strong>
+            <div className="small-muted" style={{ marginTop: 6 }}>
+              total {digest.last24hCount} • likes {digest.byType.like} • comments {digest.byType.comment} • follows {digest.byType.follow}
             </div>
           </div>
-        ))}
-      </div>
+        ) : null}
+
+        <div style={{ display: "grid", gap: 8 }}>
+          {grouped.map((g) => (
+            <div key={g.key} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, opacity: g.unread ? 1 : 0.75, background: "#fff" }}>
+              <div style={{ fontSize: 14 }}>
+                <strong>{actorName(g.actor_id)}</strong> {verb(g.type, g.items.length)}
+              </div>
+              <div className="small-muted" style={{ marginTop: 4 }}>
+                {new Date(g.latest_at).toLocaleString()} • grouped {g.items.length} event{g.items.length === 1 ? "" : "s"}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

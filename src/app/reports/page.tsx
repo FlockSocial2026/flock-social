@@ -38,23 +38,25 @@ export default function ReportsPage() {
   }, [router]);
 
   return (
-    <main style={{ maxWidth: 760, margin: "40px auto", fontFamily: "Arial", padding: "0 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-        <h1>My Reports</h1>
-        <Link href="/dashboard">Back to Dashboard</Link>
-      </div>
+    <main className="app-shell" style={{ maxWidth: 760 }}>
+      <section className="card">
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0 }}>My Reports</h1>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
 
-      {msg ? <p>{msg}</p> : null}
+        {msg ? <p>{msg}</p> : null}
 
-      <div style={{ display: "grid", gap: 8 }}>
-        {rows.map((r) => (
-          <div key={r.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10 }}>
-            <div><strong>{r.target_type.toUpperCase()}</strong> • {r.status}</div>
-            <div style={{ marginTop: 4 }}>{r.reason}</div>
-            <div style={{ marginTop: 4, fontSize: 12, color: "#666" }}>{new Date(r.created_at).toLocaleString()}</div>
-          </div>
-        ))}
-      </div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map((r) => (
+            <div key={r.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, background: "var(--surface-alt)" }}>
+              <div><strong>{r.target_type.toUpperCase()}</strong> • {r.status}</div>
+              <div style={{ marginTop: 4 }}>{r.reason}</div>
+              <div className="small-muted" style={{ marginTop: 4 }}>{new Date(r.created_at).toLocaleString()}</div>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

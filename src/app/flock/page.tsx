@@ -99,93 +99,84 @@ export default function FlockPage() {
   };
 
   return (
-    <main style={{ maxWidth: 760, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>Flock</h1>
-        <div style={{ display: "flex", gap: 10 }}>
-          {(role === "pastor_staff" || role === "church_admin") && <Link href="/flock/admin">Admin Console</Link>}
-          <Link href="/dashboard">Back to Dashboard</Link>
+    <main className="app-shell" style={{ maxWidth: 760 }}>
+      <section className="card" style={{ marginBottom: 12 }}>
+        <div className="row-between" style={{ marginBottom: 8 }}>
+          <h1 style={{ margin: 0 }}>Flock</h1>
+          <div style={{ display: "flex", gap: 10 }}>
+            {(role === "pastor_staff" || role === "church_admin") && <Link href="/flock/admin">Admin Console</Link>}
+            <Link href="/dashboard">Back to Dashboard</Link>
+          </div>
         </div>
-      </div>
-
-      {msg ? <p>{msg}</p> : null}
+        {msg ? <p style={{ margin: 0 }}>{msg}</p> : null}
+      </section>
 
       {!church ? (
         <>
-          <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+          <section className="card" style={{ marginBottom: 12 }}>
             <h3>Connect to your church</h3>
             <input
+              className="field"
               placeholder="church slug (example: first-baptist-miami)"
               value={churchSlug}
               onChange={(e) => setChurchSlug(e.target.value)}
-              style={{ width: "100%", padding: 8, marginBottom: 8 }}
             />
-            <button onClick={connect}>Connect</button>
+            <button className="btn-primary" onClick={connect}>Connect</button>
           </section>
 
-          <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+          <section className="card" style={{ marginBottom: 12 }}>
             <h3>Create your church (bootstrap)</h3>
             <input
+              className="field"
               placeholder="Church name"
               value={newChurchName}
               onChange={(e) => setNewChurchName(e.target.value)}
-              style={{ width: "100%", padding: 8, marginBottom: 8 }}
             />
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              <input
-                placeholder="City"
-                value={newChurchCity}
-                onChange={(e) => setNewChurchCity(e.target.value)}
-                style={{ flex: 1, padding: 8 }}
-              />
-              <input
-                placeholder="State"
-                value={newChurchState}
-                onChange={(e) => setNewChurchState(e.target.value)}
-                style={{ width: 120, padding: 8 }}
-              />
+              <input className="field" placeholder="City" value={newChurchCity} onChange={(e) => setNewChurchCity(e.target.value)} style={{ marginBottom: 0 }} />
+              <input className="field" placeholder="State" value={newChurchState} onChange={(e) => setNewChurchState(e.target.value)} style={{ width: 120, marginBottom: 0 }} />
             </div>
-            <button onClick={bootstrapChurch}>Create Church</button>
+            <button className="btn-primary" onClick={bootstrapChurch}>Create Church</button>
           </section>
         </>
       ) : (
-        <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <section className="card" style={{ marginBottom: 12 }}>
           <h3 style={{ marginTop: 0 }}>{church.name}</h3>
-          <p style={{ color: "#666" }}>
+          <p className="small-muted" style={{ margin: 0 }}>
             {church.city ?? ""} {church.state ?? ""} • role: {role}
           </p>
         </section>
       )}
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section className="card" style={{ marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Announcements</h3>
-        {announcements.length === 0 ? <p style={{ color: "#666" }}>No announcements yet.</p> : null}
+        {announcements.length === 0 ? <p className="small-muted">No announcements yet.</p> : null}
         <div style={{ display: "grid", gap: 10 }}>
           {announcements.map((a) => (
-            <div key={a.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 10 }}>
+            <div key={a.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, background: "var(--surface-alt)" }}>
               <div style={{ fontWeight: 600 }}>{a.title}</div>
-              <div style={{ fontSize: 12, color: "#666" }}>{new Date(a.published_at).toLocaleString()}</div>
+              <div className="small-muted">{new Date(a.published_at).toLocaleString()}</div>
               <p>{a.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
+      <section className="card">
         <h3 style={{ marginTop: 0 }}>Upcoming Events</h3>
-        {events.length === 0 ? <p style={{ color: "#666" }}>No events yet.</p> : null}
+        {events.length === 0 ? <p className="small-muted">No events yet.</p> : null}
         <div style={{ display: "grid", gap: 10 }}>
           {events.map((e) => (
-            <div key={e.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 10 }}>
+            <div key={e.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, background: "var(--surface-alt)" }}>
               <div style={{ fontWeight: 600 }}>{e.title}</div>
-              <div style={{ fontSize: 12, color: "#666" }}>
+              <div className="small-muted">
                 {new Date(e.starts_at).toLocaleString()} {e.location ? `• ${e.location}` : ""}
               </div>
               {e.description ? <p>{e.description}</p> : null}
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => rsvp(e.id, "going")}>Going</button>
-                <button onClick={() => rsvp(e.id, "maybe")}>Maybe</button>
-                <button onClick={() => rsvp(e.id, "not_going")}>Not Going</button>
+                <button className="btn-secondary" onClick={() => rsvp(e.id, "going")}>Going</button>
+                <button className="btn-secondary" onClick={() => rsvp(e.id, "maybe")}>Maybe</button>
+                <button className="btn-secondary" onClick={() => rsvp(e.id, "not_going")}>Not Going</button>
               </div>
             </div>
           ))}
