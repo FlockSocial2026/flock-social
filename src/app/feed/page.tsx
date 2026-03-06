@@ -393,20 +393,32 @@ export default function FeedPage() {
   const canLoadMore = useMemo(() => posts.length >= visibleCount, [posts.length, visibleCount]);
 
   return (
-    <main className="feed-shell">
-      <div className="card" style={{ marginBottom: 12 }}>
-        <div className="row-between" style={{ marginBottom: 12 }}>
-          <h1 style={{ margin: 0 }}>Feed</h1>
-          <Link href="/dashboard">Back to Dashboard</Link>
+    <div className="feed-bg">
+      <main className="feed-shell">
+        <div className="feed-header-card">
+          <div className="row-between" style={{ marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <img className="feed-logo" src="/branding/fs-logo.jpg" alt="Flock Social logo" />
+              <div>
+                <h1 style={{ margin: 0, color: "#f8fafc", fontSize: 24 }}>Flock Social</h1>
+                <p style={{ margin: 0, color: "#b9c7ea", fontSize: 12 }}>Community Feed</p>
+              </div>
+            </div>
+            <Link href="/dashboard" style={{ color: "#f8fafc" }}>Dashboard</Link>
+          </div>
+
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className={`feed-tab ${feedMode === "for_you" ? "active" : ""}`} onClick={() => setFeedMode("for_you")}>
+              Home
+            </button>
+            <button className={`feed-tab ${feedMode === "following" ? "active" : ""}`} onClick={() => setFeedMode("following")}>
+              Following
+            </button>
+            <button className="feed-chip" onClick={() => router.push('/notifications')}>Notifications</button>
+          </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          <button className="btn-secondary" onClick={() => setFeedMode("for_you")} disabled={feedMode === "for_you"}>For You</button>
-          <button className="btn-secondary" onClick={() => setFeedMode("following")} disabled={feedMode === "following"}>Following</button>
-        </div>
-      </div>
-
-      <div className="card feed-composer" style={{ marginBottom: 14 }}>
+        <div className="card feed-composer" style={{ marginBottom: 14, background: "rgba(8, 12, 24, 0.86)", borderColor: "rgba(120,145,206,0.35)" }}>
         <textarea className="field"
           placeholder="What's happening?"
           value={content}
@@ -434,7 +446,7 @@ export default function FeedPage() {
         </div>
       </div>
 
-      {msg ? <p style={{ marginBottom: 12 }}>{msg}</p> : null}
+      {msg ? <p style={{ marginBottom: 12, color: "#f8fafc" }}>{msg}</p> : null}
 
       <div style={{ display: "grid", gap: 10 }}>
         {posts.map((p) => {
@@ -443,12 +455,12 @@ export default function FeedPage() {
           const a = authorLabel(p.profile, p.user_id);
 
           return (
-            <div key={p.id} className="card" style={{ padding: 12 }}>
+            <div key={p.id} className="feed-post" style={{ padding: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
-                <div style={{ fontSize: 12, color: "#666" }}>
+                <div style={{ fontSize: 12, color: "#c6d2ef" }}>
                   {a.username ? <Link href={`/u/${encodeURIComponent(a.username)}`}>{a.label}</Link> : a.label} • {formatTime(p.created_at)}
                 </div>
-                {!isMine && <button onClick={() => toggleFollow(p.user_id, isFollowing)}>{isFollowing ? "Unfollow" : "Follow"}</button>}
+                {!isMine && <button className="btn-secondary" onClick={() => toggleFollow(p.user_id, isFollowing)}>{isFollowing ? "Unfollow" : "Follow"}</button>}
               </div>
 
               {editingPostId === p.id ? (
@@ -461,19 +473,19 @@ export default function FeedPage() {
                 </div>
               ) : (
                 <>
-                  <div style={{ marginBottom: 8 }}>{p.content}</div>
+                  <div className="content" style={{ marginBottom: 8 }}>{p.content}</div>
                   {p.image_url ? <img src={p.image_url} alt="post image" style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 10 }} /> : null}
                 </>
               )}
 
               <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-                <button onClick={() => toggleLike(p.id, p.likedByMe)}>{p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})</button>
-                <span style={{ fontSize: 13, color: "#666", alignSelf: "center" }}>Comments ({p.commentCount})</span>
+                <button className="btn-secondary" onClick={() => toggleLike(p.id, p.likedByMe)}>{p.likedByMe ? "Unlike" : "Like"} ({p.likeCount})</button>
+                <span style={{ fontSize: 13, color: "#c6d2ef", alignSelf: "center" }}>Comments ({p.commentCount})</span>
 
                 {isMine && editingPostId !== p.id && (
                   <>
-                    <button onClick={() => { setEditingPostId(p.id); setEditingPostContent(p.content); }}>Edit Post</button>
-                    <button onClick={() => deletePost(p.id)}>Delete Post</button>
+                    <button className="btn-secondary" onClick={() => { setEditingPostId(p.id); setEditingPostContent(p.content); }}>Edit Post</button>
+                    <button className="btn-secondary" onClick={() => deletePost(p.id)}>Delete Post</button>
                   </>
                 )}
                 {!isMine && <ReportButton targetType="post" postId={p.id} userId={p.user_id} />}
@@ -529,9 +541,10 @@ export default function FeedPage() {
         })}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-        <button className="btn-secondary" onClick={() => setVisibleCount((v) => v + PAGE_SIZE)} disabled={!canLoadMore}>Load more</button>
-      </div>
-    </main>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+          <button className="btn-secondary" onClick={() => setVisibleCount((v) => v + PAGE_SIZE)} disabled={!canLoadMore}>Load more</button>
+        </div>
+      </main>
+    </div>
   );
 }
