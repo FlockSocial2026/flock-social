@@ -221,6 +221,13 @@ type OpsReportBundleWhatsAppPayload = {
   charCount: number;
 };
 
+type OpsReportBundleSmsPayload = {
+  generatedAt: string;
+  sms: string;
+  charCount: number;
+  segmentsEstimate: number;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -279,6 +286,7 @@ export default function FlockAdminPage() {
   const [opsReportBundleWebhook, setOpsReportBundleWebhook] = useState<OpsReportBundleWebhookPayload | null>(null);
   const [opsReportBundlePlain, setOpsReportBundlePlain] = useState<OpsReportBundlePlainPayload | null>(null);
   const [opsReportBundleWhatsApp, setOpsReportBundleWhatsApp] = useState<OpsReportBundleWhatsAppPayload | null>(null);
+  const [opsReportBundleSms, setOpsReportBundleSms] = useState<OpsReportBundleSmsPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -520,6 +528,13 @@ export default function FlockAdminPage() {
     setOpsReportBundleWhatsApp((json ?? null) as OpsReportBundleWhatsAppPayload | null);
   };
 
+  const loadOpsReportBundleSms = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/sms", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundleSms((json ?? null) as OpsReportBundleSmsPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -568,6 +583,7 @@ export default function FlockAdminPage() {
       await loadOpsReportBundleWebhook(t);
       await loadOpsReportBundlePlain(t);
       await loadOpsReportBundleWhatsApp(t);
+      await loadOpsReportBundleSms(t);
     };
     boot();
   }, []);
@@ -614,6 +630,7 @@ export default function FlockAdminPage() {
     await loadOpsReportBundleWebhook(token);
     await loadOpsReportBundlePlain(token);
     await loadOpsReportBundleWhatsApp(token);
+    await loadOpsReportBundleSms(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -1180,6 +1197,12 @@ export default function FlockAdminPage() {
                       <details style={{ marginTop: 8 }}>
                         <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show WhatsApp payload preview ({opsReportBundleWhatsApp.charCount} chars)</summary>
                         <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleWhatsApp.text}</pre>
+                      </details>
+                    ) : null}
+                    {opsReportBundleSms ? (
+                      <details style={{ marginTop: 8 }}>
+                        <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show SMS payload preview ({opsReportBundleSms.charCount} chars, ~{opsReportBundleSms.segmentsEstimate} segments)</summary>
+                        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleSms.sms}</pre>
                       </details>
                     ) : null}
                   </div>
