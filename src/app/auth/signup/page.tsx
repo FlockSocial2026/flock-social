@@ -27,42 +27,51 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="auth-shell">
-      <section className="auth-card">
-        <span className="auth-eyebrow">Get started</span>
-        <h1 className="auth-title">Create your Flock Social account</h1>
-        <p className="auth-subtitle">Join your church community, groups, and events in one place.</p>
+    <main className="auth-splash">
+      <section className="auth-splash-panel">
+        <div className="auth-logo-wrap">
+          <img className="auth-logo" src="/branding/fs-logo.jpg" alt="Flock Social logo" />
+        </div>
 
-        <label className="form-label">Email</label>
+        <div style={{ textAlign: "center", marginBottom: 14 }}>
+          <span className="auth-eyebrow">Get started</span>
+          <h1 className="auth-title" style={{ color: "#f8ecd1", marginTop: 8 }}>Create your Flock Social account</h1>
+          <p className="auth-subtitle" style={{ color: "#d7dcea" }}>Join your church community, groups, and events in one place.</p>
+        </div>
+
+        <label className="form-label" style={{ color: "#e2e8f0" }}>Email</label>
         <input
           className="field"
           type="email"
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          style={{ background: "rgba(255,255,255,0.92)" }}
         />
 
-        <label className="form-label">Password</label>
+        <label className="form-label" style={{ color: "#e2e8f0" }}>Password</label>
         <input
           className="field"
           type="password"
           placeholder="At least 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 12, background: "rgba(255,255,255,0.92)" }}
         />
 
-        <button className="btn-primary" onClick={handleSignup}>
+        <button className="btn-primary" onClick={handleSignup} style={{ width: "100%" }}>
           Sign Up
         </button>
 
-        <p style={{ marginTop: 12 }}>{msg}</p>
+        <p style={{ marginTop: 12, color: "#f8fafc" }}>{msg}</p>
 
-        <p style={{ marginTop: 20 }}>
+        <p style={{ marginTop: 20, color: "#d7dcea" }}>
           Already have an account? <Link href="/auth/login">Log in</Link>
         </p>
 
-        <p className="auth-meta">By signing up, you agree to community conduct and profile visibility rules.</p>
+        <p className="auth-meta" style={{ color: "#b8c2d9", borderTopColor: "rgba(255,255,255,0.2)" }}>
+          By signing up, you agree to community conduct and profile visibility rules.
+        </p>
       </section>
     </main>
   );
