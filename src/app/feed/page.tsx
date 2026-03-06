@@ -393,32 +393,35 @@ export default function FeedPage() {
   const canLoadMore = useMemo(() => posts.length >= visibleCount, [posts.length, visibleCount]);
 
   return (
-    <main style={{ maxWidth: 760, margin: "24px auto", fontFamily: "Arial, sans-serif", padding: "0 12px 40px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>Feed</h1>
-        <Link href="/dashboard">Back to Dashboard</Link>
+    <main className="feed-shell">
+      <div className="card" style={{ marginBottom: 12 }}>
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0 }}>Feed</h1>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <button className="btn-secondary" onClick={() => setFeedMode("for_you")} disabled={feedMode === "for_you"}>For You</button>
+          <button className="btn-secondary" onClick={() => setFeedMode("following")} disabled={feedMode === "following"}>Following</button>
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-        <button onClick={() => setFeedMode("for_you")} disabled={feedMode === "for_you"}>For You</button>
-        <button onClick={() => setFeedMode("following")} disabled={feedMode === "following"}>Following</button>
-      </div>
-
-      <div style={{ border: "1px solid #ddd", borderRadius: 10, padding: 10, marginBottom: 14 }}>
-        <textarea
+      <div className="card feed-composer" style={{ marginBottom: 14 }}>
+        <textarea className="field"
           placeholder="What's happening?"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           maxLength={MAX_POST_LENGTH}
           rows={4}
-          style={{ width: "100%", padding: 10, marginBottom: 8 }}
+          style={{ marginBottom: 8, minHeight: 108 }}
         />
 
         <input
+          className="field"
           type="file"
           accept="image/*"
           onChange={(e) => setSelectedImage(e.target.files?.[0] ?? null)}
-          style={{ marginBottom: 8, width: "100%" }}
+          style={{ marginBottom: 8 }}
         />
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -427,7 +430,7 @@ export default function FeedPage() {
             {selectedImage ? ` • ${selectedImage.name}` : ""}
             {uploading ? " • Uploading..." : ""}
           </small>
-          <button onClick={createPost} disabled={actionBusy || uploading}>{actionBusy ? "Working..." : "Post"}</button>
+          <button className="btn-primary" onClick={createPost} disabled={actionBusy || uploading}>{actionBusy ? "Working..." : "Post"}</button>
         </div>
       </div>
 
@@ -440,7 +443,7 @@ export default function FeedPage() {
           const a = authorLabel(p.profile, p.user_id);
 
           return (
-            <div key={p.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10 }}>
+            <div key={p.id} className="card" style={{ padding: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, color: "#666" }}>
                   {a.username ? <Link href={`/u/${encodeURIComponent(a.username)}`}>{a.label}</Link> : a.label} • {formatTime(p.created_at)}
@@ -527,7 +530,7 @@ export default function FeedPage() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-        <button onClick={() => setVisibleCount((v) => v + PAGE_SIZE)} disabled={!canLoadMore}>Load more</button>
+        <button className="btn-secondary" onClick={() => setVisibleCount((v) => v + PAGE_SIZE)} disabled={!canLoadMore}>Load more</button>
       </div>
     </main>
   );

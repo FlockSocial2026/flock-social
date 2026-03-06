@@ -173,6 +173,33 @@ a:hover {
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: #0f172a;
+  padding: 9px 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.feed-shell {
+  max-width: 760px;
+  margin: 24px auto;
+  padding: 0 12px 40px;
+}
+
+.feed-composer textarea,
+.feed-composer input[type="text"],
+.feed-composer input[type="file"] {
+  width: 100%;
+}
+
 .badge-dark {
   font-size: 12px;
   font-weight: 700;
