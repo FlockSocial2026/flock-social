@@ -46,7 +46,8 @@
     "verify:step1063": "node scripts/step1063-report-bundle-sms-smoke.mjs",
     "verify:step1064": "node scripts/step1064-report-bundle-signal-smoke.mjs",
     "verify:step1065": "node scripts/step1065-report-bundle-imessage-smoke.mjs",
-    "verify:step1066": "node scripts/step1066-report-bundle-json-smoke.mjs"
+    "verify:step1066": "node scripts/step1066-report-bundle-json-smoke.mjs",
+    "verify:step1067": "node scripts/step1067-report-bundle-catalog-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
