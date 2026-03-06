@@ -28,24 +28,25 @@ export default function SignupPage() {
 
   return (
     <main className="auth-shell">
-      <section className="card">
-        <h1 style={{ marginBottom: 8 }}>Sign Up</h1>
-        <p className="lead" style={{ marginBottom: 18 }}>
-          Create your Flock Social account.
-        </p>
+      <section className="auth-card">
+        <span className="auth-eyebrow">Get started</span>
+        <h1 className="auth-title">Create your Flock Social account</h1>
+        <p className="auth-subtitle">Join your church community, groups, and events in one place.</p>
 
+        <label className="form-label">Email</label>
         <input
           className="field"
           type="email"
-          placeholder="Email"
+          placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        <label className="form-label">Password</label>
         <input
           className="field"
           type="password"
-          placeholder="Password (min 6+)"
+          placeholder="At least 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={{ marginBottom: 12 }}
@@ -60,6 +61,8 @@ export default function SignupPage() {
         <p style={{ marginTop: 20 }}>
           Already have an account? <Link href="/auth/login">Log in</Link>
         </p>
+
+        <p className="auth-meta">By signing up, you agree to community conduct and profile visibility rules.</p>
       </section>
     </main>
   );

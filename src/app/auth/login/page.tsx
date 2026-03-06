@@ -34,24 +34,25 @@ export default function LoginPage() {
 
   return (
     <main className="auth-shell">
-      <section className="card">
-        <h1 style={{ marginBottom: 8 }}>Log In</h1>
-        <p className="lead" style={{ marginBottom: 18 }}>
-          Use your email and password.
-        </p>
+      <section className="auth-card">
+        <span className="auth-eyebrow">Welcome back</span>
+        <h1 className="auth-title">Log in to Flock Social</h1>
+        <p className="auth-subtitle">Continue your community conversations, prayer updates, and church activity feed.</p>
 
+        <label className="form-label">Email</label>
         <input
           className="field"
           type="email"
-          placeholder="Email"
+          placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        <label className="form-label">Password</label>
         <input
           className="field"
           type="password"
-          placeholder="Password"
+          placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={{ marginBottom: 12 }}
@@ -66,6 +67,8 @@ export default function LoginPage() {
         <p style={{ marginTop: 20 }}>
           Need an account? <Link href="/auth/signup">Sign up</Link>
         </p>
+
+        <p className="auth-meta">Secure authentication powered by Supabase.</p>
       </section>
     </main>
   );

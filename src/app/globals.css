@@ -66,9 +66,57 @@ a:hover {
 }
 
 .auth-shell {
-  max-width: 480px;
+  max-width: 520px;
   margin: 72px auto;
   padding: 0 16px;
+}
+
+.auth-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+}
+
+.auth-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  background: #eff6ff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.auth-title {
+  margin: 0 0 6px;
+  font-size: clamp(1.5rem, 2vw, 1.8rem);
+}
+
+.auth-subtitle {
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.auth-meta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .card {
