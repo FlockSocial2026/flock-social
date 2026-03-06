@@ -70,38 +70,41 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <main style={{ maxWidth: 640, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h1>Profile Settings</h1>
-        <Link href="/dashboard">Back to Dashboard</Link>
-      </div>
+    <main className="app-shell" style={{ maxWidth: 640 }}>
+      <section className="card">
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0 }}>Profile Settings</h1>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
 
-      <label>Username</label>
-      <input
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="username"
-        style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-      />
+        <label className="form-label">Username</label>
+        <input
+          className="field"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="username"
+        />
 
-      <label>Full name</label>
-      <input
-        value={fullName}
-        onChange={(e) => setFullName(e.target.value)}
-        placeholder="Full Name"
-        style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-      />
+        <label className="form-label">Full name</label>
+        <input
+          className="field"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Full Name"
+        />
 
-      <label>Avatar URL (optional)</label>
-      <input
-        value={avatarUrl}
-        onChange={(e) => setAvatarUrl(e.target.value)}
-        placeholder="https://..."
-        style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-      />
+        <label className="form-label">Avatar URL (optional)</label>
+        <input
+          className="field"
+          value={avatarUrl}
+          onChange={(e) => setAvatarUrl(e.target.value)}
+          placeholder="https://..."
+          style={{ marginBottom: 12 }}
+        />
 
-      <button onClick={save}>Save Profile</button>
-      {msg ? <p style={{ marginTop: 10 }}>{msg}</p> : null}
+        <button className="btn-primary" onClick={save}>Save Profile</button>
+        {msg ? <p style={{ marginTop: 10 }}>{msg}</p> : null}
+      </section>
     </main>
   );
 }

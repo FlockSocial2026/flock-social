@@ -180,8 +180,8 @@ export default function DiscoverPage() {
   const authorUsername = (userId: string) => profileMap.get(userId)?.username ?? null;
 
   return (
-    <main style={{ maxWidth: 900, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <main className="app-shell" style={{ maxWidth: 900 }}>
+      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div>
           <h1 style={{ marginBottom: 6 }}>Discover</h1>
           <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
@@ -193,15 +193,16 @@ export default function DiscoverPage() {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input
+          className="field"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search users or posts..."
-          style={{ flex: 1, padding: 10 }}
+          style={{ flex: 1, marginBottom: 0 }}
           onKeyDown={(e) => {
             if (e.key === "Enter") search();
           }}
         />
-        <button onClick={search} disabled={loading}>
+        <button className="btn-primary" onClick={search} disabled={loading}>
           {loading ? "Searching..." : "Search"}
         </button>
       </div>

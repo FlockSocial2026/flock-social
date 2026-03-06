@@ -175,32 +175,32 @@ export default function DashboardPage() {
   };
 
   const cardStyle = {
-    border: "1px solid #e5e7eb",
+    border: "1px solid var(--border)",
     borderRadius: 12,
     padding: 14,
-    background: "#fff",
+    background: "rgba(10,14,24,0.82)",
   } as const;
 
   return (
-    <main style={{ maxWidth: 980, margin: "42px auto", fontFamily: "Arial, sans-serif", padding: "0 16px 32px" }}>
+    <main className="app-shell" style={{ maxWidth: 980, paddingBottom: 32 }}>
       <section
         style={{
-          border: "1px solid #e5e7eb",
+          border: "1px solid rgba(255,206,132,0.35)",
           borderRadius: 14,
           padding: 18,
           marginBottom: 14,
-          background: "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
+          background: "linear-gradient(180deg, rgba(10,14,24,0.86) 0%, rgba(12,19,34,0.9) 100%)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <div>
             <h1 style={{ margin: "0 0 8px" }}>Dashboard</h1>
-            <p style={{ color: "#4b5563", margin: 0 }}>
+            <p style={{ color: "#d8e0f2", margin: 0 }}>
               Signed in as <strong>{email}</strong>
             </p>
-            <p style={{ color: "#6b7280", margin: "6px 0 0" }}>Status: {status}</p>
+            <p style={{ color: "#b8c2d9", margin: "6px 0 0" }}>Status: {status}</p>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 700, background: "#111827", color: "#fff", borderRadius: 999, padding: "8px 12px" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, background: "rgba(15,23,42,0.85)", color: "#f8ecd1", borderRadius: 999, border: "1px solid rgba(255,206,132,0.35)", padding: "8px 12px" }}>
             STEP {buildStep}
           </span>
         </div>
@@ -209,12 +209,12 @@ export default function DashboardPage() {
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 14 }}>
         {stats.map((s) => (
           <div key={s.label} style={cardStyle}>
-            <div style={{ color: "#6b7280", fontSize: 12, marginBottom: 6 }}>{s.label}</div>
+            <div style={{ color: "#b8c2d9", fontSize: 12, marginBottom: 6 }}>{s.label}</div>
             <div
               style={{
                 fontSize: 20,
                 fontWeight: 700,
-                color: s.tone === "good" ? "#166534" : s.tone === "warn" ? "#92400e" : "#111827",
+                color: s.tone === "good" ? "#86efac" : s.tone === "warn" ? "#f6d69a" : "#f8fafc",
               }}
             >
               {s.value}
@@ -225,10 +225,10 @@ export default function DashboardPage() {
 
       <section style={{ ...cardStyle, marginBottom: 14 }}>
         <h3 style={{ marginTop: 0 }}>Church Status</h3>
-        <p style={{ margin: 0, color: "#111827" }}>
+        <p style={{ margin: 0, color: "#f8fafc" }}>
           <strong>Connected Church:</strong> {churchName}
         </p>
-        <p style={{ margin: "6px 0 0", color: "#374151" }}>
+        <p style={{ margin: "6px 0 0", color: "#d8e0f2" }}>
           <strong>Your Role:</strong> {flockRole}
         </p>
       </section>
@@ -247,9 +247,9 @@ export default function DashboardPage() {
                 key={item.key}
                 onClick={() => setActivityFilter(item.key)}
                 style={{
-                  border: active ? "1px solid #111827" : "1px solid #d1d5db",
-                  background: active ? "#111827" : "#fff",
-                  color: active ? "#fff" : "#111827",
+                  border: active ? "1px solid #f1d39a" : "1px solid #475569",
+                  background: active ? "#1f2937" : "rgba(15,23,42,0.55)",
+                  color: active ? "#f8ecd1" : "#e2e8f0",
                   borderRadius: 999,
                   fontSize: 12,
                   fontWeight: 700,
@@ -264,16 +264,16 @@ export default function DashboardPage() {
         </div>
 
         {filteredActivity.length === 0 ? (
-          <p style={{ color: "#6b7280", margin: 0 }}>No recent activity yet.</p>
+          <p style={{ color: "#b8c2d9", margin: 0 }}>No recent activity yet.</p>
         ) : (
           <div style={{ display: "grid", gap: 8 }}>
             {filteredActivity.map((item) => (
-              <div key={item.id} style={{ border: "1px solid #edf0f4", borderRadius: 8, padding: 10 }}>
+              <div key={item.id} style={{ border: "1px solid rgba(120,145,206,0.35)", borderRadius: 8, padding: 10, background: "rgba(15,23,42,0.55)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                  <strong>{item.title}</strong>
-                  <span style={{ fontSize: 12, color: "#6b7280" }}>{new Date(item.createdAt).toLocaleString()}</span>
+                  <strong style={{ color: "#f8fafc" }}>{item.title}</strong>
+                  <span style={{ fontSize: 12, color: "#b8c2d9" }}>{new Date(item.createdAt).toLocaleString()}</span>
                 </div>
-                <div style={{ color: "#374151", marginTop: 4, fontSize: 13 }}>{item.subtitle}</div>
+                <div style={{ color: "#d8e0f2", marginTop: 4, fontSize: 13 }}>{item.subtitle}</div>
               </div>
             ))}
           </div>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
       </section>
 
       <div style={{ marginTop: 14 }}>
-        <button onClick={handleLogout} style={{ padding: "10px 14px" }}>
+        <button className="btn-secondary" onClick={handleLogout}>
           Log Out
         </button>
       </div>
