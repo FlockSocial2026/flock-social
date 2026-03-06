@@ -134,18 +134,19 @@ export default function ModerationPage() {
   };
 
   return (
-    <main style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>Moderation Queue</h1>
-        <div style={{ display: "flex", gap: 12 }}>
-          <a href={exportHref} style={{ textDecoration: "none" }}>Export Audit CSV</a>
-          <Link href="/dashboard">Back to Dashboard</Link>
+    <main className="app-shell" style={{ maxWidth: 920 }}>
+      <section className="card" style={{ marginBottom: 12 }}>
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0 }}>Moderation Queue</h1>
+          <div style={{ display: "flex", gap: 12 }}>
+            <a href={exportHref} style={{ textDecoration: "none" }}>Export Audit CSV</a>
+            <Link href="/dashboard">Back to Dashboard</Link>
+          </div>
         </div>
-      </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         {(["open", "reviewing", "resolved", "dismissed"] as const).map((s) => (
-          <button key={s} onClick={() => setStatusFilter(s)} disabled={statusFilter === s}>
+          <button className="btn-secondary" key={s} onClick={() => setStatusFilter(s)} disabled={statusFilter === s}>
             {s}
           </button>
         ))}
@@ -153,7 +154,7 @@ export default function ModerationPage() {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         {(["all", "post", "comment", "user"] as const).map((t) => (
-          <button key={t} onClick={() => setTargetFilter(t)} disabled={targetFilter === t}>
+          <button className="btn-secondary" key={t} onClick={() => setTargetFilter(t)} disabled={targetFilter === t}>
             target:{t}
           </button>
         ))}
@@ -174,7 +175,7 @@ export default function ModerationPage() {
       {!isModerator ? <p style={{ color: "#666", marginBottom: 12 }}>Checking moderator access…</p> : null}
 
       {summary ? (
-        <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10, marginBottom: 12, background: "#fafafa" }}>
+        <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, marginBottom: 12, background: "var(--surface-alt)" }}>
           <div style={{ fontWeight: 600, marginBottom: 6 }}>24h Moderation Summary</div>
           <div style={{ fontSize: 13, color: "#555" }}>
             backlog {summary.backlog} • new {summary.recent.total} • targets post {summary.recent.byTarget.post} / comment {summary.recent.byTarget.comment} / user {summary.recent.byTarget.user}
@@ -190,29 +191,31 @@ export default function ModerationPage() {
 
       <div style={{ display: "grid", gap: 10 }}>
         {visibleRows.map((r) => (
-          <div key={r.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 10 }}>
+          <div key={r.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 10, background: "#fff" }}>
             <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
               {r.target_type.toUpperCase()} • {new Date(r.created_at).toLocaleString()} • report:{r.id.slice(0, 8)}
             </div>
             <div style={{ marginBottom: 8 }}>{r.reason}</div>
 
             <textarea
+              className="field"
               placeholder="Resolution note (optional)"
               value={resolutionDrafts[r.id] ?? r.resolution_note ?? ""}
               onChange={(e) => setResolutionDrafts((prev) => ({ ...prev, [r.id]: e.target.value }))}
               rows={2}
-              style={{ width: "100%", padding: 8, marginBottom: 8 }}
+              style={{ marginBottom: 8 }}
             />
 
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => updateStatus(r.id, "reviewing")} disabled={busyId === r.id}>Mark reviewing</button>
-              <button onClick={() => updateStatus(r.id, "resolved")} disabled={busyId === r.id}>Resolve</button>
-              <button onClick={() => updateStatus(r.id, "dismissed")} disabled={busyId === r.id}>Dismiss</button>
-              <button onClick={() => updateStatus(r.id, "open")} disabled={busyId === r.id}>Re-open</button>
+              <button className="btn-secondary" onClick={() => updateStatus(r.id, "reviewing")} disabled={busyId === r.id}>Mark reviewing</button>
+              <button className="btn-secondary" onClick={() => updateStatus(r.id, "resolved")} disabled={busyId === r.id}>Resolve</button>
+              <button className="btn-secondary" onClick={() => updateStatus(r.id, "dismissed")} disabled={busyId === r.id}>Dismiss</button>
+              <button className="btn-secondary" onClick={() => updateStatus(r.id, "open")} disabled={busyId === r.id}>Re-open</button>
             </div>
           </div>
         ))}
       </div>
+      </section>
     </main>
   );
 }
