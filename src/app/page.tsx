@@ -18,7 +18,7 @@ const liveFeatures = [
   "Cron-backed reminder and snapshot automation endpoints",
 ];
 
-const BUILD_STAMP = "2026-03-06T12:47-EST";
+const BUILD_STAMP = "2026-03-06T16:50-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -29,22 +29,33 @@ const nextBuildItems = [
 
 export default function HomePage() {
   return (
-    <main className="app-shell" style={{ maxWidth: 980, paddingBottom: 40 }}>
-      <section className="card" style={{ padding: 22, marginBottom: 18, background: "linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)" }}>
+    <main className="app-shell" style={{ maxWidth: 1080, paddingBottom: 40 }}>
+      <section
+        className="card"
+        style={{
+          padding: 26,
+          marginBottom: 18,
+          backgroundImage: "linear-gradient(rgba(10,12,18,0.55), rgba(10,12,18,0.72)), url('/branding/home-hero.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderColor: "rgba(255,206,132,0.45)",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+        }}
+      >
         <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div>
             <span className="auth-eyebrow" style={{ marginBottom: 10 }}>Live Product Preview</span>
-            <h1 style={{ margin: "0 0 8px", fontSize: "clamp(1.8rem, 3vw, 2.3rem)" }}>Flock Social</h1>
-            <p className="small-muted" style={{ margin: 0, maxWidth: 700, fontSize: 15 }}>
+            <h1 style={{ margin: "0 0 8px", fontSize: "clamp(2rem, 3vw, 2.6rem)", color: "#f8ecd1" }}>Flock Social</h1>
+            <p style={{ margin: 0, maxWidth: 700, fontSize: 16, color: "#e2e8f0" }}>
               Faith-centered community platform for churches: community feed, prayer, groups, events, and church operations.
             </p>
           </div>
-          <span className="badge-dark" title={`build ${BUILD_STAMP}`}>
-            Build status: Steps 1068-1069 design pass complete
+          <span className="badge-dark" title={`build ${BUILD_STAMP}`} style={{ background: "rgba(15,23,42,0.88)", border: "1px solid rgba(255,206,132,0.35)" }}>
+            Build status: Steps 1070-1073 design pass complete
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap" }}>
           <Link href="/auth/login" className="btn-primary" style={{ textDecoration: "none" }}>
             Log In
           </Link>
@@ -53,11 +64,11 @@ export default function HomePage() {
             href="/auth/signup"
             style={{
               padding: "10px 14px",
-              border: "1px solid var(--border)",
+              border: "1px solid rgba(255,255,255,0.35)",
               borderRadius: 10,
               textDecoration: "none",
-              color: "#0f172a",
-              background: "#fff",
+              color: "#f8fafc",
+              background: "rgba(15,23,42,0.55)",
             }}
           >
             Sign Up
@@ -67,11 +78,11 @@ export default function HomePage() {
             href="/discover"
             style={{
               padding: "10px 14px",
-              border: "1px solid var(--border)",
+              border: "1px solid rgba(255,255,255,0.35)",
               borderRadius: 10,
               textDecoration: "none",
-              color: "#0f172a",
-              background: "#fff",
+              color: "#f8fafc",
+              background: "rgba(15,23,42,0.55)",
             }}
           >
             Explore Discover
