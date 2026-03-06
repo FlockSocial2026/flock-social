@@ -905,7 +905,7 @@ export default function FlockAdminPage() {
   const canAssignRoles = role === "church_admin";
 
   return (
-    <main style={{ maxWidth: 760, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
+    <main style={{ maxWidth: 860, margin: "20px auto", padding: "0 12px", fontFamily: "var(--font-geist-sans), Arial, sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h1 style={{ margin: 0 }}>Flock Admin</h1>
         <Link href="/flock">Back to Flock</Link>
@@ -914,7 +914,7 @@ export default function FlockAdminPage() {
       {msg ? <p>{msg}</p> : null}
       {!allowed ? <p style={{ color: "#a00" }}>You do not have publish permissions for this church.</p> : null}
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Weekly Push Announcement</h3>
         <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
         <textarea placeholder="Body" value={body} onChange={(e) => setBody(e.target.value)} rows={4} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
@@ -927,12 +927,12 @@ export default function FlockAdminPage() {
             Bridge to Inbox Draft
           </Link>
         </div>
-        <p style={{ marginBottom: 0, color: "#666", fontSize: 12 }}>
+        <p style={{ marginBottom: 0, color: "#6b7280", fontSize: 12 }}>
           Bridge sends your announcement into Messages as a prefilled draft for direct inbox follow-up.
         </p>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Create Church Event</h3>
         <input placeholder="Event Title" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
         <input type="datetime-local" value={eventStartsAt} onChange={(e) => setEventStartsAt(e.target.value)} style={{ width: "100%", padding: 8, marginBottom: 8 }} />
@@ -940,11 +940,11 @@ export default function FlockAdminPage() {
         <button onClick={createEvent} disabled={!allowed}>Create Event</button>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Pilot Metrics Snapshot</h3>
-        <p style={{ color: "#666", marginTop: 0 }}>Scope: {churchId ? `church ${churchId.slice(0, 8)}...` : "global"}</p>
+        <p style={{ color: "#6b7280", marginTop: 0 }}>Scope: {churchId ? `church ${churchId.slice(0, 8)}...` : "global"}</p>
         {!pilotMetrics ? (
-          <p style={{ color: "#666" }}>Metrics unavailable.</p>
+          <p style={{ color: "#6b7280" }}>Metrics unavailable.</p>
         ) : (
           <ul>
             {Object.entries(pilotMetrics).map(([k, v]) => (
@@ -955,7 +955,7 @@ export default function FlockAdminPage() {
 
         <h4 style={{ marginBottom: 6 }}>Trend Deltas</h4>
         {!pilotTrends ? (
-          <p style={{ color: "#666" }}>Trend deltas unavailable.</p>
+          <p style={{ color: "#6b7280" }}>Trend deltas unavailable.</p>
         ) : (
           <ul>
             {Object.entries(pilotTrends).map(([k, t]) => (
@@ -967,20 +967,20 @@ export default function FlockAdminPage() {
         )}
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <h3 style={{ marginTop: 0, marginBottom: 8 }}>Event Attendance Drilldown</h3>
           <button onClick={exportEventAttendanceCsv}>Export CSV</button>
         </div>
-        {eventAttendance.length === 0 ? <p style={{ color: "#666" }}>No event attendance data yet.</p> : null}
-        <p style={{ fontSize: 12, color: "#666", marginTop: 0 }}>
+        {eventAttendance.length === 0 ? <p style={{ color: "#6b7280" }}>No event attendance data yet.</p> : null}
+        <p style={{ fontSize: 12, color: "#6b7280", marginTop: 0 }}>
           Use the event reminder automation runbook: <code>docs/STEP_923_EVENT_REMINDER_AUTOMATION.md</code>
         </p>
         <div style={{ display: "grid", gap: 8 }}>
           {eventAttendance.map((event) => (
-            <div key={event.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+            <div key={event.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
               <div style={{ fontWeight: 700 }}>{event.title}</div>
-              <div style={{ fontSize: 12, color: "#666" }}>
+              <div style={{ fontSize: 12, color: "#6b7280" }}>
                 {new Date(event.starts_at).toLocaleString()} {event.location ? `• ${event.location}` : ""}
               </div>
               <div style={{ fontSize: 13, marginTop: 4 }}>
@@ -1005,7 +1005,7 @@ export default function FlockAdminPage() {
         </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0, marginBottom: 8 }}>Ops Health Snapshot</h3>
         {opsSummary ? (
           <p style={{ marginTop: 0, fontSize: 12, color: opsSummary.status.healthy ? "#166534" : "#b91c1c" }}>
@@ -1013,7 +1013,7 @@ export default function FlockAdminPage() {
           </p>
         ) : null}
         {opsDailyBrief ? (
-          <div style={{ marginTop: 0, marginBottom: 8, padding: 8, border: "1px solid #e5e7eb", borderRadius: 8, background: "#f9fafb" }}>
+          <div style={{ marginTop: 0, marginBottom: 8, padding: 8, border: "1px solid #e5e7eb", borderRadius: 8, background: "var(--surface-alt)" }}>
             <div style={{ fontSize: 12, color: "#374151" }}><b>Daily brief:</b> {opsDailyBrief.headline}</div>
             <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
               incidents {opsDailyBrief.metrics.openIncidents} • critical {opsDailyBrief.metrics.critical} • warning {opsDailyBrief.metrics.warning}
@@ -1021,10 +1021,10 @@ export default function FlockAdminPage() {
           </div>
         ) : null}
         {!opsHealth ? (
-          <p style={{ color: "#666" }}>Ops health unavailable.</p>
+          <p style={{ color: "#6b7280" }}>Ops health unavailable.</p>
         ) : (
           <>
-            <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+            <p style={{ marginTop: 0, fontSize: 12, color: "#6b7280" }}>
               Generated: {new Date(opsHealth.generatedAt).toLocaleString()}
             </p>
             <p style={{ marginTop: 0, fontSize: 13, color: opsHealth.snapshot.healthy ? "#166534" : "#b91c1c" }}>
@@ -1037,7 +1037,7 @@ export default function FlockAdminPage() {
               Dispatches last 24h: <b>{opsHealth.dispatchLast24h.total}</b> (T-72h {opsHealth.dispatchLast24h.cadence["T-72h"]} • T-24h {opsHealth.dispatchLast24h.cadence["T-24h"]} • T-2h {opsHealth.dispatchLast24h.cadence["T-2h"]})
             </p>
             {opsGuidance ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fafafa" }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8, background: "var(--surface-alt)" }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Guidance refreshed {new Date(opsGuidance.generatedAt).toLocaleString()}
                 </div>
@@ -1050,7 +1050,7 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsAlerts ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Alerts refreshed {new Date(opsAlerts.generatedAt).toLocaleString()}
                 </div>
@@ -1059,7 +1059,7 @@ export default function FlockAdminPage() {
                     <div
                       key={alert.key}
                       style={{
-                        border: "1px solid #eee",
+                        border: "1px solid var(--border)",
                         borderRadius: 8,
                         padding: 8,
                         background: alert.level === "critical" ? "#fef2f2" : alert.level === "warning" ? "#fffbeb" : "#f8fafc",
@@ -1077,7 +1077,7 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsIncidents ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Open incidents: <b>{opsIncidents.openCount}</b>
                 </div>
@@ -1086,7 +1086,7 @@ export default function FlockAdminPage() {
                 ) : (
                   <div style={{ display: "grid", gap: 6 }}>
                     {opsIncidents.incidents.map((incident) => (
-                      <div key={incident.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                      <div key={incident.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                         <div style={{ fontSize: 12, fontWeight: 700, color: incident.severity === "critical" ? "#b91c1c" : "#92400e" }}>{incident.severity}</div>
                         <div style={{ fontSize: 13 }}>{incident.summary}</div>
                         <div style={{ fontSize: 12, color: "#4b5563" }}>Action: {incident.action}</div>
@@ -1098,13 +1098,13 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsNextActions ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Priority action queue ({opsNextActions.total})
                 </div>
                 <div style={{ display: "grid", gap: 6 }}>
                   {opsNextActions.items.slice(0, 5).map((item) => (
-                    <div key={item.key} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                    <div key={item.key} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: item.priority === "P0" ? "#b91c1c" : item.priority === "P1" ? "#92400e" : "#334155" }}>{item.priority}</div>
                       <div style={{ fontSize: 13 }}>{item.action}</div>
                     </div>
@@ -1114,7 +1114,7 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsEscalations ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fafafa" }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8, background: "var(--surface-alt)" }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Escalation level: <b style={{ color: opsEscalations.level === "escalate" ? "#b91c1c" : opsEscalations.level === "watch" ? "#92400e" : "#166534" }}>{opsEscalations.level}</b>
                 </div>
@@ -1130,13 +1130,13 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsRunbook ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>
                   Runbook ({opsRunbook.level})
                 </div>
                 <div style={{ display: "grid", gap: 6 }}>
                   {opsRunbook.checklist.slice(0, 6).map((item) => (
-                    <div key={item.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+                    <div key={item.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: item.type === "protocol" ? "#334155" : "#166534" }}>{item.type}</div>
                       <div style={{ fontSize: 13 }}>{item.text}</div>
                     </div>
@@ -1146,7 +1146,7 @@ export default function FlockAdminPage() {
             ) : null}
 
             {opsHandoff ? (
-              <div style={{ marginTop: 8, border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
+              <div style={{ marginTop: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 8, background: "#fcfcfd" }}>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>Shift handoff preview</div>
                 <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsHandoff.handoffText}</pre>
                 {opsHandoffMarkdown ? (
@@ -1179,7 +1179,7 @@ export default function FlockAdminPage() {
                 ) : null}
 
                 {opsHourlyReport ? (
-                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "#f9fafb" }}>
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "var(--surface-alt)" }}>
                     <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Hourly Progress Report (ready to send)</div>
                     <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 4 }}>
                       Dispatches {opsHourlyReport.dispatchCount} • Timeline samples {opsHourlyReport.timelineSampleSize} • Maybe→Going avg {opsHourlyReport.averageMaybeToGoingPct}%
@@ -1199,7 +1199,7 @@ export default function FlockAdminPage() {
                 ) : null}
 
                 {opsReportBundle ? (
-                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "#f9fafb" }}>
+                  <div style={{ marginTop: 8, border: "1px dashed #d1d5db", borderRadius: 8, padding: 8, background: "var(--surface-alt)" }}>
                     <div style={{ fontSize: 12, color: "#111827", fontWeight: 700, marginBottom: 4 }}>Unified Report Bundle (executive + hourly + overnight)</div>
                     <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 4 }}>{opsReportBundle.summaryLine}</div>
                     <details>
@@ -1308,7 +1308,7 @@ export default function FlockAdminPage() {
         )}
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <h3 style={{ marginTop: 0, marginBottom: 8 }}>Reminder Dispatch Log (Ops)</h3>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -1328,7 +1328,7 @@ export default function FlockAdminPage() {
             <button onClick={exportDispatchLogCsv}>Export Dispatch Log CSV</button>
           </div>
         </div>
-        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#6b7280" }}>
           Maybe→Going proxy: {maybeToGoingRate === null ? "n/a" : `${maybeToGoingRate}%`} (based on current attendance snapshot)
         </p>
         <p style={{ marginTop: 0, fontSize: 12, color: attendanceRisk === "high" ? "#b91c1c" : attendanceRisk === "medium" ? "#92400e" : "#166534" }}>
@@ -1336,33 +1336,33 @@ export default function FlockAdminPage() {
           {attendanceRisk === "high" ? " — escalate with extra reminder + leader outreach." : ""}
           {attendanceRisk === "medium" ? " — monitor and push one more follow-up cycle." : ""}
         </p>
-        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#6b7280" }}>
           Cadence coverage: T-72h {cadenceSummary["T-72h"]} • T-24h {cadenceSummary["T-24h"]} • T-2h {cadenceSummary["T-2h"]}
         </p>
-        {dispatchLog.length === 0 ? <p style={{ color: "#666" }}>No dispatches logged in this session.</p> : null}
+        {dispatchLog.length === 0 ? <p style={{ color: "#6b7280" }}>No dispatches logged in this session.</p> : null}
         <div style={{ display: "grid", gap: 6 }}>
           {dispatchLog.map((log) => (
-            <div key={log.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8, fontSize: 13 }}>
+            <div key={log.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8, fontSize: 13 }}>
               <b>{log.cadence}</b> • {log.eventTitle} • audience: {log.audience} • {new Date(log.createdAt).toLocaleString()}
             </div>
           ))}
         </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Conversion Timeline</h3>
-        <p style={{ marginTop: 0, fontSize: 12, color: "#666" }}>
+        <p style={{ marginTop: 0, fontSize: 12, color: "#6b7280" }}>
           Source: <b>{timelineSource}</b>{timelineGeneratedAt ? ` • refreshed ${new Date(timelineGeneratedAt).toLocaleString()}` : ""}
         </p>
-        {conversionTimeline.length === 0 ? <p style={{ color: "#666" }}>No conversion timeline data yet.</p> : null}
+        {conversionTimeline.length === 0 ? <p style={{ color: "#6b7280" }}>No conversion timeline data yet.</p> : null}
         <div style={{ display: "grid", gap: 8 }}>
           {conversionTimeline.map((item) => {
             const pct = item.maybe_to_going_pct ?? 0;
             return (
-              <div key={item.event_id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+              <div key={item.event_id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
                   <strong>{item.title}</strong>
-                  <span style={{ fontSize: 12, color: "#666" }}>{new Date(item.starts_at).toLocaleString()}</span>
+                  <span style={{ fontSize: 12, color: "#6b7280" }}>{new Date(item.starts_at).toLocaleString()}</span>
                 </div>
                 <div style={{ marginTop: 6, background: "#f3f4f6", borderRadius: 999, height: 8 }}>
                   <div style={{ width: `${pct}%`, background: pct >= 60 ? "#166534" : pct >= 40 ? "#92400e" : "#b91c1c", height: 8, borderRadius: 999 }} />
@@ -1376,13 +1376,13 @@ export default function FlockAdminPage() {
         </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <h3 style={{ marginTop: 0 }}>Recent Role Audit</h3>
-        {roleAudit.length === 0 ? <p style={{ color: "#666" }}>No role changes logged yet.</p> : null}
+        {roleAudit.length === 0 ? <p style={{ color: "#6b7280" }}>No role changes logged yet.</p> : null}
         <div style={{ display: "grid", gap: 8 }}>
           {roleAudit.map((a) => (
-            <div key={a.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
-              <div style={{ fontSize: 12, color: "#666" }}>{new Date(a.changed_at).toLocaleString()}</div>
+            <div key={a.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
+              <div style={{ fontSize: 12, color: "#6b7280" }}>{new Date(a.changed_at).toLocaleString()}</div>
               <div style={{ fontSize: 13 }}>
                 actor:{a.actor_user_id.slice(0, 8)}... changed target:{a.target_user_id.slice(0, 8)}... from <b>{a.old_role}</b> to <b>{a.new_role}</b>
               </div>
@@ -1391,16 +1391,16 @@ export default function FlockAdminPage() {
         </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
+      <section style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12 }}>
         <h3 style={{ marginTop: 0 }}>Role Management</h3>
-        {!canAssignRoles ? <p style={{ color: "#666" }}>Only church admins can change roles.</p> : null}
+        {!canAssignRoles ? <p style={{ color: "#6b7280" }}>Only church admins can change roles.</p> : null}
 
         <div style={{ display: "grid", gap: 8 }}>
           {members.map((m) => (
-            <div key={m.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8, display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <div key={m.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 8, display: "flex", justifyContent: "space-between", gap: 8 }}>
               <div>
                 <div style={{ fontSize: 13, color: "#444" }}>user:{m.user_id.slice(0, 8)}...</div>
-                <div style={{ fontSize: 12, color: "#666" }}>{m.role}</div>
+                <div style={{ fontSize: 12, color: "#6b7280" }}>{m.role}</div>
               </div>
               <select
                 value={m.role}
