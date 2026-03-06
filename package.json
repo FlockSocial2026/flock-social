@@ -38,7 +38,8 @@
     "verify:step1055": "node scripts/step1055-report-bundle-brief-smoke.mjs",
     "verify:step1056": "node scripts/step1056-report-bundle-slack-smoke.mjs",
     "verify:step1057": "node scripts/step1057-report-bundle-discord-smoke.mjs",
-    "verify:step1058": "node scripts/step1058-report-bundle-telegram-smoke.mjs"
+    "verify:step1058": "node scripts/step1058-report-bundle-telegram-smoke.mjs",
+    "verify:step1059": "node scripts/step1059-report-bundle-email-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.96.0",
