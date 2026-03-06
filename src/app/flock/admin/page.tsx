@@ -208,6 +208,13 @@ type OpsReportBundleWebhookPayload = {
   payload: Record<string, unknown>;
 };
 
+type OpsReportBundlePlainPayload = {
+  generatedAt: string;
+  lines: string[];
+  text: string;
+  charCount: number;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -264,6 +271,7 @@ export default function FlockAdminPage() {
   const [opsReportBundleTelegram, setOpsReportBundleTelegram] = useState<OpsReportBundleTelegramPayload | null>(null);
   const [opsReportBundleEmail, setOpsReportBundleEmail] = useState<OpsReportBundleEmailPayload | null>(null);
   const [opsReportBundleWebhook, setOpsReportBundleWebhook] = useState<OpsReportBundleWebhookPayload | null>(null);
+  const [opsReportBundlePlain, setOpsReportBundlePlain] = useState<OpsReportBundlePlainPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -491,6 +499,13 @@ export default function FlockAdminPage() {
     setOpsReportBundleWebhook((json ?? null) as OpsReportBundleWebhookPayload | null);
   };
 
+  const loadOpsReportBundlePlain = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/plain", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundlePlain((json ?? null) as OpsReportBundlePlainPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -537,6 +552,7 @@ export default function FlockAdminPage() {
       await loadOpsReportBundleTelegram(t);
       await loadOpsReportBundleEmail(t);
       await loadOpsReportBundleWebhook(t);
+      await loadOpsReportBundlePlain(t);
     };
     boot();
   }, []);
@@ -581,6 +597,7 @@ export default function FlockAdminPage() {
     await loadOpsReportBundleTelegram(token);
     await loadOpsReportBundleEmail(token);
     await loadOpsReportBundleWebhook(token);
+    await loadOpsReportBundlePlain(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -1135,6 +1152,12 @@ export default function FlockAdminPage() {
                       <details style={{ marginTop: 8 }}>
                         <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show Webhook payload preview</summary>
                         <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{JSON.stringify(opsReportBundleWebhook, null, 2)}</pre>
+                      </details>
+                    ) : null}
+                    {opsReportBundlePlain ? (
+                      <details style={{ marginTop: 8 }}>
+                        <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show Plain-text payload preview ({opsReportBundlePlain.charCount} chars)</summary>
+                        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundlePlain.text}</pre>
                       </details>
                     ) : null}
                   </div>
