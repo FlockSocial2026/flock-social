@@ -108,12 +108,12 @@ function MessagesPageInner() {
   };
 
   return (
-    <main style={{ maxWidth: 1100, margin: "42px auto", fontFamily: "Arial, sans-serif", padding: "0 16px 32px" }}>
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 14, padding: 18, marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+    <main className="messages-shell">
+      <section className="card" style={{ padding: 18, marginBottom: 14 }}>
+        <div className="row-between">
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Messages</h1>
-            <p style={{ margin: 0, color: "#6b7280" }}>Live thread selection + send workflow + grouped quick templates (Step 936).</p>
+            <p className="small-muted" style={{ margin: 0 }}>Live thread selection + send workflow + grouped quick templates.</p>
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: unreadTotal > 0 ? "#92400e" : "#166534" }}>
@@ -125,24 +125,13 @@ function MessagesPageInner() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14 }}>
-        <aside style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 12, background: "#fff" }}>
+        <aside className="card" style={{ padding: 12 }}>
           <h3 style={{ marginTop: 0 }}>Conversation Threads</h3>
           <div style={{ display: "grid", gap: 8 }}>
             {threads.map((thread) => {
               const active = activeThread?.id === thread.id;
               return (
-                <button
-                  key={thread.id}
-                  onClick={() => openThread(thread.id)}
-                  style={{
-                    textAlign: "left",
-                    border: active ? "1px solid #111827" : "1px solid #eceff3",
-                    borderRadius: 10,
-                    padding: 10,
-                    background: active ? "#f9fafb" : "#fff",
-                    cursor: "pointer",
-                  }}
-                >
+                <button key={thread.id} onClick={() => openThread(thread.id)} className={`thread-button${active ? " active" : ""}`}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                     <strong>{thread.name}</strong>
                     <span style={{ color: "#6b7280", fontSize: 12 }}>{thread.lastAt}</span>
@@ -158,7 +147,7 @@ function MessagesPageInner() {
           </div>
         </aside>
 
-        <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, background: "#fff" }}>
+        <section className="card" style={{ padding: 14 }}>
           <h3 style={{ marginTop: 0 }}>{activeThread?.name ?? "Thread"}</h3>
           {sourceTag ? (
             <p style={{ marginTop: -6, marginBottom: 10, fontSize: 12, color: "#1d4ed8", fontWeight: 700 }}>{sourceTag}</p>
@@ -207,14 +196,7 @@ function MessagesPageInner() {
                       <button
                         key={template}
                         onClick={() => setDraft((prev) => (prev.trim() ? `${prev}\n\n${template}` : template))}
-                        style={{
-                          border: "1px solid #d1d5db",
-                          background: "#fff",
-                          borderRadius: 999,
-                          padding: "6px 10px",
-                          fontSize: 12,
-                          cursor: "pointer",
-                        }}
+                        className="chip-btn"
                       >
                         + {template.length > 26 ? `${template.slice(0, 26)}...` : template}
                       </button>
@@ -224,15 +206,15 @@ function MessagesPageInner() {
               ))}
             </div>
             <textarea
+              className="field"
               placeholder="Write a message..."
               rows={4}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              style={{ padding: 10, borderRadius: 8, border: "1px solid #d1d5db" }}
             />
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 12, color: "#6b7280" }}>{draft.length}/1000</span>
-              <button onClick={sendMessage} style={{ width: 140, padding: "8px 10px" }} disabled={draft.trim().length === 0}>
+            <div className="row-between">
+              <span className="small-muted">{draft.length}/1000</span>
+              <button className="btn-primary" onClick={sendMessage} style={{ width: 140 }} disabled={draft.trim().length === 0}>
                 Send
               </button>
             </div>

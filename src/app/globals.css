@@ -200,6 +200,35 @@ a:hover {
   width: 100%;
 }
 
+.messages-shell {
+  max-width: 1100px;
+  margin: 42px auto;
+  padding: 0 16px 32px;
+}
+
+.thread-button {
+  text-align: left;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.thread-button.active {
+  border-color: #0f172a;
+  background: #f8fafc;
+}
+
+.chip-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .badge-dark {
   font-size: 12px;
   font-weight: 700;
