@@ -46,6 +46,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  if (briefRes.status !== 200 && plainRes.status === 200) {
+    const firstSummary = Array.isArray(plainRes.json?.lines)
+      ? String((plainRes.json.lines as string[]).find((line) => line.startsWith("Summary:")) || "")
+      : "";
+    const fallbackBrief = firstSummary ? firstSummary.replace(/^Summary:\s*/, "") : "Ops update ready.";
+    briefRes = { status: 200, json: { brief: fallbackBrief, maxLen: fallbackBrief.length } };
+  }
+
   if (plainRes.status !== 200 || briefRes.status !== 200) {
     return NextResponse.json(
       { ok: false, error: "report_bundle_signal_unavailable", statuses: { plain: plainRes.status, brief: briefRes.status } },
