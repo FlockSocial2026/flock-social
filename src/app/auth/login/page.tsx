@@ -33,37 +33,40 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={{ maxWidth: 480, margin: "60px auto", fontFamily: "Arial, sans-serif", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 8 }}>Log In</h1>
-      <p style={{ marginBottom: 20, color: "#666" }}>
-        Use your email and password.
-      </p>
+    <main className="auth-shell">
+      <section className="card">
+        <h1 style={{ marginBottom: 8 }}>Log In</h1>
+        <p className="lead" style={{ marginBottom: 18 }}>
+          Use your email and password.
+        </p>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 10 }}
-      />
+        <input
+          className="field"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 12 }}
-      />
+        <input
+          className="field"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ marginBottom: 12 }}
+        />
 
-      <button onClick={handleLogin} style={{ padding: "10px 14px" }}>
-        Log In
-      </button>
+        <button className="btn-primary" onClick={handleLogin}>
+          Log In
+        </button>
 
-      <p style={{ marginTop: 12 }}>{msg}</p>
+        <p style={{ marginTop: 12 }}>{msg}</p>
 
-      <p style={{ marginTop: 20 }}>
-        Need an account? <Link href="/auth/signup">Sign up</Link>
-      </p>
+        <p style={{ marginTop: 20 }}>
+          Need an account? <Link href="/auth/signup">Sign up</Link>
+        </p>
+      </section>
     </main>
   );
 }

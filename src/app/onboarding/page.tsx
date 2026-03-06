@@ -141,20 +141,18 @@ export default function OnboardingPage() {
   };
 
   return (
-    <main style={{ maxWidth: 760, margin: "42px auto", fontFamily: "Arial, sans-serif", padding: "0 16px 24px" }}>
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 14, padding: 18, marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+    <main className="app-shell">
+      <section className="card" style={{ padding: 18, marginBottom: 14 }}>
+        <div className="row-between">
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Welcome to Flock Social</h1>
-            <p style={{ margin: 0, color: "#6b7280" }}>Complete your first-run setup to unlock the dashboard.</p>
+            <p className="small-muted" style={{ margin: 0 }}>Complete your first-run setup to unlock the dashboard.</p>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "8px 12px", background: "#111827", color: "#fff" }}>
-            STEP 909
-          </span>
+          <span className="badge-dark">STEP 909</span>
         </div>
       </section>
 
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 14, background: "#f8fafc" }}>
+      <section className="card" style={{ padding: 14, marginBottom: 14, background: "var(--surface-alt)" }}>
         <h3 style={{ marginTop: 0 }}>{rolePrompt.title}</h3>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           {rolePrompt.points.map((point) => (
@@ -163,35 +161,36 @@ export default function OnboardingPage() {
         </ul>
       </section>
 
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+      <section className="card" style={{ padding: 14, marginBottom: 14 }}>
         <h3 style={{ marginTop: 0 }}>First-Run Checklist</h3>
-        <p style={{ color: "#6b7280", marginTop: 0 }}>
+        <p className="small-muted" style={{ marginTop: 0 }}>
           {completedCount}/{checklist.length} complete
         </p>
         <div style={{ display: "grid", gap: 8 }}>
           {checklist.map((item) => (
-            <div key={item.label} style={{ display: "flex", justifyContent: "space-between", border: "1px solid #eceff3", borderRadius: 10, padding: 10 }}>
+            <div key={item.label} style={{ display: "flex", justifyContent: "space-between", border: "1px solid var(--border)", borderRadius: 10, padding: 10, background: "#fff" }}>
               <span>{item.label}</span>
-              <strong style={{ color: item.done ? "#166534" : "#92400e" }}>{item.done ? "Done" : "Pending"}</strong>
+              <strong className={item.done ? "status-ok" : "status-warn"}>{item.done ? "Done" : "Pending"}</strong>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+      <section className="card" style={{ padding: 14, marginBottom: 14 }}>
         <h3 style={{ marginTop: 0 }}>Profile Setup</h3>
         <input
+          className="field"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
         />
 
         <input
+          className="field"
           placeholder="Full name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 12 }}
+          style={{ marginBottom: 12 }}
         />
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -210,7 +209,7 @@ export default function OnboardingPage() {
         </label>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <button onClick={saveProfile} disabled={!requiredDone} style={{ padding: "10px 14px" }}>
+          <button className="btn-primary" onClick={saveProfile} disabled={!requiredDone}>
             Save and Continue
           </button>
           <Link href="/auth/login">Back to Login</Link>
