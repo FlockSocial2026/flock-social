@@ -243,9 +243,9 @@ export default function DiscoverPage() {
               key={item.key}
               onClick={() => setSortMode(item.key)}
               style={{
-                border: active ? "1px solid #1d4ed8" : "1px solid #d1d5db",
-                background: active ? "#eff6ff" : "#fff",
-                color: active ? "#1d4ed8" : "#111827",
+                border: active ? "1px solid #c78d2f" : "1px solid #d1d5db",
+                background: active ? "#fff4df" : "#fff",
+                color: active ? "#7a4d10" : "#111827",
                 borderRadius: 999,
                 padding: "6px 10px",
                 fontSize: 12,

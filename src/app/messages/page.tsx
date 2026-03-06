@@ -150,7 +150,7 @@ function MessagesPageInner() {
         <section className="card" style={{ padding: 14 }}>
           <h3 style={{ marginTop: 0 }}>{activeThread?.name ?? "Thread"}</h3>
           {sourceTag ? (
-            <p style={{ marginTop: -6, marginBottom: 10, fontSize: 12, color: "#1d4ed8", fontWeight: 700 }}>{sourceTag}</p>
+            <p style={{ marginTop: -6, marginBottom: 10, fontSize: 12, color: "#7a4d10", fontWeight: 700 }}>{sourceTag}</p>
           ) : null}
 
           <div

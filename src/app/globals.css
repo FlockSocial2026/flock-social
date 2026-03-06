@@ -7,8 +7,8 @@
   --foreground: #0f172a;
   --muted: #64748b;
   --border: #e2e8f0;
-  --primary: #2563eb;
-  --primary-strong: #1d4ed8;
+  --primary: #c78d2f;
+  --primary-strong: #a66c1a;
   --success: #16a34a;
   --warning: #b45309;
 
@@ -164,9 +164,9 @@ a:hover {
   align-items: center;
   gap: 6px;
   border-radius: 999px;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
-  background: #eff6ff;
+  border: 1px solid #f1d39a;
+  color: #7a4d10;
+  background: #fff4df;
   font-size: 12px;
   font-weight: 700;
   padding: 6px 10px;
@@ -229,14 +229,14 @@ a:hover {
 
 .field:focus {
   outline: none;
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #e5bd72;
+  box-shadow: 0 0 0 3px rgba(199, 141, 47, 0.2);
 }
 
 .btn-primary {
   border: 0;
   border-radius: var(--radius-sm);
-  background: linear-gradient(180deg, #3b82f6 0%, var(--primary) 100%);
+  background: linear-gradient(180deg, #d6a24b 0%, var(--primary) 100%);
   color: white;
   padding: 10px 14px;
   font-weight: 600;
@@ -245,7 +245,7 @@ a:hover {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg, #2563eb 0%, var(--primary-strong) 100%);
+  background: linear-gradient(180deg, #b57a27 0%, var(--primary-strong) 100%);
 }
 
 .btn-primary:disabled {
