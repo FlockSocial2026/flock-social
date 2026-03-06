@@ -33,45 +33,42 @@ export default function SignupPage() {
           <img className="auth-logo" src="/branding/fs-logo.jpg" alt="Flock Social logo" />
         </div>
 
-        <div style={{ textAlign: "center", marginBottom: 14 }}>
+        <div className="auth-heading">
           <span className="auth-eyebrow">Get started</span>
-          <h1 className="auth-title" style={{ color: "#f8ecd1", marginTop: 8 }}>Create your Flock Social account</h1>
-          <p className="auth-subtitle" style={{ color: "#d7dcea" }}>Join your church community, groups, and events in one place.</p>
+          <h1 className="auth-title splash">Create your Flock Social account</h1>
+          <p className="auth-subtitle splash">Join your church community, groups, and events in one place.</p>
         </div>
 
-        <label className="form-label" style={{ color: "#e2e8f0" }}>Email</label>
+        <label className="form-label splash">Email</label>
         <input
-          className="field"
+          className="field splash"
           type="email"
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{ background: "rgba(255,255,255,0.92)" }}
         />
 
-        <label className="form-label" style={{ color: "#e2e8f0" }}>Password</label>
+        <label className="form-label splash">Password</label>
         <input
-          className="field"
+          className="field splash"
           type="password"
           placeholder="At least 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ marginBottom: 12, background: "rgba(255,255,255,0.92)" }}
+          style={{ marginBottom: 12 }}
         />
 
         <button className="btn-primary" onClick={handleSignup} style={{ width: "100%" }}>
           Sign Up
         </button>
 
-        <p style={{ marginTop: 12, color: "#f8fafc" }}>{msg}</p>
+        <p className="auth-msg">{msg}</p>
 
-        <p style={{ marginTop: 20, color: "#d7dcea" }}>
+        <p className="auth-switch">
           Already have an account? <Link href="/auth/login">Log in</Link>
         </p>
 
-        <p className="auth-meta" style={{ color: "#b8c2d9", borderTopColor: "rgba(255,255,255,0.2)" }}>
-          By signing up, you agree to community conduct and profile visibility rules.
-        </p>
+        <p className="auth-meta splash">By signing up, you agree to community conduct and profile visibility rules.</p>
       </section>
     </main>
   );
