@@ -242,6 +242,14 @@ type OpsReportBundleIMessagePayload = {
   charCount: number;
 };
 
+type OpsReportBundleJsonPayload = {
+  generatedAt: string;
+  brief: string;
+  summaryLine: string;
+  posture: Record<string, unknown>;
+  bundle: Record<string, unknown>;
+};
+
 export default function FlockAdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -303,6 +311,7 @@ export default function FlockAdminPage() {
   const [opsReportBundleSms, setOpsReportBundleSms] = useState<OpsReportBundleSmsPayload | null>(null);
   const [opsReportBundleSignal, setOpsReportBundleSignal] = useState<OpsReportBundleSignalPayload | null>(null);
   const [opsReportBundleIMessage, setOpsReportBundleIMessage] = useState<OpsReportBundleIMessagePayload | null>(null);
+  const [opsReportBundleJson, setOpsReportBundleJson] = useState<OpsReportBundleJsonPayload | null>(null);
 
   const loadMembers = async (t: string) => {
     const res = await fetch("/api/flock/members?page=1&pageSize=100", { headers: { Authorization: `Bearer ${t}` } });
@@ -565,6 +574,13 @@ export default function FlockAdminPage() {
     setOpsReportBundleIMessage((json ?? null) as OpsReportBundleIMessagePayload | null);
   };
 
+  const loadOpsReportBundleJson = async (t: string) => {
+    const res = await fetch("/api/flock/ops-health/report-bundle/json", { headers: { Authorization: `Bearer ${t}` } });
+    if (!res.ok) return;
+    const json = await res.json();
+    setOpsReportBundleJson((json ?? null) as OpsReportBundleJsonPayload | null);
+  };
+
   useEffect(() => {
     const boot = async () => {
       const { data } = await supabase.auth.getSession();
@@ -616,6 +632,7 @@ export default function FlockAdminPage() {
       await loadOpsReportBundleSms(t);
       await loadOpsReportBundleSignal(t);
       await loadOpsReportBundleIMessage(t);
+      await loadOpsReportBundleJson(t);
     };
     boot();
   }, []);
@@ -665,6 +682,7 @@ export default function FlockAdminPage() {
     await loadOpsReportBundleSms(token);
     await loadOpsReportBundleSignal(token);
     await loadOpsReportBundleIMessage(token);
+    await loadOpsReportBundleJson(token);
     setMsg("Ops panels refreshed.");
   };
 
@@ -1249,6 +1267,12 @@ export default function FlockAdminPage() {
                       <details style={{ marginTop: 8 }}>
                         <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show iMessage payload preview ({opsReportBundleIMessage.charCount} chars)</summary>
                         <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{opsReportBundleIMessage.bubble}</pre>
+                      </details>
+                    ) : null}
+                    {opsReportBundleJson ? (
+                      <details style={{ marginTop: 8 }}>
+                        <summary style={{ cursor: "pointer", fontSize: 12, color: "#374151" }}>Show Canonical JSON payload preview</summary>
+                        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, color: "#111827" }}>{JSON.stringify(opsReportBundleJson, null, 2)}</pre>
                       </details>
                     ) : null}
                   </div>
