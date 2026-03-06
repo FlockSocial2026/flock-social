@@ -35,11 +35,11 @@ export default function HomePage() {
         style={{
           padding: 26,
           marginBottom: 18,
-          backgroundImage: "linear-gradient(rgba(10,12,18,0.55), rgba(10,12,18,0.72)), url('/branding/home-hero.jpg')",
+          backgroundImage: "linear-gradient(rgba(8,10,16,0.42), rgba(8,10,16,0.62)), url('/branding/home-hero.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          borderColor: "rgba(255,206,132,0.45)",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+          borderColor: "rgba(255,206,132,0.42)",
+          boxShadow: "0 24px 58px rgba(0,0,0,0.30)",
         }}
       >
         <div className="row-between" style={{ alignItems: "flex-start" }}>
@@ -91,38 +91,38 @@ export default function HomePage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
-        <div className="card" style={{ padding: 16 }}>
-          <h3 style={{ marginTop: 0 }}>Live Now</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
+        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+          <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Live Now</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             {liveFeatures.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
 
-        <div className="card" style={{ padding: 16 }}>
-          <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
+        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+          <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Next Visible Ship Targets</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             {nextBuildItems.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
 
-        <div className="card" style={{ padding: 16 }}>
-          <h3 style={{ marginTop: 0 }}>Where to check progress</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
+        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+          <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Where to check progress</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             <li>
-              <Link href="/dashboard">Dashboard</Link> (after login)
+              <Link href="/dashboard" style={{ color: "#f6d69a" }}>Dashboard</Link> (after login)
             </li>
             <li>
-              <Link href="/flock">Flock</Link> (church connect + announcements/events)
+              <Link href="/flock" style={{ color: "#f6d69a" }}>Flock</Link> (church connect + announcements/events)
             </li>
             <li>
-              <Link href="/flock/admin">Flock Admin</Link> (role-based)
+              <Link href="/flock/admin" style={{ color: "#f6d69a" }}>Flock Admin</Link> (role-based)
             </li>
             <li>
-              <Link href="/events">Events</Link>, <Link href="/messages">Messages</Link>, and <Link href="/prayer">Prayer</Link>
+              <Link href="/events" style={{ color: "#f6d69a" }}>Events</Link>, <Link href="/messages" style={{ color: "#f6d69a" }}>Messages</Link>, and <Link href="/prayer" style={{ color: "#f6d69a" }}>Prayer</Link>
             </li>
           </ul>
         </div>
