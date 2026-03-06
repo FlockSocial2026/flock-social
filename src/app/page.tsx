@@ -18,7 +18,7 @@ const liveFeatures = [
   "Cron-backed reminder and snapshot automation endpoints",
 ];
 
-const BUILD_STAMP = "2026-02-25T18:40-EST";
+const BUILD_STAMP = "2026-03-06T12:47-EST";
 
 const nextBuildItems = [
   "Messages live data + send flow",
@@ -29,51 +29,23 @@ const nextBuildItems = [
 
 export default function HomePage() {
   return (
-    <main style={{ maxWidth: 980, margin: "42px auto", fontFamily: "Arial, sans-serif", padding: "0 16px 40px" }}>
-      <section
-        style={{
-          border: "1px solid #e5e7eb",
-          borderRadius: 14,
-          padding: 20,
-          marginBottom: 18,
-          background: "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+    <main className="app-shell" style={{ maxWidth: 980, paddingBottom: 40 }}>
+      <section className="card" style={{ padding: 22, marginBottom: 18, background: "linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)" }}>
+        <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ margin: "0 0 8px" }}>Flock Social</h1>
-            <p style={{ margin: 0, color: "#4b5563", maxWidth: 700 }}>
+            <span className="auth-eyebrow" style={{ marginBottom: 10 }}>Live Product Preview</span>
+            <h1 style={{ margin: "0 0 8px", fontSize: "clamp(1.8rem, 3vw, 2.3rem)" }}>Flock Social</h1>
+            <p className="small-muted" style={{ margin: 0, maxWidth: 700, fontSize: 15 }}>
               Faith-centered community platform for churches: community feed, prayer, groups, events, and church operations.
             </p>
           </div>
-          <span
-            style={{
-              background: "#111827",
-              color: "white",
-              fontSize: 12,
-              borderRadius: 999,
-              padding: "8px 12px",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
-            title={`build ${BUILD_STAMP}`}
-          >
-            Build status: Steps 1000-1025 complete
+          <span className="badge-dark" title={`build ${BUILD_STAMP}`}>
+            Build status: Steps 1068-1069 design pass complete
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap" }}>
-          <Link
-            href="/auth/login"
-            style={{
-              padding: "10px 14px",
-              border: "1px solid #111827",
-              borderRadius: 8,
-              textDecoration: "none",
-              background: "#111827",
-              color: "white",
-            }}
-          >
+        <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+          <Link href="/auth/login" className="btn-primary" style={{ textDecoration: "none" }}>
             Log In
           </Link>
 
@@ -81,10 +53,11 @@ export default function HomePage() {
             href="/auth/signup"
             style={{
               padding: "10px 14px",
-              border: "1px solid #d1d5db",
-              borderRadius: 8,
+              border: "1px solid var(--border)",
+              borderRadius: 10,
               textDecoration: "none",
-              color: "#111827",
+              color: "#0f172a",
+              background: "#fff",
             }}
           >
             Sign Up
@@ -94,10 +67,11 @@ export default function HomePage() {
             href="/discover"
             style={{
               padding: "10px 14px",
-              border: "1px solid #d1d5db",
-              borderRadius: 8,
+              border: "1px solid var(--border)",
+              borderRadius: 10,
               textDecoration: "none",
-              color: "#111827",
+              color: "#0f172a",
+              background: "#fff",
             }}
           >
             Explore Discover
@@ -106,27 +80,27 @@ export default function HomePage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+        <div className="card" style={{ padding: 16 }}>
           <h3 style={{ marginTop: 0 }}>Live Now</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
             {liveFeatures.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
 
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+        <div className="card" style={{ padding: 16 }}>
           <h3 style={{ marginTop: 0 }}>Next Visible Ship Targets</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
             {nextBuildItems.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
 
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+        <div className="card" style={{ padding: 16 }}>
           <h3 style={{ marginTop: 0 }}>Where to check progress</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.5 }}>
+          <ul style={{ margin: 0, paddingLeft: 18, color: "#1f2937", lineHeight: 1.6 }}>
             <li>
               <Link href="/dashboard">Dashboard</Link> (after login)
             </li>
