@@ -283,11 +283,12 @@ a:hover {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(252, 253, 255, 0.9) 100%);
-  border: 1px solid rgba(185, 199, 226, 0.48);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(246, 250, 255, 0.52) 100%);
+  border: 1px solid rgba(191, 205, 231, 0.44);
   border-radius: var(--radius-md);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 16px;
   transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-med);
 }
@@ -298,9 +299,11 @@ a:hover {
 }
 
 .card-premium {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.88) 0%, rgba(247, 250, 255, 0.8) 100%);
-  border: 1px solid rgba(200, 180, 140, 0.34);
-  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.11);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.48) 0%, rgba(247, 250, 255, 0.4) 100%);
+  border: 1px solid rgba(210, 188, 145, 0.34);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.13);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .card-premium-dark {
@@ -412,11 +415,14 @@ a:hover {
 
 .feed-header-card {
   background:
-    radial-gradient(circle at 15% 5%, rgba(246, 214, 154, 0.1), transparent 40%),
-    linear-gradient(180deg, rgba(18, 28, 49, 0.92) 0%, rgba(13, 20, 36, 0.95) 100%);
-  border: 1px solid rgba(132, 160, 216, 0.28);
+    radial-gradient(circle at 14% 0%, rgba(246, 214, 154, 0.24), transparent 38%),
+    radial-gradient(circle at 85% 12%, rgba(255, 188, 96, 0.14), transparent 44%),
+    linear-gradient(180deg, rgba(19, 28, 49, 0.64) 0%, rgba(13, 20, 36, 0.68) 100%);
+  border: 1px solid rgba(234, 183, 103, 0.34);
   border-radius: 18px;
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 226, 176, 0.22);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
   padding: 14px;
   margin-bottom: 14px;
 }
@@ -446,13 +452,16 @@ a:hover {
 
 .feed-post {
   background:
-    radial-gradient(circle at 85% 0%, rgba(246, 214, 154, 0.08), transparent 34%),
-    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.014) 0px, rgba(255, 255, 255, 0.014) 2px, transparent 2px, transparent 8px),
-    linear-gradient(170deg, rgba(24, 33, 53, 0.94) 0%, rgba(15, 22, 38, 0.94) 100%);
-  border: 1px solid rgba(124, 149, 214, 0.25);
+    radial-gradient(circle at 82% -10%, rgba(246, 214, 154, 0.22), transparent 36%),
+    radial-gradient(circle at 12% 0%, rgba(255, 185, 88, 0.1), transparent 44%),
+    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.016) 0px, rgba(255, 255, 255, 0.016) 2px, transparent 2px, transparent 8px),
+    linear-gradient(170deg, rgba(24, 33, 53, 0.62) 0%, rgba(15, 22, 38, 0.66) 100%);
+  border: 1px solid rgba(230, 180, 102, 0.28);
   border-radius: 14px;
   padding: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 229, 184, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .feed-post .meta,
@@ -487,11 +496,13 @@ a:hover {
 
 .section-carbon {
   background:
-    radial-gradient(circle at 80% -10%, rgba(246, 214, 154, 0.08), transparent 42%),
-    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.012) 0px, rgba(255, 255, 255, 0.012) 2px, transparent 2px, transparent 8px),
-    linear-gradient(165deg, rgba(24, 33, 53, 0.92) 0%, rgba(14, 20, 34, 0.95) 100%);
-  border: 1px solid rgba(130, 151, 192, 0.28);
+    radial-gradient(circle at 80% -10%, rgba(246, 214, 154, 0.14), transparent 42%),
+    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.014) 0px, rgba(255, 255, 255, 0.014) 2px, transparent 2px, transparent 8px),
+    linear-gradient(165deg, rgba(24, 33, 53, 0.68) 0%, rgba(14, 20, 34, 0.74) 100%);
+  border: 1px solid rgba(156, 175, 212, 0.32);
   border-radius: var(--radius-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .thread-button {
@@ -519,12 +530,14 @@ a:hover {
 
 .panel-dark {
   background:
-    radial-gradient(circle at 10% 0%, rgba(246, 214, 154, 0.09), transparent 38%),
-    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.014) 0px, rgba(255, 255, 255, 0.014) 2px, transparent 2px, transparent 8px),
-    linear-gradient(165deg, rgba(22, 29, 46, 0.9) 0%, rgba(12, 17, 30, 0.9) 100%);
-  border: 1px solid rgba(133, 153, 193, 0.28);
+    radial-gradient(circle at 10% 0%, rgba(246, 214, 154, 0.13), transparent 38%),
+    repeating-linear-gradient(145deg, rgba(255, 255, 255, 0.018) 0px, rgba(255, 255, 255, 0.018) 2px, transparent 2px, transparent 8px),
+    linear-gradient(165deg, rgba(22, 29, 46, 0.72) 0%, rgba(12, 17, 30, 0.74) 100%);
+  border: 1px solid rgba(150, 170, 212, 0.32);
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.26);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .empty-state {
