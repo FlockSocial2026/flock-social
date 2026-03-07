@@ -224,6 +224,13 @@ export default function FeedPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedMode, visibleCount]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const prefill = decodeURIComponent(url.searchParams.get("prefill") ?? "");
+    if (prefill) setContent(prefill);
+  }, []);
+
   const uploadPostImage = async (userId: string): Promise<string | null> => {
     if (!selectedImage) return null;
 
