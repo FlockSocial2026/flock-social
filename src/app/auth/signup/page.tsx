@@ -68,6 +68,10 @@ export default function SignupPage() {
           Already have an account? <Link href="/auth/login">Log in</Link>
         </p>
 
+        <p className="auth-switch" style={{ marginTop: 8 }}>
+          Are you a Pastor? <Link href="/pastor/login">Use Congregation login</Link>
+        </p>
+
         <p className="auth-meta splash">By signing up, you agree to community conduct and profile visibility rules.</p>
       </section>
     </main>

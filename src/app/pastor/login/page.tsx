@@ -1,55 +1,45 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { track } from "@/lib/analytics";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function PastorLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
-    setMsg("Signing in...");
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error || !data.user) {
-      setMsg(`Login error: ${error?.message || "Unable to sign in"}`);
+    setMsg("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setMsg(`Login error: ${error.message}`);
       return;
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id,username")
-      .eq("id", data.user.id)
-      .maybeSingle();
-
-    track("login_success", { hasUsername: Boolean(profile?.username) });
-    setMsg("Signed in successfully. Redirecting...");
-    router.push(profile?.username ? "/dashboard" : "/onboarding");
+    setMsg("Logged in. Redirecting to Congregation dashboard...");
+    router.push("/pastor/dashboard");
   };
 
   return (
     <main className="auth-splash">
       <section className="auth-splash-panel">
         <div className="auth-logo-wrap">
-          <img className="auth-logo" src="/branding/fs-logo.jpg" alt="Flock Social logo" />
+          <img className="auth-logo" src="/branding/fs-logo.jpg" alt="Congregation logo" />
         </div>
 
         <div className="auth-heading">
-          <span className="auth-eyebrow">Welcome back</span>
-          <h1 className="auth-title splash">Log in to Flock Social</h1>
-          <p className="auth-subtitle splash">Continue your community conversations, prayer updates, and church activity feed.</p>
+          <span className="auth-eyebrow">Pastor Access</span>
+          <h1 className="auth-title splash">Congregation</h1>
+          <p className="auth-subtitle splash">Lead your church family: announcements, events, and direct congregation messaging.</p>
         </div>
 
         <label className="form-label splash">Email</label>
         <input
           className="field splash"
           type="email"
-          placeholder="you@example.com"
+          placeholder="pastor@church.org"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -65,20 +55,18 @@ export default function LoginPage() {
         />
 
         <button className="btn-primary" onClick={handleLogin} style={{ width: "100%" }}>
-          Log In
+          Enter Congregation Portal
         </button>
 
         <p className="auth-msg">{msg}</p>
 
         <p className="auth-switch">
-          Need an account? <Link href="/auth/signup">Sign up</Link>
+          Need a pastor account? <Link href="/auth/signup">Sign up</Link>
         </p>
 
         <p className="auth-switch" style={{ marginTop: 8 }}>
-          Are you a Pastor? <Link href="/pastor/login">Enter Congregation portal</Link>
+          Not a pastor? <Link href="/auth/login">Return to member login</Link>
         </p>
-
-        <p className="auth-meta splash">Secure authentication powered by Supabase.</p>
       </section>
     </main>
   );
