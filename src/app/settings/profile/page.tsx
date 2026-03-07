@@ -38,6 +38,18 @@ export default function ProfileSettingsPage() {
 
   const profileLink = useMemo(() => (username.trim() ? `/u/${encodeURIComponent(username.trim())}` : null), [username]);
 
+  const completion = useMemo(() => {
+    const checks = [
+      username.trim().length >= 3,
+      fullName.trim().length > 0,
+      avatarUrl.trim().length > 0,
+      bio.trim().length > 0,
+      churchLabel !== "No church connected",
+    ];
+    const done = checks.filter(Boolean).length;
+    return { done, total: checks.length, pct: Math.round((done / checks.length) * 100) };
+  }, [username, fullName, avatarUrl, bio, churchLabel]);
+
   const load = async () => {
     const { data: userData } = await supabase.auth.getUser();
     const user = userData.user;
@@ -187,6 +199,19 @@ export default function ProfileSettingsPage() {
         <div className="row-between" style={{ marginBottom: 12 }}>
           <h1 style={{ margin: 0 }}>Profile Settings</h1>
           <Link href="/dashboard">Back to Dashboard</Link>
+        </div>
+
+        <div className="card card-premium" style={{ marginBottom: 12 }}>
+          <div className="row-between" style={{ marginBottom: 8 }}>
+            <strong>Profile completeness</strong>
+            <span className="small-muted">{completion.pct}%</span>
+          </div>
+          <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.24)", overflow: "hidden" }}>
+            <div style={{ width: `${completion.pct}%`, height: "100%", background: "linear-gradient(90deg, rgba(229,180,93,0.95), rgba(247,216,152,0.95))" }} />
+          </div>
+          <p className="small-muted" style={{ margin: "8px 0 0" }}>
+            Complete {completion.done}/{completion.total}: avatar, bio, church connection, and identity basics.
+          </p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: 12, alignItems: "center", marginBottom: 12 }}>

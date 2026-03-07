@@ -42,8 +42,13 @@ export default function PublicProfilePage() {
     if (!profile) return false;
     if (!viewerId || viewerId === profile.id) return false;
     if (profile.allow_direct_contact === false) return false;
+
+    const visibility = (profile.profile_visibility as "public" | "followers" | "private" | undefined) ?? "public";
+    if (visibility === "private") return false;
+    if (visibility === "followers" && !isFollowing) return false;
+
     return true;
-  }, [profile, viewerId]);
+  }, [profile, viewerId, isFollowing]);
 
   const load = async () => {
     const uname = decodeURIComponent(params.username || "").trim();
@@ -89,13 +94,20 @@ export default function PublicProfilePage() {
     ]);
 
     if (postErr) return setMsg(`Posts load error: ${postErr.message}`);
-    setPosts((postData ?? []) as Post[]);
 
     const followerIds = Array.from(new Set((followerRows ?? []).map((r: any) => r.follower_id)));
     const followingIds = Array.from(new Set((followingRows ?? []).map((r: any) => r.following_id)));
 
-    if (viewerData.user?.id) {
-      setIsFollowing(followerIds.includes(viewerData.user.id));
+    const viewerIsOwner = viewerData.user?.id === p.id;
+    const viewerFollows = viewerData.user?.id ? followerIds.includes(viewerData.user.id) : false;
+    setIsFollowing(viewerFollows);
+
+    if (visibility === "followers" && !viewerIsOwner && !viewerFollows) {
+      setPosts([]);
+      setMsg("This profile is limited to followers.");
+    } else {
+      setPosts((postData ?? []) as Post[]);
+      if (!msg) setMsg("");
     }
 
     const allIds = Array.from(new Set([...followerIds, ...followingIds]));
