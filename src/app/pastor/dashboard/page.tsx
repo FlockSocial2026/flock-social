@@ -16,20 +16,23 @@ export default function PastorDashboardPage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Announcements</h3>
-          <p className="small-muted">Publish updates and weekly direction to your church family.</p>
-          <Link href="/flock/admin">Open Admin Announcements</Link>
+        <div className="card glass-card" style={{ color: "#f8fafc" }}>
+          <div className="icon-glass">📣</div>
+          <h3 style={{ marginTop: 8 }}>Announcements</h3>
+          <p className="small-muted" style={{ color: "#d7dcea" }}>Publish updates and weekly direction to your church family.</p>
+          <Link className="btn-glass" href="/flock/admin" style={{ display: "inline-block", textDecoration: "none" }}>Open Admin Announcements</Link>
         </div>
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Events</h3>
-          <p className="small-muted">Create and manage congregation events with RSVP tracking.</p>
-          <Link href="/events">Open Events</Link>
+        <div className="card glass-card" style={{ color: "#f8fafc" }}>
+          <div className="icon-glass">📅</div>
+          <h3 style={{ marginTop: 8 }}>Events</h3>
+          <p className="small-muted" style={{ color: "#d7dcea" }}>Create and manage congregation events with RSVP tracking.</p>
+          <Link className="btn-glass" href="/events" style={{ display: "inline-block", textDecoration: "none" }}>Open Events</Link>
         </div>
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Messages</h3>
-          <p className="small-muted">Send role-aware follow-ups and direct congregation communication.</p>
-          <Link href="/messages">Open Messages</Link>
+        <div className="card glass-card" style={{ color: "#f8fafc" }}>
+          <div className="icon-glass">💬</div>
+          <h3 style={{ marginTop: 8 }}>Messages</h3>
+          <p className="small-muted" style={{ color: "#d7dcea" }}>Send role-aware follow-ups and direct congregation communication.</p>
+          <Link className="btn-glass" href="/messages" style={{ display: "inline-block", textDecoration: "none" }}>Open Messages</Link>
         </div>
       </section>
     </main>

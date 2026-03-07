@@ -24,15 +24,20 @@ export default function PastorLoginPage() {
 
   return (
     <main className="auth-splash">
-      <section className="auth-splash-panel">
+      <section className="auth-splash-panel glass-card">
         <div className="auth-logo-wrap">
           <img className="auth-logo" src="/branding/fs-logo.jpg" alt="Congregation logo" />
         </div>
 
         <div className="auth-heading">
           <span className="auth-eyebrow">Pastor Access</span>
-          <h1 className="auth-title splash">Congregation</h1>
+          <h1 className="pastor-title">Congregation</h1>
           <p className="auth-subtitle splash">Lead your church family: announcements, events, and direct congregation messaging.</p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 8 }}>
+            <span className="icon-glass">📣</span>
+            <span className="icon-glass">📅</span>
+            <span className="icon-glass">💬</span>
+          </div>
         </div>
 
         <label className="form-label splash">Email</label>
@@ -54,7 +59,7 @@ export default function PastorLoginPage() {
           style={{ marginBottom: 12 }}
         />
 
-        <button className="btn-primary" onClick={handleLogin} style={{ width: "100%" }}>
+        <button className="btn-glass-gold" onClick={handleLogin} style={{ width: "100%" }}>
           Enter Congregation Portal
         </button>
 
