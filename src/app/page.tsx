@@ -44,7 +44,7 @@ export default function HomePage() {
       >
         <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div>
-            <span className="auth-eyebrow" style={{ marginBottom: 10 }}>Live Product Preview</span>
+            <span className="premium-pill" style={{ marginBottom: 10 }}>Live Product Preview</span>
             <h1 style={{ margin: "0 0 8px", fontSize: "clamp(2rem, 3vw, 2.6rem)", color: "#f8ecd1" }}>Flock Social</h1>
             <p style={{ margin: 0, maxWidth: 700, fontSize: 16, color: "#e2e8f0" }}>
               Faith-centered community platform for churches: community feed, prayer, groups, events, and church operations.

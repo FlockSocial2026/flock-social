@@ -61,6 +61,15 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+h1 {
+  font-weight: 760;
+}
+
+h2,
+h3 {
+  font-weight: 680;
+}
+
 a {
   color: var(--primary);
   text-decoration: none;
@@ -70,6 +79,12 @@ a {
 a:hover {
   color: var(--primary-strong);
   text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(199, 141, 47, 0.55);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .app-shell {
@@ -280,6 +295,18 @@ a:hover {
   box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
 }
 
+.card-premium {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.88) 0%, rgba(247, 250, 255, 0.8) 100%);
+  border: 1px solid rgba(200, 180, 140, 0.34);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.11);
+}
+
+.card-premium-dark {
+  background: linear-gradient(180deg, rgba(14, 19, 34, 0.78) 0%, rgba(11, 16, 28, 0.84) 100%);
+  border: 1px solid rgba(246, 214, 154, 0.25);
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.3);
+}
+
 .card + .card {
   margin-top: 12px;
 }
@@ -475,6 +502,19 @@ a:hover {
   padding: 12px;
   color: var(--muted);
   background: var(--surface-alt);
+}
+
+.premium-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a4d10;
+  background: linear-gradient(180deg, rgba(255, 243, 214, 0.95) 0%, rgba(247, 219, 167, 0.92) 100%);
+  border: 1px solid rgba(218, 170, 89, 0.45);
 }
 
 @media (max-width: 768px) {
