@@ -180,7 +180,7 @@ export default function DiscoverPage() {
   const authorUsername = (userId: string) => profileMap.get(userId)?.username ?? null;
 
   return (
-    <main className="app-shell" style={{ maxWidth: 900 }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 900 }}>
       <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div>
           <h1 style={{ marginBottom: 6 }}>Discover</h1>

@@ -198,7 +198,7 @@ function EventsPageInner() {
   };
 
   return (
-    <main className="app-shell" style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px" }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px" }}>
       <section className="card card-premium" style={{ padding: 14, marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div>

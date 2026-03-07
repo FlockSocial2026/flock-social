@@ -108,7 +108,7 @@ function MessagesPageInner() {
   };
 
   return (
-    <main className="messages-shell">
+    <main className="messages-shell section-carbon">
       <section className="card" style={{ padding: 18, marginBottom: 14 }}>
         <div className="row-between">
           <div>

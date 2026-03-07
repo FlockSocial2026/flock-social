@@ -99,7 +99,7 @@ export default function FlockPage() {
   };
 
   return (
-    <main className="app-shell" style={{ maxWidth: 760 }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 760 }}>
       <section className="card" style={{ marginBottom: 12 }}>
         <div className="row-between" style={{ marginBottom: 8 }}>
           <h1 style={{ margin: 0 }}>Flock</h1>

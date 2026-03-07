@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PrayerPage() {
   return (
-    <main className="app-shell" style={{ maxWidth: 720 }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 720 }}>
       <section className="card">
         <div className="row-between" style={{ marginBottom: 8 }}>
           <h1 style={{ margin: 0 }}>Prayer</h1>

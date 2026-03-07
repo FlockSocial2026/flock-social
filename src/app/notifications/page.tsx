@@ -171,7 +171,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <main className="app-shell" style={{ maxWidth: 760 }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 760 }}>
       <section className="card">
         <div className="row-between" style={{ marginBottom: 12 }}>
           <h1 style={{ margin: 0 }}>Notifications</h1>

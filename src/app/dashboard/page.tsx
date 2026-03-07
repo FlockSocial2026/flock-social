@@ -183,7 +183,7 @@ export default function DashboardPage() {
   } as const;
 
   return (
-    <main className="app-shell" style={{ maxWidth: 980, paddingBottom: 32 }}>
+    <main className="app-shell section-carbon" style={{ maxWidth: 980, paddingBottom: 32 }}>
       <section
         style={{
           border: "1px solid rgba(255,206,132,0.35)",
