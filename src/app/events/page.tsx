@@ -198,15 +198,15 @@ function EventsPageInner() {
   };
 
   return (
-    <main style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px", fontFamily: "Arial, sans-serif" }}>
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, marginBottom: 12 }}>
+    <main className="app-shell" style={{ maxWidth: 920, margin: "24px auto", padding: "0 12px" }}>
+      <section className="card card-premium" style={{ padding: 14, marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div>
             <h1 style={{ margin: "0 0 6px" }}>Events</h1>
             <p style={{ margin: 0, color: "#6b7280" }}>Church event stream + RSVP workflow with attendance signals.</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 10px", background: "#111827", color: "#fff" }}>
+            <span className="premium-pill">
               STEP 924
             </span>
             <Link href="/dashboard">Back to Dashboard</Link>
@@ -214,7 +214,7 @@ function EventsPageInner() {
         </div>
       </section>
 
-      <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 12, marginBottom: 12 }}>
+      <section className="card card-premium" style={{ padding: 12, marginBottom: 12 }}>
         <p style={{ margin: 0, color: "#374151" }}>
           <strong>{events.length}</strong> total events • <strong>{upcomingCount}</strong> upcoming
         </p>
@@ -225,15 +225,8 @@ function EventsPageInner() {
               <button
                 key={mode}
                 onClick={() => setFilterMode(mode)}
-                style={{
-                  border: active ? "1px solid #111827" : "1px solid #d1d5db",
-                  background: active ? "#111827" : "#fff",
-                  color: active ? "#fff" : "#111827",
-                  borderRadius: 999,
-                  padding: "6px 10px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
+                className={active ? "btn-primary" : "btn-secondary"}
+                style={{ borderRadius: 999, padding: "6px 10px", fontSize: 12 }}
               >
                 {mode.split("_").join(" ")}
               </button>
@@ -249,15 +242,8 @@ function EventsPageInner() {
               <button
                 key={item.key}
                 onClick={() => setSortMode(item.key)}
-                style={{
-                  border: active ? "1px solid #c78d2f" : "1px solid #d1d5db",
-                  background: active ? "#fff4df" : "#fff",
-                  color: active ? "#7a4d10" : "#111827",
-                  borderRadius: 999,
-                  padding: "6px 10px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
+                className={active ? "btn-glass-gold" : "btn-secondary"}
+                style={{ borderRadius: 999, padding: "6px 10px", fontSize: 12 }}
               >
                 {item.label}
               </button>
@@ -265,14 +251,15 @@ function EventsPageInner() {
           })}
         </div>
         <div style={{ marginTop: 8 }}>
-          <button onClick={exportVisibleEventsCsv}>Export Current View CSV</button>
+          <button className="btn-secondary" onClick={exportVisibleEventsCsv}>Export Current View CSV</button>
         </div>
         {msg ? <p style={{ marginBottom: 0 }}>{msg}</p> : null}
       </section>
 
       <section style={{ display: "grid", gap: 10 }}>
         {sortedEvents.length === 0 ? (
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14, color: "#6b7280" }}>
+          <div className="card card-premium" style={{ padding: 14, color: "#5b6474", textAlign: "center" }}>
+            <div style={{ marginBottom: 8 }}><span className="icon-glass">📅</span></div>
             No events in this view yet. Church staff can publish events from Flock Admin.
           </div>
         ) : (
@@ -281,7 +268,7 @@ function EventsPageInner() {
             const isBusy = busyEventId === event.id;
 
             return (
-              <article key={event.id} style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 14 }}>
+              <article key={event.id} className="card card-premium" style={{ padding: 14 }}>
                 <h3 style={{ marginTop: 0, marginBottom: 8 }}>{event.title}</h3>
                 <p style={{ margin: "0 0 6px", color: "#374151" }}>
                   {new Date(event.starts_at).toLocaleString()}
@@ -298,14 +285,8 @@ function EventsPageInner() {
                         key={option}
                         onClick={() => submitRsvp(event.id, option)}
                         disabled={isBusy}
-                        style={{
-                          padding: "7px 10px",
-                          borderRadius: 999,
-                          border: active ? "1px solid #111827" : "1px solid #d1d5db",
-                          background: active ? "#111827" : "#fff",
-                          color: active ? "#fff" : "#111827",
-                          cursor: "pointer",
-                        }}
+                        className={active ? "btn-primary" : "btn-secondary"}
+                        style={{ padding: "7px 10px", borderRadius: 999 }}
                       >
                         {option.replace("_", " ")}
                       </button>
