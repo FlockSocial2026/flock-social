@@ -91,7 +91,7 @@ export default function HomePage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
-        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+        <div className="card panel-dark" style={{ padding: 16, borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
           <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Live Now</h3>
           <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             {liveFeatures.map((item) => (
@@ -100,7 +100,7 @@ export default function HomePage() {
           </ul>
         </div>
 
-        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+        <div className="card panel-dark" style={{ padding: 16, borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
           <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Next Visible Ship Targets</h3>
           <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             {nextBuildItems.map((item) => (
@@ -109,7 +109,7 @@ export default function HomePage() {
           </ul>
         </div>
 
-        <div className="card" style={{ padding: 16, background: "rgba(10,14,24,0.82)", borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
+        <div className="card panel-dark" style={{ padding: 16, borderColor: "rgba(133,153,193,0.28)", backdropFilter: "blur(1px)" }}>
           <h3 style={{ marginTop: 0, color: "#f8fafc" }}>Where to check progress</h3>
           <ul style={{ margin: 0, paddingLeft: 18, color: "#d8e0f2", lineHeight: 1.6 }}>
             <li>

@@ -175,10 +175,11 @@ export default function DashboardPage() {
   };
 
   const cardStyle = {
-    border: "1px solid var(--border)",
+    border: "1px solid rgba(133, 153, 193, 0.28)",
     borderRadius: 12,
     padding: 14,
-    background: "rgba(10,14,24,0.82)",
+    background:
+      "radial-gradient(circle at 80% -10%, rgba(246,214,154,0.08), transparent 42%), repeating-linear-gradient(145deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 2px, transparent 2px, transparent 8px), linear-gradient(165deg, rgba(24,33,53,0.92) 0%, rgba(14,20,34,0.95) 100%)",
   } as const;
 
   return (
@@ -189,7 +190,8 @@ export default function DashboardPage() {
           borderRadius: 14,
           padding: 18,
           marginBottom: 14,
-          background: "linear-gradient(180deg, rgba(10,14,24,0.86) 0%, rgba(12,19,34,0.9) 100%)",
+          background:
+            "radial-gradient(circle at 12% 0%, rgba(246,214,154,0.09), transparent 38%), repeating-linear-gradient(145deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 2px, transparent 2px, transparent 8px), linear-gradient(170deg, rgba(21,28,45,0.94) 0%, rgba(11,17,30,0.95) 100%)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
